@@ -1,0 +1,19 @@
+# 인증키 (절대 올리지 않기)
+api_keys.txt
+.env
+
+# 데이터 (원본은 팀 드라이브에 보관)
+data/raw/*
+!data/raw/.gitkeep
+data/interim/
+*.xlsx
+*.zip
+
+# 파이썬 · 주피터
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+
+# 기타
+.DS_Store
+chromedriver*
