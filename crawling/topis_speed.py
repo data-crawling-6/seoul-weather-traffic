@@ -53,7 +53,8 @@ EXPECTED_HEAD = ["일자", "요일", "도로명", "링크아이디", "시점명"
                  "방향", "거리", "차선수", "기능유형구분", "도심/외곽구분", "권역구분"]
 N_COLS = 12 + 24  # 정보 12열 + 시간별 속도 24열
 
-# 노션 '데이터 · 연구 기간' 기준 (겨울 11~2월, 여름 6~8월)
+# 연구 기간 (11/20 확정): 겨울 11/27~3/10, 여름 5/9~9/23
+# 평소값용으로 기간 앞 4주도 필요 -> 여름은 4월 파일까지 받음 (겨울 4주 전 10/30은 11월로 충분)
 ALL_SEASONS = ["winter-2022", "winter-2023", "winter-2024", "winter-2025",
                "summer-2023", "summer-2024", "summer-2025", "summer-2026"]
 
@@ -78,9 +79,9 @@ def season_months(season):
     kind, year = season.split("-")
     y = int(year)
     if kind == "winter":
-        return [(y, 11), (y, 12), (y + 1, 1), (y + 1, 2)]
+        return [(y, 11), (y, 12), (y + 1, 1), (y + 1, 2), (y + 1, 3)]
     if kind == "summer":
-        return [(y, 6), (y, 7), (y, 8)]
+        return [(y, m) for m in range(4, 10)]
     raise ValueError(f"시즌 이름 오류: {season} (예: winter-2024, summer-2025)")
 
 
@@ -348,15 +349,16 @@ def run(targets, headless, recheck=False):
 
 def main():
     p = argparse.ArgumentParser(description="TOPIS 도로별 일자별 통행속도 수집")
-    g = p.add_mutually_exclusive_group(required=True)
-    g.add_argument("--season", nargs="+", help="예: winter-2024 summer-2025")
-    g.add_argument("--months", nargs="+", help="예: 2024-12 2022-08")
-    g.add_argument("--all", action="store_true", help="노션 기준 8개 시즌 전체")
+    p.add_argument("--season", nargs="+", help="예: winter-2024 summer-2025")
+    p.add_argument("--months", nargs="+", help="예: 2024-12 2022-08")
+    p.add_argument("--all", action="store_true", help="8개 시즌 전체")
     p.add_argument("--headless", action="store_true")
     p.add_argument("--recheck", action="store_true", help="받은 파일을 다시 검증하고 CSV를 새로 만듦")
     a = p.parse_args()
 
-    seasons = ALL_SEASONS if a.all else (a.season or [])
+    if not (a.all or a.season or a.months):
+        p.error("--season, --months, --all 중 하나는 필요합니다")
+    seasons = ALL_SEASONS + (a.season or []) if a.all else (a.season or [])
     targets = [t for s in seasons for t in season_months(s)]
     for text in a.months or []:
         y, m = text.split("-")
