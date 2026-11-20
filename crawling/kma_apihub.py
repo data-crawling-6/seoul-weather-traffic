@@ -55,7 +55,9 @@ AWS_URL = "https://apihub.kma.go.kr/api/typ01/url/awsh.php"
 GRID_URL = "https://apihub.kma.go.kr/api/typ01/cgi-bin/url/nph-dfs_shrt_grd"
 GRID_NX, GRID_NY = 149, 253
 FCST_VARS = ["PCP", "SNO", "PTY", "TMP"]   # 1시간 강수량 · 1시간 신적설 · 강수형태 · 기온
-GRID_ORDER = None   # 격자 값 순서: --probe로 확인한 뒤 "south_first" 또는 "north_first"로 정한다
+# 격자 값 순서: 첫 줄이 y=1(남쪽). --probe(11/21)로 확인 — 남쪽부터 읽으면 12/4 18시 예보 기온이
+# 제주 8도 · 부산 3도 · 서울 -1~2도(ASOS 1.6도)로 맞고, 북쪽부터 읽으면 제주 · 부산이 -99(격자 밖)
+GRID_ORDER = "south_first"
 
 # 서울 AWS 지점 (API허브 예시의 서울 지점 묶음). 108 = ASOS 서울(종로)
 SEOUL_STNS = [108, 110, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
