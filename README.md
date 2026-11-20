@@ -85,14 +85,6 @@ seoul-weather-traffic/
 3. **분석 · 모델** (`notebooks/10~13`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
 4. **사례 검증** (`notebooks/20`): 2025-12-04 폭설 · 2026-07-14~15 집중호우 (세 명 함께)
 
-## B · 날씨 자료 만드는 법
-
-1. `api_keys.example.txt`를 복사해 `api_keys.txt`로 바꾸고 `DATA_GO_KR_KEY=`에 공공데이터포털 인증키를 넣는다.
-2. `python crawling/kma_asos.py` → `data/raw/asos/`에 ASOS 서울(108) 시간자료가 월별로 쌓인다 (이어받기 · 재시도 · `logs/kma_asos.log`).
-   - API가 안 되면 기상자료개방포털에서 받은 CSV를 `data/raw/asos_manual/`에 넣어도 된다.
-3. `python crawling/kma_warning.py` → 기상특보(대설 · 호우 · 한파, 서울·인천·경기도) 목록 · 상세를 Selenium으로 수집 (`data/raw/kma_warning/`, 화면 캡처는 `logs/screenshots/`).
-4. `notebooks/02_B_weather_events.ipynb`를 위에서부터 실행한다 (또는 `python src/weather.py`).
-5. 결과: `data/processed/{train,eval}/weather_*.csv` (시간별 날씨 + 서울 특보 상태, 눈 · 비 사건, 악천후일 · 비교일, 특보 구간), `outputs/tables/`, `config/periods.yaml`
 
 ## 데이터 기준
 
