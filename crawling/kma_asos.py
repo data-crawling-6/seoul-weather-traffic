@@ -31,7 +31,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw" / "asos"
 LOG_PATH = ROOT / "logs" / "kma_asos.log"
-URL = "http://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList"
+URL = "https://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList"
 STATION = "108"  # 서울(종로구 송월동)
 
 
@@ -87,7 +87,10 @@ def fetch_month(key, year, month, retries=3):
             items = body["body"]["items"]["item"]
             return pd.DataFrame(items), last_day * 24
         except Exception as e:  # noqa: BLE001
-            logging.warning("%d-%02d 시도 %d/%d 실패: %s", year, month, attempt, retries, e)
+            msg = str(e).replace(key, "***")  # 로그에 인증키가 남지 않게 가린다
+            if "403" in msg:
+                msg += " → 이 API의 활용신청이 안 됐거나 아직 승인 전일 수 있음"
+            logging.warning("%d-%02d 시도 %d/%d 실패: %s", year, month, attempt, retries, msg)
             time.sleep(2 * attempt)
     raise RuntimeError(f"{year}-{month:02d} 수집 실패")
 

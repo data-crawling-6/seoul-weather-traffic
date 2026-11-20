@@ -49,6 +49,11 @@ SEASON_NAMES = {
 WINTER_WINDOW = ((10, 1), (4, 30))  # 10/1 ~ 다음 해 4/30
 SUMMER_WINDOW = ((5, 1), (9, 30))   # 5/1 ~ 9/30
 
+# 현상번호(국내식)는 두 자리 코드가 이어 붙은 문자열이다 (예: '1905' = 19 + 05).
+# 실제 자료에서 비 오는 시간엔 01, 2025-12-04 눈 오는 시간엔 05가 찍힌 것을 확인했다. 최종은 기상청 코드표로 확인.
+RAIN_CODES = {"01"}
+SNOW_CODES = {"05"}
+
 INTENSITY_ORDER = {"많은 눈": 6, "호우": 5, "보통 눈": 4, "강한 비": 3, "약한 눈": 2, "약한 비": 1, "눈(안 쌓임)": 1}
 BAD_INTENSITIES = {"많은 눈", "보통 눈", "호우", "강한 비"}
 
@@ -134,9 +139,15 @@ def add_season(df: pd.DataFrame) -> pd.DataFrame:
 def extract_events(df: pd.DataFrame, th=THRESHOLDS) -> tuple[pd.DataFrame, pd.DataFrame]:
     """비 · 눈이 온 시간을 이어 붙여 사건으로 묶는다. (시간표, 사건표) 를 돌려준다."""
     df = df.copy()
-    wet = (df["precip_mm"] > 0) | (df["new_snow_3h_cm"] > 0)
-    df["precip_type"] = np.where(~wet, "", np.where(
-        (df["new_snow_3h_cm"] > 0) | (df["temp_c"] <= th["snow_temp_c"]), "snow", "rain"))
+    tokens = df["phenomenon"].map(
+        lambda x: set() if pd.isna(x) else {str(x)[i:i + 2] for i in range(0, len(str(x)), 2)})
+    code_rain = tokens.map(lambda t: bool(t & RAIN_CODES))
+    code_snow = tokens.map(lambda t: bool(t & SNOW_CODES))
+    depth_up = df["snow_depth_cm"].diff().fillna(0) > 0
+    # 눈이 오는 동안에는 시간 강수량이 비어 있는 경우가 많아, 현상번호 · 적설 증가도 함께 본다
+    wet = (df["precip_mm"] > 0) | (df["new_snow_3h_cm"] > 0) | code_rain | code_snow | depth_up
+    is_snow = code_snow | depth_up | (df["new_snow_3h_cm"] > 0) | ((df["precip_mm"] > 0) & (df["temp_c"] <= th["snow_temp_c"]))
+    df["precip_type"] = np.where(~wet, "", np.where(is_snow, "snow", "rain"))
 
     wet_times = df.loc[wet, "datetime"]
     gap = wet_times.diff() > pd.Timedelta(hours=th["event_gap_h"])
