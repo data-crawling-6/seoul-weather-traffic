@@ -420,12 +420,35 @@ HOURLY_COLS = ["datetime", "date", "hour", "season", "split", "in_period", "temp
                "precip_type", "event_id", "event_intensity", "impact", "missing_obs"]
 
 
-def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS):
+def add_warnings(hourly: pd.DataFrame):
+    """기상특보 원본(data/raw/kma_warning)이 있으면 서울 특보 상태 열을 붙인다."""
+    import sys
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from src import kma_warnings as WR
+    res = WR.build(hourly["datetime"])
+    if res is None:
+        print("⚠️ 기상특보 원본이 없어 특보 열 없이 저장합니다 (crawling/kma_warning.py 실행 필요)")
+        return hourly, None, None
+    state, items, eps = res
+    hourly = hourly.drop(columns=[c for c in state.columns if c != "datetime" and c in hourly.columns])
+    hourly = hourly.merge(state, on="datetime", how="left")
+    eps["season"] = eps["effective_start"].map(season_of)
+    eps["split"] = np.where(eps["season"].isin(TRAIN_SEASONS), "train",
+                            np.where(eps["season"].isin(EVAL_SEASONS), "eval", "other"))
+    return hourly, items, eps
+
+
+def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None, warn_eps=None):
     import yaml
     proc = ROOT / "data/processed"
+    cols = HOURLY_COLS + [c for c in hourly.columns if c.startswith("warn_")]
     for split in ("train", "eval"):
         (proc / split).mkdir(parents=True, exist_ok=True)
-        hourly[hourly["split"] == split][HOURLY_COLS].to_csv(
+        if warn_eps is not None:
+            warn_eps[warn_eps["split"] == split].to_csv(proc / split / f"weather_warnings_{split}.csv",
+                                                        index=False, encoding="utf-8-sig")
+        hourly[hourly["split"] == split][cols].to_csv(
             proc / split / f"weather_hourly_{split}.csv", index=False, encoding="utf-8-sig")
         ev[ev["split"] == split].to_csv(proc / split / f"weather_events_{split}.csv",
                                         index=False, encoding="utf-8-sig")
@@ -433,6 +456,9 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS):
                                             index=False, encoding="utf-8-sig")
     tables = ROOT / "outputs/tables"
     tables.mkdir(parents=True, exist_ok=True)
+    if warn_items is not None:
+        warn_items.drop(columns=["seoul_areas"]).assign(seoul_areas=warn_items["seoul_areas"].map(",".join)).to_csv(
+            tables / "seoul_warning_items.csv", index=False, encoding="utf-8-sig")
     fl.to_csv(tables / "season_first_last.csv", index=False, encoding="utf-8-sig")
     opts.to_csv(tables / "research_period_options.csv", index=False, encoding="utf-8-sig")
 
@@ -449,6 +475,7 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS):
             "hourly": "data/processed/{train,eval}/weather_hourly_{split}.csv",
             "events": "data/processed/{train,eval}/weather_events_{split}.csv",
             "days": "data/processed/{train,eval}/weather_days_{split}.csv  (C 교통량 수집 날짜)",
+            "warnings": "data/processed/{train,eval}/weather_warnings_{split}.csv  (서울 특보 구간 · 생존분석 출발점)",
         },
     }
     (ROOT / "config").mkdir(exist_ok=True)
@@ -464,8 +491,10 @@ def run_all(max_train_days: int = 30, max_eval_days: int = 15, min_coverage: flo
     opts = period_options(hourly, ev, fl)
     rec = recommend_period(opts, min_coverage)
     days, hourly = select_days(hourly, ev, rec, max_train=max_train_days, max_eval=max_eval_days)
-    save_outputs(hourly, ev, fl, opts, rec, days)
-    return {"hourly": hourly, "events": ev, "first_last": fl, "options": opts, "recommended": rec, "days": days}
+    hourly, w_items, w_eps = add_warnings(hourly)
+    save_outputs(hourly, ev, fl, opts, rec, days, warn_items=w_items, warn_eps=w_eps)
+    return {"hourly": hourly, "events": ev, "first_last": fl, "options": opts, "recommended": rec,
+            "days": days, "warning_items": w_items, "warning_episodes": w_eps}
 
 
 if __name__ == "__main__":

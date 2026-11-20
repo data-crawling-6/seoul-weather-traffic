@@ -36,7 +36,7 @@ seoul-weather-traffic/
 │
 ├── crawling/               # 동적 수집 · API 코드
 │   ├── topis_speed.py      # A: TOPIS 통행속도 (Selenium)
-│   ├── kma_warning.py      # B: 기상특보 (Selenium)
+│   ├── kma_warning.py      # B: 기상특보 (Selenium · 조회 → 페이지 넘김 → 상세)
 │   ├── kma_asos.py         # B: ASOS · AWS
 │   ├── naver_news.py       # C: 뉴스 (Selenium)
 │   ├── traffic_volume.py   # C: 교통량 API
@@ -44,7 +44,9 @@ seoul-weather-traffic/
 │
 ├── src/                    # 여러 노트북이 같이 쓰는 함수
 │   ├── io_utils.py         # 파일 읽기 (인코딩 등)
-│   └── features.py         # 평소값 · 통행시간 계산 등
+│   ├── features.py         # 평소값 · 통행시간 계산 등
+│   ├── weather.py          # B: 날씨 사건 · 연구 기간 · 악천후일
+│   └── kma_warnings.py     # B: 특보 통보문 → 서울 특보 상태
 │
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당)
 │   ├── 01_A_topis_check.ipynb
@@ -84,8 +86,9 @@ seoul-weather-traffic/
 1. `api_keys.example.txt`를 복사해 `api_keys.txt`로 바꾸고 `DATA_GO_KR_KEY=`에 공공데이터포털 인증키를 넣는다.
 2. `python crawling/kma_asos.py` → `data/raw/asos/`에 ASOS 서울(108) 시간자료가 월별로 쌓인다 (이어받기 · 재시도 · `logs/kma_asos.log`).
    - API가 안 되면 기상자료개방포털에서 받은 CSV를 `data/raw/asos_manual/`에 넣어도 된다.
-3. `notebooks/02_B_weather_events.ipynb`를 위에서부터 실행한다 (또는 `python src/weather.py`).
-4. 결과: `data/processed/{train,eval}/weather_*.csv`, `outputs/tables/season_first_last.csv`, `outputs/tables/research_period_options.csv`, `config/periods.yaml`
+3. `python crawling/kma_warning.py` → 기상특보(대설 · 호우 · 한파, 서울·인천·경기도) 목록 · 상세를 Selenium으로 수집 (`data/raw/kma_warning/`, 화면 캡처는 `logs/screens/`).
+4. `notebooks/02_B_weather_events.ipynb`를 위에서부터 실행한다 (또는 `python src/weather.py`).
+5. 결과: `data/processed/{train,eval}/weather_*.csv` (시간별 날씨 + 서울 특보 상태, 눈 · 비 사건, 악천후일 · 비교일, 특보 구간), `outputs/tables/`, `config/periods.yaml`
 
 ## 데이터 기준
 
