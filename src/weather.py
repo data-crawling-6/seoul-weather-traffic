@@ -14,7 +14,9 @@
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+
+KST = timezone(timedelta(hours=9))  # 실행 PC 시간대와 상관없이 한국 시간으로 기록
 from pathlib import Path
 
 import numpy as np
@@ -463,7 +465,7 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None
     opts.to_csv(tables / "research_period_options.csv", index=False, encoding="utf-8-sig")
 
     cfg = {
-        "updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
         "owner": "B",
         "station": "ASOS 서울(108)",
         "seasons": {"train": [SEASON_NAMES[s] for s in TRAIN_SEASONS],
