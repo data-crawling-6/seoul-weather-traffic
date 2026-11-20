@@ -43,15 +43,19 @@ def _section(text: str, start: str, end: str) -> str:
 
 
 def seoul_areas(area_text: str) -> list[str]:
-    """'경기도(고양), 서울(동북권, 서북권)' → ['동북권', '서북권'] / '서울' → 4개 권역 모두"""
+    """'경기도(고양), 서울(동북권, 서북권)' → ['동북권', '서북권'] / '서울' → 4개 권역 모두
+    '서울(서울동남권 제외)' → ['동북권', '서남권', '서북권']"""
     found = set()
     for m in SEOUL_RE.finditer(area_text):
         if m.group(1) is None:
             found.update(SEOUL_AREAS)
         else:
-            for a in m.group(1).split(","):
-                a = a.strip()
-                found.update([x for x in SEOUL_AREAS if x in a] or [])
+            inner = m.group(1)
+            named = {x for x in SEOUL_AREAS if x in inner}
+            if "제외" in inner:      # '서울(서울동남권 제외)' → 동남권만 빼고 나머지
+                found.update(set(SEOUL_AREAS) - named)
+            else:
+                found.update(named)
     return sorted(found)
 
 

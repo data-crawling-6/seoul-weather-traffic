@@ -68,14 +68,21 @@ def shot(driver, name):
     driver.save_screenshot(str(SHOT_DIR / f"kma_warning_{name}.png"))
 
 
+# 이 사이트의 자바스크립트가 Selenium의 '보이는지 검사' 도구(is_displayed)와 충돌한다
+# (computedStyleCache.set is not a function). 그래서 element_to_be_clickable 대신
+# presence(요소가 생겼는지)로 기다리고, 속성은 get_dom_attribute / get_property 로 읽는다.
 def check_tree(driver, wait, tree_id, switch_id, titles):
     """트리를 펼치고, 제목이 titles 로 시작하는 체크박스를 누른다."""
-    wait.until(EC.element_to_be_clickable((By.ID, switch_id))).click()
+    sw = wait.until(EC.presence_of_element_located((By.ID, switch_id)))
+    if "close" in (sw.get_dom_attribute("class") or ""):
+        sw.click()
+        time.sleep(0.5)
     for t in titles:
-        box = wait.until(EC.element_to_be_clickable(
+        box = wait.until(EC.presence_of_element_located(
             (By.XPATH, f"//ul[@id='{tree_id}']//a[contains(@id,'_check') and starts-with(@title,'{t}')]")))
-        if "true" not in box.get_attribute("class"):
+        if "true" not in (box.get_dom_attribute("class") or ""):
             box.click()
+            time.sleep(0.2)
         logging.info("체크: %s", t)
 
 
@@ -108,7 +115,7 @@ def read_rows(driver):
         if not links:
             continue
         tds = tr.find_elements(By.TAG_NAME, "td")
-        m = ONCLICK_RE.search(links[0].get_attribute("onclick"))
+        m = ONCLICK_RE.search(links[0].get_dom_attribute("onclick"))
         rows.append({
             "issued_at": tds[0].text.strip(), "region": tds[1].text.strip(), "title": tds[2].text.strip(),
             "fcTma": m.group(1), "no": m.group(2), "inpTma": m.group(3), "stn": m.group(4),
@@ -125,11 +132,11 @@ def go_page(driver, wait, n):
     else:  # 11쪽부터는 페이지 묶음이 바뀌므로 화면의 changePage 함수를 직접 부른다
         driver.execute_script(f"changePage({n});")
     wait.until(EC.staleness_of(first))
-    wait.until(lambda d: d.find_element(By.ID, "pageIndex").get_attribute("value") == str(n))
+    wait.until(lambda d: d.find_element(By.ID, "pageIndex").get_property("value") == str(n))
 
 
 def crawl_list(driver, wait):
-    total = int(driver.find_element(By.ID, "totCnt").get_attribute("value"))
+    total = int(driver.find_element(By.ID, "totCnt").get_property("value"))
     pages = math.ceil(total / int(PAGE_SIZE))
     logging.info("검색 결과 %d건, %d쪽", total, pages)
     rows = read_rows(driver)

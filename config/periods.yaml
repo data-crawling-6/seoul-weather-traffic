@@ -1,4 +1,4 @@
-updated: 2026-11-20 21:46
+updated: 2026-11-20 13:29
 owner: B
 station: ASOS 서울(108)
 seasons:
@@ -49,3 +49,5 @@ files:
   hourly: data/processed/{train,eval}/weather_hourly_{split}.csv
   events: data/processed/{train,eval}/weather_events_{split}.csv
   days: data/processed/{train,eval}/weather_days_{split}.csv  (C 교통량 수집 날짜)
+  warnings: data/processed/{train,eval}/weather_warnings_{split}.csv  (서울 특보 구간 ·
+    생존분석 출발점)
