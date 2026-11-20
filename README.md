@@ -60,6 +60,8 @@ seoul-weather-traffic/
 ├── data/
 │   ├── raw/                # 원본 (깃에 올리지 않음, 팀 드라이브에 보관)
 │   ├── processed/          # 공통 표: 통행시간 · 날씨 · 교통량
+│   │   ├── train/          # 학습 시즌 (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
+│   │   └── eval/           # 평가 시즌 (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
 │   └── sample/             # 작은 샘플 (코드 테스트용)
 │
 ├── outputs/
@@ -76,6 +78,14 @@ seoul-weather-traffic/
 2. **공통 표 만들기** (`notebooks/01~04`): 악천후 사건 · 연구 기간(B) → 도로 통행시간 표(C) → 교통량 매핑(C)
 3. **분석 · 모델** (`notebooks/10~13`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
 4. **사례 검증** (`notebooks/20`): 2025-12-04 · 2026 여름 호우 하루 (세 명 함께)
+
+## B · 날씨 자료 만드는 법
+
+1. `api_keys.example.txt`를 복사해 `api_keys.txt`로 바꾸고 `DATA_GO_KR_KEY=`에 공공데이터포털 인증키를 넣는다.
+2. `python crawling/kma_asos.py` → `data/raw/asos/`에 ASOS 서울(108) 시간자료가 월별로 쌓인다 (이어받기 · 재시도 · `logs/kma_asos.log`).
+   - API가 안 되면 기상자료개방포털에서 받은 CSV를 `data/raw/asos_manual/`에 넣어도 된다.
+3. `notebooks/02_B_weather_events.ipynb`를 위에서부터 실행한다 (또는 `python src/weather.py`).
+4. 결과: `data/processed/{train,eval}/weather_*.csv`, `outputs/tables/season_first_last.csv`, `outputs/tables/research_period_options.csv`, `config/periods.yaml`
 
 ## 데이터 기준
 

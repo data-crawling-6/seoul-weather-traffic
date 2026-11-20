@@ -1,0 +1,5 @@
+# 이 파일을 복사해서 api_keys.txt 로 이름을 바꾸고 값을 채운다 (api_keys.txt는 깃에 올라가지 않음)
+# 공공데이터포털(data.go.kr) 일반 인증키 (Decoding)
+DATA_GO_KR_KEY=
+# 서울 열린데이터광장 인증키
+SEOUL_OPEN_API_KEY=
