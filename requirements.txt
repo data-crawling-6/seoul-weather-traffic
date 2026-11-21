@@ -1,0 +1,6 @@
+pandas
+pyarrow==26.0.1
+holidays==0.109
+requests
+selenium
+PyYAML

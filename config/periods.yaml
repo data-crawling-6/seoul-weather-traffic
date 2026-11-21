@@ -1,0 +1,60 @@
+timezone: Asia/Seoul
+
+commute_hours_end:
+  morning: [8, 9]
+  evening: [18, 19, 20]
+
+periods:
+  - season: 2022-23_winter
+    split: train
+    start: 2022-11-27
+    end: 2023-03-10
+    baseline_start: 2022-10-30
+  - season: 2023_summer
+    split: train
+    start: 2023-05-09
+    end: 2023-09-23
+    baseline_start: 2023-04-11
+  - season: 2023-24_winter
+    split: train
+    start: 2023-11-27
+    end: 2024-03-10
+    baseline_start: 2023-10-30
+  - season: 2024_summer
+    split: train
+    start: 2024-05-09
+    end: 2024-09-23
+    baseline_start: 2024-04-11
+  - season: 2024-25_winter
+    split: train
+    start: 2024-11-27
+    end: 2025-03-10
+    baseline_start: 2024-10-30
+  - season: 2025_summer
+    split: train
+    start: 2025-05-09
+    end: 2025-09-23
+    baseline_start: 2025-04-11
+  - season: 2025-26_winter
+    split: eval
+    start: 2025-11-27
+    end: 2026-03-10
+    baseline_start: 2025-10-30
+  - season: 2026_summer
+    split: eval
+    start: 2026-05-09
+    end: 2026-09-23
+    baseline_start: 2026-04-11
+
+filters:
+  weekdays_only: true
+  exclude_korean_public_holidays: true
+  holiday_calendar: holidays.KR
+  summer_vacation_peak:
+    status: unconfirmed
+    note: 날짜 범위를 팀에서 확정하기 전까지 값으로 사용하지 않는다.
+
+time_definition:
+  topis_label: interval_end
+  example: "~08시 = 07:00-08:00"
+  hour_24: next_day_00
