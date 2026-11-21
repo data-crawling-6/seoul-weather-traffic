@@ -1,6 +1,13 @@
-pandas
-pyarrow==26.0.1
+# 수집 (A · B · C 공통)
+selenium>=4.20
+requests>=2.31
+openpyxl>=3.1
+
+# 분석
+pandas>=2.2
+numpy
+pyyaml
 holidays==0.109
-requests
-selenium
-PyYAML
+pyarrow==26.0.1
+matplotlib
+jupyter
