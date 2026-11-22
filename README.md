@@ -40,7 +40,7 @@ seoul-weather-traffic/
 │   ├── kma_asos.py         # B: ASOS (공공데이터포털 API)
 │   ├── naver_news.py       # C: 뉴스 (Selenium)
 │   ├── traffic_volume.py   # C: 교통량 API
-│   └── link_coords.py      # C: 링크 좌표 API
+│   └── yang_seoyeon_link_coords.py  # 양서연: 링크 좌표 API
 │
 ├── src/                    # 여러 노트북이 같이 쓰는 함수
 │   ├── io_utils.py         # 파일 읽기 (인코딩 등)
@@ -51,8 +51,8 @@ seoul-weather-traffic/
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당)
 │   ├── 01_A_topis_check.ipynb
 │   ├── 02_B_weather_events.ipynb
-│   ├── 03_C_travel_time.ipynb
-│   ├── 04_C_traffic_mapping.ipynb
+│   ├── yang_seoyeon_03_travel_time.ipynb
+│   ├── yang_seoyeon_04_traffic_mapping.ipynb
 │   ├── 10_B_comparison.ipynb
 │   ├── 11_A_prediction.ipynb
 │   ├── 12_B_alert_survival.ipynb
