@@ -17,5 +17,6 @@
   "wording": "링크 일부 누락 시 관측 링크만 합산되어 통행시간이 과소 추정되므로 NaN 처리",
   "output_bytes": 10288448,
   "output_sha256": "0922478f05758f775ce65682836a3a8dfb71aef251c30d9167ccaf6ec59427a6",
-  "sample_path": "C:\\Users\\USER\\seoul-weather-traffic\\data\\sample\\yang_seoyeon_topis_weather_commute_sample_20261122_v04.csv"
+  "sample_path": "C:\\Users\\USER\\seoul-weather-traffic\\data\\sample\\yang_seoyeon_topis_weather_commute_sample_20261122_v04.csv",
+  "sample_composition": "정상 관측 100행 + 링크 결측 NaN 사례 100행"
 }

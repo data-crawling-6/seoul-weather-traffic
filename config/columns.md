@@ -57,7 +57,9 @@
 | `missing_reason` | category | 아래 목록 | 결측 또는 계산 불가 사유 |
 | `source_month` | string | `YYYY-MM` | 원본 TOPIS 월 파일 |
 
-통행시간은 `distance_m / (speed_kmh × 1000 / 3600)`으로 계산한다. 링크 속도가 결측이거나 0 이하이면 해당 링크 통행시간을 임의 계산하지 않는다. 모든 링크 속도가 결측이면 도로 통행시간도 `NaN`으로 둔다.
+통행시간은 `distance_m / (speed_kmh × 1000 / 3600)`으로 계산한다. 링크 속도가 결측이거나 0 이하이면 해당 링크 통행시간을 임의 계산하지 않는다. 도로·방향·시간을 구성하는 링크가 하나라도 빠져 `observed_link_count < link_count`이면 관측 링크만 합산한 통행시간이 과소 추정되므로 `travel_time_seconds`와 `road_speed_kmh`를 모두 `NaN`으로 둔다. 거리 비례 보정은 누락 링크의 속도가 관측 링크와 같다는 가정을 만들기 때문에 사용하지 않는다.
+
+`yang_seoyeon_topis_weather_commute_sample_20261122_v04.csv`는 규칙 검토용 표본이다. 정상 관측 100행과 링크 결측으로 `travel_time_seconds`·`road_speed_kmh`를 의도적으로 `NaN` 처리한 사례 100행을 함께 담았다. 따라서 샘플의 결측 비율은 전체 자료의 결측 비율을 대표하지 않으며, 전체 v04 결측률은 실행 로그를 기준으로 확인한다.
 
 `missing_reason` 허용값:
 
