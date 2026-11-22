@@ -12,6 +12,9 @@
   python crawling/kma_apihub.py --part 1   # 평가 30일 (2025~26 겨울 · 2026 여름)
   python crawling/kma_apihub.py --part 2   # 학습 겨울 (2022~23 · 2023~24 · 2024~25)
   python crawling/kma_apihub.py --part 3   # 학습 여름 (2023 · 2024 · 2025)
+  python crawling/kma_apihub.py --part all # 90일 전부 한 번에 (남은 것만, 약 4,300건 · 하루 한도 안)
+  python crawling/kma_apihub.py --part all --workers 4   # 동시 4개 (504로 느릴 때)
+  python crawling/kma_apihub.py --part all --only fcst   # 예보만 (AWS만: --only aws)
   python crawling/kma_apihub.py --part 1 --dry-run   # 호출 수만 세고 받지 않음
   python crawling/kma_apihub.py --parse    # 받은 원본을 표로 정리만 다시
   python crawling/kma_apihub.py --probe    # 단기예보 격자 응답 형식 확인 (2건)
@@ -36,7 +39,9 @@ import json
 import logging
 import re
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -78,6 +83,7 @@ DAILY_LIMIT = 19000   # API허브 일반회원 하루 20,000건 → 여유를 �
 PAUSE_SEC = 0.2
 RETRIES = 3
 TEST_DAY = "2025-12-04"
+CALL_LOCK = threading.Lock()   # 여러 스레드가 호출 수를 같이 셀 때
 log = logging.getLogger("kma_apihub")
 
 
@@ -114,7 +120,7 @@ def load_key(name="KMA_APIHUB_KEY"):
 
 
 def load_days(part):
-    """part: test / 1(평가) / 2(학습 겨울) / 3(학습 여름) → [(날짜, split)]"""
+    """part: test / 1(평가) / 2(학습 겨울) / 3(학습 여름) / all(90일 전부) → [(날짜, split)]"""
     if part == "test":
         return [(pd.Timestamp(TEST_DAY), "eval")]
     frames = []
@@ -123,14 +129,16 @@ def load_days(part):
         d["split"] = split
         frames.append(d)
     d = pd.concat(frames)
-    if part == "1":
+    if part == "all":
+        pass
+    elif part == "1":
         d = d[d["split"] == "eval"]
     elif part == "2":
         d = d[(d["split"] == "train") & d["season"].str.startswith("W")]
     elif part == "3":
         d = d[(d["split"] == "train") & d["season"].str.startswith("S")]
     else:
-        raise ValueError(f"--part 는 1, 2, 3 중 하나: {part}")
+        raise ValueError(f"--part 는 1, 2, 3, all 중 하나: {part}")
     return [(pd.Timestamp(x), s) for x, s in sorted(set(zip(d["date"], d["split"])))]
 
 
@@ -161,11 +169,12 @@ def load_calls():
 
 
 def add_call(calls, today):
-    calls[today] = calls.get(today, 0) + 1
-    if calls[today] % 100 == 0:
-        CALLS_PATH.write_text(json.dumps(calls, ensure_ascii=False, indent=1), encoding="utf-8")
-    if calls[today] >= DAILY_LIMIT:
-        raise LimitReached(f"오늘 {calls[today]:,}건 호출. 하루 한도 근처라 멈춥니다. 내일 같은 명령으로 이어 받으세요.")
+    with CALL_LOCK:
+        calls[today] = calls.get(today, 0) + 1
+        if calls[today] % 100 == 0:
+            CALLS_PATH.write_text(json.dumps(calls, ensure_ascii=False, indent=1), encoding="utf-8")
+        if calls[today] >= DAILY_LIMIT:
+            raise LimitReached(f"오늘 {calls[today]:,}건 호출. 하루 한도 근처라 멈춥니다. 내일 같은 명령으로 이어 받으세요.")
 
 
 def get(session, url, params, key, calls, today):
@@ -311,7 +320,40 @@ def probe(session, key, calls, today):
 
 
 # ---------------------------------------------------------------- 실행
-def collect(part, dry_run=False):
+def run_jobs(label, jobs, fetch, workers, t0):
+    """jobs를 workers개 스레드로 받는다. 3번 실패한 건은 건너뛰고 끝에 개수를 알린다
+    (다시 실행하면 그것만 이어 받는다). 인증 오류 · 하루 한도면 전부 멈춘다."""
+    local = threading.local()
+
+    def one(job):
+        if not hasattr(local, "session"):
+            local.session = requests.Session()
+        return fetch(local.session, job)
+
+    failed = 0
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+        futures = [ex.submit(one, job) for job in jobs]
+        try:
+            for i, fut in enumerate(as_completed(futures), 1):
+                try:
+                    fut.result()
+                except (AuthError, LimitReached):
+                    raise
+                except Exception as e:  # 3번 재시도 후 실패, 응답 형식 오류 등
+                    failed += 1
+                    log.warning("  [%s] 건너뜀 (%d건째): %s", label, failed, str(e)[:200])
+                if i % 100 == 0 or i == len(jobs):
+                    log.info("  %s %d/%d (실패 %d · %.0f초)", label, i, len(jobs), failed, time.time() - t0)
+        except (AuthError, LimitReached):
+            for f in futures:
+                f.cancel()
+            raise
+    if failed:
+        log.warning("  %s %d건 실패 → 같은 명령을 다시 실행하면 실패한 것만 이어 받습니다.", label, failed)
+    return failed
+
+
+def collect(part, dry_run=False, only="both", workers=1):
     days = load_days(part)
     aws_need = sorted({t for d, _ in days for t in aws_times(d)})
     fcst_need = sorted({p for d, _ in days for p in fcst_pairs(d)})
@@ -320,6 +362,10 @@ def collect(part, dry_run=False):
                  if not (FCST_DIR / f"fcst_{b:%Y%m%d%H}_{t:%Y%m%d%H}_{v}.json").exists()]
     if GRID_ORDER is None:
         log.info("단기예보 격자 순서를 아직 확인하지 않아 이번에는 AWS만 받습니다 (--probe 먼저).")
+        fcst_todo = []
+    if only == "fcst":
+        aws_todo = []
+    elif only == "aws":
         fcst_todo = []
     log.info("=== part %s: %d일 · AWS %d시각(남은 %d) · 예보 %d쌍 × %d변수(남은 %d) ===",
              part, len(days), len(aws_need), len(aws_todo), len(fcst_need), len(FCST_VARS), len(fcst_todo))
@@ -332,15 +378,13 @@ def collect(part, dry_run=False):
     FCST_DIR.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
     t0 = time.time()
+    log.info("동시 요청 %d개 · 받을 것: 예보 %d건 → AWS %d건", workers, len(fcst_todo), len(aws_todo))
     try:
-        for i, t in enumerate(aws_todo, 1):
-            fetch_aws(session, key, t, calls, today)
-            if i % 100 == 0 or i == len(aws_todo):
-                log.info("  AWS %d/%d (%.0f초)", i, len(aws_todo), time.time() - t0)
-        for i, (b, t, v) in enumerate(fcst_todo, 1):
-            fetch_grid(session, key, b, t, v, calls, today)
-            if i % 100 == 0 or i == len(fcst_todo):
-                log.info("  예보 %d/%d (%.0f초)", i, len(fcst_todo), time.time() - t0)
+        # 예보(A의 4~5단계 입력)를 먼저, AWS(권장 자료)를 나중에 받는다
+        if fcst_todo:
+            run_jobs("예보", fcst_todo, lambda s, j: fetch_grid(s, key, *j, calls, today), workers, t0)
+        if aws_todo:
+            run_jobs("AWS", aws_todo, lambda s, t: fetch_aws(s, key, t, calls, today), workers, t0)
     except AuthError as e:
         log.error("인증 오류로 멈춥니다: %s", str(e).replace(key, "***")[:300])
         log.error("→ api_keys.txt 의 KMA_APIHUB_KEY 와, API허브에서 이 API의 '활용신청'을 했는지 확인하세요.")
@@ -410,10 +454,12 @@ def main():
     p = argparse.ArgumentParser(description="구별 AWS · 과거 단기예보 수집 (기상청 API허브)")
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument("--test", action="store_true", help=f"{TEST_DAY} 하루만")
-    g.add_argument("--part", choices=["1", "2", "3"], help="1 평가 / 2 학습 겨울 / 3 학습 여름")
+    g.add_argument("--part", choices=["1", "2", "3", "all"], help="1 평가 / 2 학습 겨울 / 3 학습 여름 / all 90일 전부")
     g.add_argument("--parse", action="store_true", help="받은 원본을 표로 정리만")
     g.add_argument("--probe", action="store_true", help="단기예보 격자 응답 형식 확인 (2건)")
     p.add_argument("--dry-run", action="store_true", help="호출 수만 세기")
+    p.add_argument("--only", choices=["both", "fcst", "aws"], default="both", help="예보만 / AWS만 받기")
+    p.add_argument("--workers", type=int, default=1, help="동시 요청 수 (504가 잦으면 3~4 권장)")
     a = p.parse_args()
     setup_log()
     if a.probe:
@@ -426,7 +472,7 @@ def main():
             CALLS_PATH.write_text(json.dumps(calls, ensure_ascii=False, indent=1), encoding="utf-8")
         return
     if not a.parse:
-        collect("test" if a.test else a.part, a.dry_run)
+        collect("test" if a.test else a.part, a.dry_run, a.only, a.workers)
     if not a.dry_run:
         parse_all()
     if a.test and not a.dry_run:
