@@ -59,6 +59,8 @@ thresholds:
   freezing_temp_c: 0.5
   impact_after_snow_h: 12
   impact_after_rain_h: 3
+  congestion_link_ratio: 1.5
+  congestion_road_length_ratio: 0.3
 
 files:
   hourly: data/processed/{train,eval}/weather_hourly_{split}.csv

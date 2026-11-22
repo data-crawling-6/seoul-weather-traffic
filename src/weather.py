@@ -34,6 +34,8 @@ THRESHOLDS = {
     "rain_heavy_mmh": 30.0,      # 시간당 30mm 이상 또는
     "rain_heavy_total_mm": 80.0, # 사건 총 80mm 이상 = 호우
     "summer_day_mm": 30.0,       # 여름 기간을 정할 때 쓰는 '큰비 날' (하루 30mm 이상)
+    "congestion_link_ratio": 1.5,        # 링크 정체: 통행시간 ÷ 평소값 > 1.5 (속도가 평소의 2/3 미만)
+    "congestion_road_length_ratio": 0.3, # 도로 정체: 정체 링크 거리가 도로 길이의 30% 이상
     "freezing_temp_c": 0.5,      # 비 사건 중 기온이 이 값 이하인 시간이 있으면 어는비 표시
     "impact_after_snow_h": 12,   # 눈이 그친 뒤 영향을 보는 시간
     "impact_after_rain_h": 3,    # 비가 그친 뒤 영향을 보는 시간
