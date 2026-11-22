@@ -277,6 +277,10 @@ def aggregate_road_commute(link_frame: pd.DataFrame, commute_hours: dict[int, st
     ).reset_index()
     grouped["missing_speed_links"] = grouped["link_count"] - grouped["observed_link_count"]
     grouped["road_speed_kmh"] = grouped["observed_distance_m"] / grouped["travel_time_seconds"] * 3.6
+    # 링크가 일부라도 빠진 행은 관측 링크만 합산되어 통행시간이 과소 추정된다.
+    # 거리 비례 보정은 누락 링크의 속도가 같다는 가정을 만들므로 사용하지 않는다.
+    incomplete = grouped["observed_link_count"] < grouped["link_count"]
+    grouped.loc[incomplete, ["travel_time_seconds", "road_speed_kmh"]] = pd.NA
     grouped["commute_period"] = grouped["hour"].map(commute_hours)
     weather_columns = [column for column in WEATHER_COLUMNS if column not in {"date", "hour"}]
     weather_once = selected[["date", "hour", *weather_columns]].drop_duplicates(["date", "hour"])
@@ -352,7 +356,7 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
     unique_weather_hours = road[["date", "hour", "split"]].drop_duplicates()
     log = {
         "run_at": datetime.now(KST).isoformat(),
-        "method_version": "v2_plan_aligned",
+        "method_version": "v3_incomplete_links_as_nan",
         "topis_file_count": len(topis_paths),
         "stable_link_count": len(stable_links),
         "stable_road_count": int(metadata["road_id"].nunique()),
@@ -366,6 +370,12 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
         "road_duplicate_keys": int(road.duplicated(["date", "hour", "road_id", "direction"]).sum()),
         "road_weather_missing_rows": int(road["temp_c"].isna().sum()),
         "road_travel_time_missing_rows": int(road["travel_time_seconds"].isna().sum()),
+        "road_partial_link_rows": int(
+            ((road["observed_link_count"] < road["link_count"]) & (road["observed_link_count"] > 0)).sum()
+        ),
+        "road_incomplete_link_rows_as_nan": int(
+            (road["observed_link_count"] < road["link_count"]).sum()
+        ),
         "topis_system_gap_count": int(len(gaps)),
         "link_path": str(link_path),
         "link_bytes": link_path.stat().st_size,
