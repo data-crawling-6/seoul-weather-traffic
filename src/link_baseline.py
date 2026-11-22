@@ -10,7 +10,10 @@
 - 링크 비율     : 그 시간 링크 통행시간 ÷ 링크 평소값
 - 링크 정체     : 링크 비율 > LINK_RATIO (기본 1.5 = 속도가 평소의 2/3 미만, 도로 단위 기준과 같게)
 - 정체 길이 비율: 정체 링크 거리 합 ÷ 관측된 링크 거리 합 (도로 · 방향 · 날짜 · 시간)
+- 도로 정체     : 정체 길이 비율 >= ROAD_LENGTH_RATIO (기본 0.3) → is_congested 열 (1 정체 · 0 아님 · 관측 없으면 빈값)
 - 결측 길이 비율: 속도가 없는 링크 거리 합 ÷ 도로 전체 거리 (통제 · 마비 신호로 따로 본다)
+
+기준값은 config/periods.yaml 의 thresholds (congestion_link_ratio · congestion_road_length_ratio)에서 읽는다.
 
 입력
   C 릴리스 yang-seoyeon-traffic-weather-v3 의 링크 기본표 parquet
@@ -19,11 +22,11 @@
 
 실행
   python src/link_baseline.py
-  python src/link_baseline.py --link 경로.parquet --link-ratio 1.5
+  python src/link_baseline.py --link 경로.parquet --link-ratio 1.5 --road-length-ratio 0.3
 
 결과
   data/processed/{train,eval}/link_baseline_{split}.parquet          링크 평소값
-  data/processed/{train,eval}/road_congestion_length_{split}.parquet 도로 · 방향 · 시간별 정체 길이 비율
+  data/processed/{train,eval}/road_congestion_length_{split}.parquet 도로 · 방향 · 시간별 정체 길이 비율 · is_congested
   outputs/tables/congestion_length_candidates_train.csv              정체 길이 기준 후보 비교 (학습만)
   logs/link_baseline.json
 """
@@ -47,6 +50,25 @@ TABLE_DIR = ROOT / "outputs" / "tables"
 COMMUTE_HOURS = [8, 9, 18, 19, 20]
 MIN_N = 5
 LENGTH_CANDIDATES = [0.1, 0.2, 0.3, 0.5]   # 정체 길이 비율 기준 후보
+
+
+def load_thresholds() -> dict:
+    """config/periods.yaml 의 정체 기준. 없으면 기본값 (링크 1.5 · 도로 0.3)."""
+    th = {"congestion_link_ratio": 1.5, "congestion_road_length_ratio": 0.3}
+    try:
+        import yaml
+        cfg = yaml.safe_load((ROOT / "config" / "periods.yaml").read_text(encoding="utf-8")) or {}
+        th.update({k: float(v) for k, v in (cfg.get("thresholds") or {}).items() if k in th})
+    except (ImportError, OSError):
+        pass
+    return th
+
+
+def add_is_congested(g: pd.DataFrame, road_length_ratio: float) -> pd.DataFrame:
+    """도로 · 방향 · 시간마다 정체 여부. 관측 거리가 없으면(비율 NaN) 빈값으로 둔다."""
+    r = g["congestion_length_ratio"]
+    g["is_congested"] = (r >= road_length_ratio).astype("Int8").mask(r.isna())
+    return g
 COLUMNS = ["link_id", "road_id", "direction", "function_type", "date", "hour", "season", "split",
            "distance_m", "link_travel_time_seconds", "missing_reason", "event_id", "impact"]
 
@@ -132,12 +154,16 @@ def compare_candidates(g: pd.DataFrame) -> pd.DataFrame:
 def main():
     p = argparse.ArgumentParser(description="구간 단위 평소값 · 정체 길이 비율 (B)")
     p.add_argument("--link", type=Path, default=DEFAULT_LINK, help="C 링크 기본표 parquet")
-    p.add_argument("--link-ratio", type=float, default=1.5, help="링크 정체 기준 (통행시간 ÷ 평소값 초과)")
+    th = load_thresholds()
+    p.add_argument("--link-ratio", type=float, default=th["congestion_link_ratio"],
+                   help="링크 정체 기준 (통행시간 ÷ 평소값 초과)")
+    p.add_argument("--road-length-ratio", type=float, default=th["congestion_road_length_ratio"],
+                   help="도로 정체 기준 (정체 길이 비율 이상)")
     a = p.parse_args()
 
     d = load_links(a.link)
     b = make_link_baseline(d)
-    g = road_congestion_length(d, b, a.link_ratio)
+    g = add_is_congested(road_congestion_length(d, b, a.link_ratio), a.road_length_ratio)
 
     for split in ("train", "eval"):
         out = PROC_DIR / split
@@ -157,6 +183,9 @@ def main():
         "links": int(d["link_id"].nunique()),
         "link_tt_nan_rows": int(d["link_travel_time_seconds"].isna().sum()),
         "link_ratio_threshold": a.link_ratio,
+        "road_length_ratio_threshold": a.road_length_ratio,
+        "congested_rows": {s: int(g.loc[g["split"] == s, "is_congested"].sum()) for s in ("train", "eval")},
+        "congested_na_rows": int(g["is_congested"].isna().sum()),
         "baseline_cells": len(b),
         "baseline_level_counts": b["baseline_level"].value_counts().to_dict(),
         "road_rows": len(g),
