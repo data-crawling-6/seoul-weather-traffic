@@ -288,6 +288,70 @@ def aggregate_road_commute(link_frame: pd.DataFrame, commute_hours: dict[int, st
     return grouped
 
 
+def convert_v03_to_v04(
+    source_path: Path,
+    output_path: Path,
+    sample_path: Path,
+    log_path: Path,
+) -> dict[str, object]:
+    """기존 도로표에서 링크 일부 누락 행을 NaN 처리해 v04를 재현한다.
+
+    원본 v03는 수정하지 않으며 출력 파일이 이미 있으면 중단한다. 샘플은
+    정상 관측 100행과 결측 처리 사례 100행으로 구성한다.
+    """
+    source_path = Path(source_path).resolve()
+    output_path = Path(output_path).resolve()
+    sample_path = Path(sample_path).resolve()
+    log_path = Path(log_path).resolve()
+    if not source_path.is_file():
+        raise FileNotFoundError(source_path)
+    for path in (output_path, sample_path, log_path):
+        if path.exists():
+            raise FileExistsError(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+    road = pd.read_parquet(source_path)
+    incomplete = road["observed_link_count"] < road["link_count"]
+    partial = incomplete & road["observed_link_count"].gt(0)
+    v03_nan_rows = int(road["travel_time_seconds"].isna().sum())
+    road.loc[incomplete, ["travel_time_seconds", "road_speed_kmh"]] = pd.NA
+    road.to_parquet(output_path, index=False, compression="snappy")
+
+    sample = pd.concat(
+        [road.loc[~incomplete].head(100), road.loc[incomplete].head(100)],
+        ignore_index=True,
+    )
+    sample.to_csv(sample_path, encoding="utf-8-sig", index=False)
+    v04_nan_rows = int(road["travel_time_seconds"].isna().sum())
+    nan_ratio = v04_nan_rows / len(road)
+    log = {
+        "run_at": datetime.now(KST).isoformat(),
+        "method_version": "v3_incomplete_links_as_nan",
+        "source_v03_path": str(source_path),
+        "output_v04_path": str(output_path),
+        "output_rows": int(len(road)),
+        "duplicate_keys": int(
+            road.duplicated(["date", "hour", "road_id", "direction"]).sum()
+        ),
+        "v03_travel_time_nan_rows": v03_nan_rows,
+        "v04_travel_time_nan_rows": v04_nan_rows,
+        "newly_nan_rows": v04_nan_rows - v03_nan_rows,
+        "partial_link_rows": int(partial.sum()),
+        "all_links_missing_rows": int(road["observed_link_count"].eq(0).sum()),
+        "incomplete_link_rows": int(incomplete.sum()),
+        "v04_nan_ratio": nan_ratio,
+        "review_threshold_ratio": 0.01,
+        "exceeds_review_threshold": bool(nan_ratio >= 0.01),
+        "wording": "링크 일부 누락 시 관측 링크만 합산되어 통행시간이 과소 추정되므로 NaN 처리",
+        "output_bytes": output_path.stat().st_size,
+        "output_sha256": _sha256(output_path),
+        "sample_path": str(sample_path),
+        "sample_composition": "정상 관측 100행 + 링크 결측 NaN 사례 100행",
+    }
+    log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {**log, "log_path": str(log_path)}
+
+
 def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
     data_root = Path(data_root).resolve()
     project_root = Path(project_root).resolve()
