@@ -1,0 +1,23 @@
+{
+  "release_tag": "yang-seoyeon-traffic-weather-v3",
+  "release_url": "https://github.com/data-crawling-6/seoul-weather-traffic/releases/tag/yang-seoyeon-traffic-weather-v3",
+  "asset_name": "yang_seoyeon_topis_weather_commute_20261122_v04.zip",
+  "asset_bytes": 9381089,
+  "asset_sha256": "7d69c0abee0a4469d7d9fa67e86192e60db28c9158f1dd7d70a80bbd3d70c4f3",
+  "parquet_name": "yang_seoyeon_topis_weather_commute_20261122_v04.parquet",
+  "parquet_bytes": 10288448,
+  "parquet_sha256": "0922478f05758f775ce65682836a3a8dfb71aef251c30d9167ccaf6ec59427a6",
+  "rows": 588600,
+  "v04_travel_time_nan_rows": 1108,
+  "newly_nan_rows_from_v03": 966,
+  "v04_nan_ratio": 0.0018824328916072035,
+  "review_threshold_ratio": 0.01,
+  "exceeds_review_threshold": false,
+  "link_asset_name": "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet",
+  "link_asset_url": "https://github.com/data-crawling-6/seoul-weather-traffic/releases/download/yang-seoyeon-traffic-weather-v3/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet",
+  "link_asset_bytes": 627454734,
+  "link_asset_sha256": "40a1bb77c040e7dcf90a6c611d5d0c8a27866338e3d482a67676d7e8c1aade42",
+  "link_rows": 49848308,
+  "unique_links": 1753,
+  "link_asset_state": "uploaded"
+}

@@ -1,0 +1,22 @@
+{
+  "run_at": "2026-11-22T15:47:03.584846+09:00",
+  "method_version": "v3_incomplete_links_as_nan",
+  "source_v03_path": "D:\\seoul-weather-traffic-data\\processed\\yang_seoyeon_topis_weather_commute_20261122_v03.parquet",
+  "output_v04_path": "D:\\seoul-weather-traffic-data\\processed\\yang_seoyeon_topis_weather_commute_20261122_v04.parquet",
+  "output_rows": 588600,
+  "duplicate_keys": 0,
+  "v03_travel_time_nan_rows": 142,
+  "v04_travel_time_nan_rows": 1108,
+  "newly_nan_rows": 966,
+  "partial_link_rows": 966,
+  "all_links_missing_rows": 142,
+  "incomplete_link_rows": 1108,
+  "v04_nan_ratio": 0.0018824328916072035,
+  "review_threshold_ratio": 0.01,
+  "exceeds_review_threshold": false,
+  "wording": "링크 일부 누락 시 관측 링크만 합산되어 통행시간이 과소 추정되므로 NaN 처리",
+  "output_bytes": 10288448,
+  "output_sha256": "0922478f05758f775ce65682836a3a8dfb71aef251c30d9167ccaf6ec59427a6",
+  "sample_path": "C:\\Users\\USER\\seoul-weather-traffic\\data\\sample\\yang_seoyeon_topis_weather_commute_sample_20261122_v04.csv",
+  "sample_composition": "정상 관측 100행 + 링크 결측 NaN 사례 100행"
+}
