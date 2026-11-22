@@ -38,15 +38,20 @@ seoul-weather-traffic/
 │   ├── topis_speed.py      # A: TOPIS 통행속도 (Selenium)
 │   ├── kma_warning.py      # B: 기상특보 (Selenium · 조회 → 페이지 넘김 → 상세)
 │   ├── kma_asos.py         # B: ASOS (공공데이터포털 API)
+│   ├── kma_apihub.py       # B: 과거 단기예보 · 구별 AWS (기상청 API허브)
+│   ├── hrfco_waterlevel.py # B: 한강 수위 (한강홍수통제소 API)
 │   ├── naver_news.py       # C: 뉴스 (Selenium)
 │   ├── traffic_volume.py   # C: 교통량 (TOPIS 월별 파일 · Selenium)
 │   └── yang_seoyeon_link_coords.py  # 양서연: 링크 좌표 API
 │
 ├── src/                    # 여러 노트북이 같이 쓰는 함수
-│   ├── io_utils.py         # 파일 읽기 (인코딩 등)
-│   ├── features.py         # 평소값 · 통행시간 계산 등
+│   ├── io_utils.py         # 파일 읽기 (TOPIS CSV · 시스템 공백 목록 등)
+│   ├── yang_seoyeon_merge.py  # C: 링크 기본표 · 도로 통행시간 표
 │   ├── weather.py          # B: 날씨 사건 · 연구 기간 · 악천후일
-│   └── kma_warnings.py     # B: 특보 통보문 → 서울 특보 상태
+│   ├── kma_warnings.py     # B: 특보 통보문 → 서울 특보 상태
+│   ├── baseline.py         # B: 도로 평소값 · 정체 기준 후보
+│   ├── link_baseline.py    # B: 구간(링크) 평소값 · 정체 길이 비율
+│   └── features.py         # A: 입력 변수 (아직 비어 있음)
 │
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당)
 │   ├── 01_A_topis_check.ipynb
@@ -61,9 +66,13 @@ seoul-weather-traffic/
 │
 ├── data/
 │   ├── raw/                # 원본 (깃에 올리지 않음, 팀 드라이브에 보관)
-│   │   ├── topis/          # A: 월별 xlsx · csv
+│   │   ├── topis/          # A: 월별 xlsx · csv (릴리스 topis-data-v1)
+│   │   ├── c_traffic/      # C: 링크 기본표 · 도로 통행시간 표 parquet (릴리스)
 │   │   ├── asos/           # B: ASOS 서울(108) 월별 csv
-│   │   └── kma_warning/    # B: 특보 목록 · 통보문 본문
+│   │   ├── kma_warning/    # B: 특보 목록 · 통보문 본문
+│   │   ├── kma_fcst/       # B: 과거 단기예보 격자
+│   │   ├── kma_aws/        # B: 구별 AWS 시간자료
+│   │   └── hrfco/          # B: 한강 수위 10분 자료
 │   ├── processed/          # 공통 표: 통행시간 · 날씨 · 교통량
 │   │   ├── train/          # 학습 시즌 (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
 │   │   └── eval/           # 평가 시즌 (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
@@ -80,7 +89,7 @@ seoul-weather-traffic/
 
 ## 실행 순서
 
-1. **수집** (`crawling/`): TOPIS 통행속도(A), 기상특보 · ASOS(B), 뉴스 · 교통량 · 링크 좌표(C)
+1. **수집** (`crawling/`): TOPIS 통행속도(A), 기상특보 · ASOS · 예보 · AWS · 한강 수위(B), 뉴스 · 교통량(TOPIS 월별 파일) · 링크 좌표(C)
 2. **공통 표 만들기** (`notebooks/01~04`): 악천후 사건 · 연구 기간(B) → 도로 통행시간 표(C) → 교통량 매핑(C)
 3. **분석 · 모델** (`notebooks/10~13`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
 4. **사례 검증** (`notebooks/20`): 2025-12-04 폭설 · 2026-07-14~15 집중호우 (세 명 함께)
@@ -120,7 +129,6 @@ seoul-weather-traffic/
 | 11/20 | 분석 도로 목록 · 공통 열 이름 (C) |
 | 11/21 | 연구 기간 · 강도 기준 · 악천후일 목록 (B), TOPIS 시험 수집 (A) |
 | 11/24 | 도로 통행시간 표 (C) |
-| 11/25 | 평소값 · 정체 기준 (B), **데이터 동결** |
-| 11/28 | 교통량 표 (C) |
+| 11/25 | 평소값 · 정체 기준 (B), 교통량 표 (C), **데이터 동결** |
 | 12/9 | 예측 결과 · SHAP (A), 발동 기준 (B) |
 | 12/16 | 오전 11시 제출 (B), 12시 발표 |
