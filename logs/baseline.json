@@ -1,0 +1,13 @@
+{
+ "run_at": "2026-11-22T23:39:40+09:00",
+ "input": "yang_seoyeon_topis_weather_commute_20261122_v04.parquet",
+ "road_rows": 588600,
+ "travel_time_nan_rows": 1108,
+ "baseline_cells": 36000,
+ "baseline_level_counts": {
+  "weekday": 36000
+ },
+ "ratio_nan_rows": 1108,
+ "clear_ratio_median_train": 1.0,
+ "min_n": 5
+}
