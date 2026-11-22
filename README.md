@@ -39,7 +39,7 @@ seoul-weather-traffic/
 │   ├── kma_warning.py      # B: 기상특보 (Selenium · 조회 → 페이지 넘김 → 상세)
 │   ├── kma_asos.py         # B: ASOS (공공데이터포털 API)
 │   ├── naver_news.py       # C: 뉴스 (Selenium)
-│   ├── traffic_volume.py   # C: 교통량 API
+│   ├── traffic_volume.py   # C: 교통량 (TOPIS 월별 파일 · Selenium)
 │   └── yang_seoyeon_link_coords.py  # 양서연: 링크 좌표 API
 │
 ├── src/                    # 여러 노트북이 같이 쓰는 함수
