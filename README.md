@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | **A · 예측** | 몇 시간 뒤 각 도로가 평소보다 얼마나 늦어지나? | TOPIS 통행속도 (과제 필수) | 선형회귀 → CatBoost 단계별 실험, 시계열 교차검증, SHAP |
 | **B · 날씨와 경보** | 어떤 날씨 조건에서 느려지고, 언제 막히기 시작하나? | 기상특보(대설 · 호우) · 관측 | 정체 경보(로지스틱 · 결정트리), 연관성 분석, 생존분석 |
-| **C · 교통량과 공간** | 어느 도로가 취약하고, 보도된 정체와 어떻게 겹치나? | 네이버 뉴스(폭설 · 폭우) | 통행시간 표 · 교통량 매핑, K-means → DTW, Folium 지도 |
+| **C · 교통량과 공간** | 어느 도로가 취약하고, 보도된 정체와 어떻게 겹치나? | TOPIS 지점별 월간 교통량 · 네이버 뉴스(폭설 · 폭우) | 통행시간 표 · 교통량 매핑, K-means → DTW, Folium 지도 |
 
 자세한 기획 · 역할 · 일정은 팀 노션 페이지를 본다.
 
@@ -41,7 +41,7 @@ seoul-weather-traffic/
 │   ├── kma_apihub.py       # B: 과거 단기예보 · 구별 AWS (기상청 API허브)
 │   ├── hrfco_waterlevel.py # B: 한강 수위 (한강홍수통제소 API)
 │   ├── naver_news.py       # C: 뉴스 (Selenium)
-│   ├── traffic_volume.py   # C: 교통량 (TOPIS 월별 파일 · Selenium)
+│   ├── traffic_volume.py   # C: TOPIS 월별 교통량 (Selenium 다운로드·전처리)
 │   └── yang_seoyeon_link_coords.py  # 양서연: 링크 좌표 API
 │
 ├── src/                    # 여러 노트북이 같이 쓰는 함수
@@ -56,11 +56,11 @@ seoul-weather-traffic/
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
 │   ├── 00_A_collect.ipynb   # 수집 기록 (담당자별 1개)
 │   ├── 00_B_collect.ipynb
-│   ├── 00_C_collect.ipynb
+│   ├── 00_ysy_collect.ipynb
 │   ├── 01_A_topis_check.ipynb
 │   ├── 02_B_weather_events.ipynb
-│   ├── yang_seoyeon_03_travel_time.ipynb
-│   ├── yang_seoyeon_04_traffic_mapping.ipynb
+│   ├── 03_ysy_travel_time.ipynb
+│   ├── 04_ysy_traffic_mapping.ipynb
 │   ├── 10_B_comparison.ipynb
 │   ├── 11_A_prediction.ipynb
 │   ├── 12_B_alert_survival.ipynb
@@ -87,7 +87,12 @@ seoul-weather-traffic/
 │   └── tables/             # MAE 비교표, 경보 성능표 등
 │
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
-    └── screenshots/        # Selenium 화면 캡처 (TOPIS · 기상특보)
+    ├── screenshots/        # 기존 A·B Selenium 화면 캡처
+    └── yang_seoyeon/       # C 개인 실행·오류·검증 기록
+        ├── travel_time/
+        ├── traffic_mapping/
+        ├── traffic_volume/
+        └── naver_news/
 ```
 
 ## 실행 순서
@@ -97,6 +102,86 @@ seoul-weather-traffic/
 2. **공통 표 만들기** (`notebooks/01~04`): 악천후 사건 · 연구 기간(B) → 도로 통행시간 표(C) → 교통량 매핑(C)
 3. **분석 · 모델** (`notebooks/10~13`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
 4. **사례 검증** (`notebooks/20`): 2025-12-04 폭설 · 2026-07-14~15 집중호우 (세 명 함께)
+
+### C · TOPIS 월별 교통량 수집과 전처리
+
+교통량은 `VolInfo` API 대량 호출 대신 TOPIS의 **지점별 일자별 교통량**
+화면을 Selenium으로 조작해 수집한다. 연도 선택 후 AJAX로 월 목록이
+갱신되는 것을 기다리고 필요한 26개월의 XLSX 다운로드 버튼을 누른다.
+단순 다운로드 URL 직접 호출은 사용하지 않는다.
+
+실행 환경은 Python 3.11 `youth-isolation`이며 다음 패키지가 필요하다.
+
+- `selenium>=4.20`: TOPIS 화면 조작과 다운로드
+- `pandas>=2.2`, `openpyxl>=3.1`: 월별 XLSX 전처리
+- `pyarrow>=26.0.1`: train/eval Parquet 저장
+
+PowerShell에서 프로젝트 루트로 이동한 다음 아래 순서로 **직접 실행**한다.
+코드 import만으로는 브라우저·네트워크·파일 저장이 발생하지 않는다.
+
+```powershell
+# 0. 필수 패키지 확인: 모두 True여야 한다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe -c "import importlib.util as u; print({n: bool(u.find_spec(n)) for n in ['selenium','pandas','openpyxl','pyarrow']})"
+
+# 현재 환경에서 openpyxl만 없다면 사용자가 직접 아래 명령을 실행한다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe -m pip install "openpyxl>=3.1"
+
+# 1. 정희의 train/eval 90일에서 필요한 26개 연월만 출력한다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe crawling\traffic_volume.py months
+
+# 2. 전체 실행 전 2024-11 한 달만 Selenium·기록·구조 검증을 시험한다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe crawling\traffic_volume.py test --month 2024-11
+
+# 3. 화면에 전용 Chrome을 띄워 26개월 수집·90일 전처리를 한 실행으로 기록한다.
+#    실행 중 해당 Chrome 창을 직접 조작하지 않는다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe crawling\traffic_volume.py run
+
+# 4. 브라우저를 실행하지 않고 과거 성공·실패·중단 이력을 확인한다.
+C:\Users\USER\.conda\envs\youth-isolation\python.exe crawling\traffic_volume.py history
+```
+
+화면 표시가 필요 없는 재실행에만 `run --headless`를 선택할 수 있다.
+기본 데이터 루트는 `D:\seoul-weather-traffic-data`이며, 다른 위치가 필요하면
+명령마다 `--data-root D:\다른경로`를 붙이거나 현재 PowerShell 세션에만
+`SEOUL_TRAFFIC_DATA_ROOT`를 설정한다. 영구 환경 설정은 요구하지 않는다.
+
+생성 위치:
+
+```text
+D:\seoul-weather-traffic-data\traffic_volume\
+├── raw\xlsx\
+│   └── yang_seoyeon_topis_traffic_volume_YYYY-MM.xlsx
+├── processed\
+│   ├── yang_seoyeon_traffic_volume_train_실행ID_v01_(성공).parquet
+│   └── yang_seoyeon_traffic_volume_eval_실행ID_v01_(성공).parquet
+└── runs\
+    └── yang_seoyeon\
+        ├── yang_seoyeon_traffic_volume_test_YYYY-MM_실행ID_v01_(성공)\
+        ├── yang_seoyeon_traffic_volume_실행ID_v01_(성공)\
+        ├── yang_seoyeon_traffic_volume_실행ID_v01_(실패)\
+        └── yang_seoyeon_traffic_volume_실행ID_v01_(중단)\
+```
+
+새 교통량 실행 기록은 `runs/yang_seoyeon/`에 저장한다. 이전에
+`runs/`에 직접 저장된 `yang_seoyeon_traffic_volume_*` 기록도
+`history` 명령과 05 노트북에서 계속 함께 조회한다.
+
+이미 크기가 0보다 큰 월별 파일이 있으면 덮어쓰지 않고 건너뛴다. 실패한
+월은 기본 3회까지만 재시도하고 JSONL 로그에 시각·월·시도 횟수·실패 원인을
+남긴다. 실행 폴더에는 Git 커밋 ID·브랜치·미커밋 여부·변경 파일명과 코드
+SHA-256도 기록한다. 실행 시작 시 폴더를 `(중단)`으로 만들고 정상 완료 시
+`(성공)`, 오류 종료 시 `(실패)`로 바꾸므로 강제 종료 기록도 보존된다.
+
+`notebooks/00_ysy_collect.ipynb`는 핵심 함수 코드, 모든 실행
+이력, 오류·재시도 로그, 검증표와 결과 표를 읽어 보여준다.
+조회 셀만 실행하면 Selenium은 시작되지 않으며, 실제 수집 셀의
+`EXECUTE_ONE_MONTH_TEST = True` 또는 `EXECUTE_COLLECTION = True`를 직접
+설정한 경우에만 수집한다. 1개월 시험은 전체 Parquet를 만들지 않고 해당
+월의 대상 날짜·5시간대 검증표와 100행 샘플만 실행 폴더에 남긴다.
+
+전처리 결과의 `hour`는 TOPIS 속도와 같은 **끝 시각 기준**이다.
+즉 교통량 `7시`(07:00~08:00)는 `hour=8`로 저장한다. 원본 XLSX와 결과
+Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 
 
 ## 데이터 기준
