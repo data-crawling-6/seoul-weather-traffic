@@ -356,8 +356,6 @@ def download_required_months(
     effective_run_id = run_id or datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     log_path = record_dir / f"yang_seoyeon_collection_log_{effective_run_id}_(중단).jsonl"
     manifest_path = record_dir / f"yang_seoyeon_download_manifest_{effective_run_id}_(중단).csv"
-    screenshot_dir = record_dir / "screenshots"
-    screenshot_dir.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(parents=True, exist_ok=True)
     targets = list(months or required_months())
     invalid = [month for month in targets if not re.fullmatch(r"20\d{2}-(0[1-9]|1[0-2])", month)]
@@ -369,7 +367,6 @@ def download_required_months(
         "log_path": str(log_path), "manifest_path": str(manifest_path),
     }
     manifest_rows: list[dict[str, object]] = []
-    captured_years: set[str] = set()
     driver = None
     try:
         driver = build_driver(raw_dir, headless=headless)
@@ -385,10 +382,6 @@ def download_required_months(
             "headless": headless,
         }
         _append_jsonl(log_path, browser_event)
-        driver.save_screenshot(
-            str(screenshot_dir / f"yang_seoyeon_before_collection_{effective_run_id}.png")
-        )
-
         for month in targets:
             destination = raw_dir / f"yang_seoyeon_topis_traffic_volume_{month}.xlsx"
             if destination.is_file() and destination.stat().st_size > 0:
@@ -409,11 +402,6 @@ def download_required_months(
             for attempt in range(1, retries + 1):
                 try:
                     _select_year_and_wait(driver, By, Select, wait, year)
-                    if year not in captured_years:
-                        driver.save_screenshot(
-                            str(screenshot_dir / f"yang_seoyeon_after_ajax_{year}_{effective_run_id}.png")
-                        )
-                        captured_years.add(year)
                     xpath = (
                         "//*[@id='resultData2_2']//div[contains(@class,'active')]"
                         f"/h5[starts-with(normalize-space(.),'{int(month_number)}월')]"
@@ -443,19 +431,11 @@ def download_required_months(
                     last_error = f"{type(exc).__name__}: {exc}"
                     summary["retries"] += 1
                     progress(f"[재시도 {attempt}/{retries}] {month}: {last_error}")
-                    failure_shot = screenshot_dir / (
-                        f"yang_seoyeon_download_error_{month}_attempt{attempt}_{effective_run_id}.png"
-                    )
-                    try:
-                        driver.save_screenshot(str(failure_shot))
-                    except Exception:
-                        failure_shot = None
                     _append_jsonl(
                         log_path,
                         {
                             "at": _now(), "run_id": effective_run_id, "month": month,
                             "status": "retry", "attempt": attempt, "error": last_error,
-                            "screenshot": str(failure_shot) if failure_shot else None,
                         },
                     )
                     if attempt < retries:
@@ -473,17 +453,11 @@ def download_required_months(
                 _append_jsonl(log_path, event)
     finally:
         if driver is not None:
-            try:
-                driver.save_screenshot(
-                    str(screenshot_dir / f"yang_seoyeon_after_collection_{effective_run_id}.png")
-                )
-            except Exception:
-                pass
             driver.quit()
 
     summary["finished_at"] = _now()
     summary["raw_dir"] = str(raw_dir)
-    summary["screenshots"] = [str(path) for path in sorted(screenshot_dir.glob("*.png"))]
+    summary["screenshots"] = []
     return summary
 
 
@@ -494,10 +468,57 @@ def _find_sheet(sheet_names: list[str], pattern: str) -> str:
     return matches[0]
 
 
+def _month_sheet_pattern(month: str) -> str:
+    """[서연] `1월`과 `01월` 형식의 월별 교통량 시트명을 모두 허용한다."""
+    year = month[:4]
+    month_number = int(month[5:])
+    month_text = rf"0?{month_number}" if month_number < 10 else str(month_number)
+    return rf"^{year}년\s*{month_text}월$"
+
+
+def _normalize_locations(locations: pd.DataFrame, source_name: str) -> pd.DataFrame:
+    """[서연] 구형·신형 TOPIS 좌표 시트를 지점·유출입 방향 단위로 통일한다."""
+    common = {"지점번호", "지점명칭", "위도", "경도"}
+    missing_common = sorted(common - set(locations.columns))
+    if missing_common:
+        raise ValueError(f"{source_name} 위치 공통 열 누락: {missing_common}")
+
+    if {"유입 방향", "유출방향"}.issubset(locations.columns):
+        base = locations[["지점번호", "지점명칭", "위도", "경도", "유입 방향", "유출방향"]].copy()
+        inbound = base[["지점번호", "지점명칭", "위도", "경도", "유입 방향"]].rename(
+            columns={"유입 방향": "direction_detail"}
+        )
+        inbound["방향"] = "유입"
+        outbound = base[["지점번호", "지점명칭", "위도", "경도", "유출방향"]].rename(
+            columns={"유출방향": "direction_detail"}
+        )
+        outbound["방향"] = "유출"
+        normalized = pd.concat([inbound, outbound], ignore_index=True)
+    elif {"방향", "유출입 방향"}.issubset(locations.columns):
+        normalized = locations[["지점번호", "방향", "지점명칭", "위도", "경도", "유출입 방향"]].copy()
+        # 신형 파일은 두 번째(유출) 행의 병합 셀 때문에 지점번호가 비어 있다.
+        normalized["지점번호"] = normalized["지점번호"].ffill()
+        normalized = normalized.rename(columns={"유출입 방향": "direction_detail"})
+    else:
+        raise ValueError(
+            f"{source_name} 위치 방향 열 형식을 식별하지 못했습니다: {list(locations.columns)}"
+        )
+
+    normalized["지점번호"] = normalized["지점번호"].astype(str).str.strip()
+    normalized["방향"] = normalized["방향"].astype(str).str.strip()
+    normalized = normalized[
+        normalized["지점번호"].str.fullmatch(r"[A-Z]-\d{2}", na=False)
+        & normalized["방향"].isin(["유입", "유출"])
+    ].copy()
+    if normalized.duplicated(["지점번호", "방향"]).any():
+        raise ValueError(f"{source_name} 위치 시트에 지점번호·방향 중복이 있습니다.")
+    return normalized
+
+
 def _read_month_file(path: Path, month: str) -> pd.DataFrame:
     """월별 XLSX를 90일·5시간대의 긴 형식으로 변환한다."""
     workbook = pd.ExcelFile(path, engine="openpyxl")
-    volume_sheet = _find_sheet(workbook.sheet_names, rf"{month[:4]}년\s*{int(month[5:])}월")
+    volume_sheet = _find_sheet(workbook.sheet_names, _month_sheet_pattern(month))
     location_sheet = _find_sheet(workbook.sheet_names, r"주소\s*및\s*좌표")
 
     volume = pd.read_excel(workbook, sheet_name=volume_sheet, dtype=object)
@@ -514,15 +535,7 @@ def _read_month_file(path: Path, month: str) -> pd.DataFrame:
     if missing_hours:
         raise ValueError(f"{path.name} 시간 열 누락: {missing_hours}")
 
-    location_required = {"지점번호", "지점명칭", "위도", "경도", "유입 방향", "유출방향"}
-    missing_location = sorted(location_required - set(locations.columns))
-    if missing_location:
-        raise ValueError(f"{path.name} 위치 열 누락: {missing_location}")
-    locations = locations[list(location_required)].copy()
-    locations["지점번호"] = locations["지점번호"].astype(str).str.strip()
-    locations = locations[locations["지점번호"].str.fullmatch(r"[A-Z]-\d{2}", na=False)]
-    if locations["지점번호"].duplicated().any():
-        raise ValueError(f"{path.name} 위치 시트에 지점번호 중복이 있습니다.")
+    locations = _normalize_locations(locations, path.name)
 
     identifier_columns = ["일자", "요일", "지점명", "지점번호", "방향", "구분"]
     identifier_columns = [column for column in identifier_columns if column in volume.columns]
@@ -537,14 +550,7 @@ def _read_month_file(path: Path, month: str) -> pd.DataFrame:
     long["hour"] = long["volume_start_hour"].map(VOLUME_TO_TOPIS_END_HOUR).astype(int)
     long["traffic_volume"] = pd.to_numeric(long["traffic_volume"], errors="coerce")
     long["지점번호"] = long["지점번호"].astype(str).str.strip()
-    long = long.merge(locations, on="지점번호", how="left", validate="many_to_one")
-
-    direction_lookup = long["방향"].map({"유입": "유입 방향", "유출": "유출방향"})
-    long["direction_detail"] = ""
-    inbound = direction_lookup.eq("유입 방향")
-    outbound = direction_lookup.eq("유출방향")
-    long.loc[inbound, "direction_detail"] = long.loc[inbound, "유입 방향"]
-    long.loc[outbound, "direction_detail"] = long.loc[outbound, "유출방향"]
+    long = long.merge(locations, on=["지점번호", "방향"], how="left", validate="many_to_one")
     long["road_name"] = long["지점명"].astype(str).str.replace(r"\(.*$", "", regex=True).str.strip()
     long["commute_period"] = long["hour"].map(lambda value: "morning" if value <= 9 else "evening")
     long["source_month"] = month
@@ -559,6 +565,52 @@ def _read_month_file(path: Path, month: str) -> pd.DataFrame:
         }
     )
     return long
+
+
+def summarize_traffic_volume_missing(frame: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    """[서연] 전처리 결과의 교통량 결측을 날짜·지점·시간대별로 요약한다."""
+    required = {
+        "date", "split", "spot_id", "spot_name", "io_type", "hour",
+        "traffic_volume", "source_month", "source_file",
+    }
+    missing_columns = sorted(required - set(frame.columns))
+    if missing_columns:
+        raise ValueError(f"교통량 결측 분석 열 누락: {missing_columns}")
+
+    data = frame.copy()
+    data["is_missing"] = data["traffic_volume"].isna()
+
+    def grouped(columns: list[str]) -> pd.DataFrame:
+        result = (
+            data.groupby(columns, dropna=False)
+            .agg(rows=("is_missing", "size"), missing_rows=("is_missing", "sum"))
+            .reset_index()
+        )
+        result["missing_pct"] = (result["missing_rows"] / result["rows"] * 100).round(3)
+        return result.sort_values(["missing_pct", "missing_rows"], ascending=False).reset_index(drop=True)
+
+    total_rows = len(data)
+    missing_rows = int(data["is_missing"].sum())
+    summary = pd.DataFrame([{
+        "rows": total_rows,
+        "missing_rows": missing_rows,
+        "missing_pct": round(missing_rows / total_rows * 100, 3) if total_rows else 0.0,
+        "dates": int(data["date"].nunique()),
+        "spots": int(data["spot_id"].nunique()),
+    }])
+    missing_sample = data.loc[
+        data["is_missing"],
+        ["date", "split", "spot_id", "spot_name", "io_type", "hour", "source_month", "source_file"],
+    ].head(100)
+    return {
+        "summary": summary,
+        "by_split": grouped(["split"]),
+        "by_source_month": grouped(["source_month"]),
+        "by_date": grouped(["date", "split"]),
+        "by_hour": grouped(["hour"]),
+        "by_spot": grouped(["spot_id", "spot_name", "io_type"]),
+        "missing_sample": missing_sample.reset_index(drop=True),
+    }
 
 
 def preprocess_downloads(
