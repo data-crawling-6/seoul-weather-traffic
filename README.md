@@ -56,12 +56,11 @@ seoul-weather-traffic/
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
 │   ├── 00_A_collect.ipynb   # 수집 기록 (담당자별 1개)
 │   ├── 00_B_collect.ipynb
-│   ├── 00_C_collect.ipynb
+│   ├── 00_ysy_collect.ipynb
 │   ├── 01_A_topis_check.ipynb
 │   ├── 02_B_weather_events.ipynb
 │   ├── 03_ysy_travel_time.ipynb
-│   ├── 04_ysy_traffic_volume_collect.ipynb
-│   ├── 05_ysy_traffic_mapping.ipynb
+│   ├── 04_ysy_traffic_mapping.ipynb
 │   ├── 10_B_comparison.ipynb
 │   ├── 11_A_prediction.ipynb
 │   ├── 12_B_alert_survival.ipynb
@@ -173,7 +172,7 @@ D:\seoul-weather-traffic-data\traffic_volume\
 SHA-256도 기록한다. 실행 시작 시 폴더를 `(중단)`으로 만들고 정상 완료 시
 `(성공)`, 오류 종료 시 `(실패)`로 바꾸므로 강제 종료 기록도 보존된다.
 
-`notebooks/04_ysy_traffic_volume_collect.ipynb`는 핵심 함수 코드, 모든 실행
+`notebooks/00_ysy_collect.ipynb`는 핵심 함수 코드, 모든 실행
 이력, 오류·재시도 로그, 검증표와 결과 표를 읽어 보여준다.
 조회 셀만 실행하면 Selenium은 시작되지 않으며, 실제 수집 셀의
 `EXECUTE_ONE_MONTH_TEST = True` 또는 `EXECUTE_COLLECTION = True`를 직접
