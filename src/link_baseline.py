@@ -9,8 +9,8 @@
                   (맑음 = event_id · impact 없음, 칸당 맑은 시간이 MIN_N 미만이면 같은 시즌 · 링크 · 시간의 평일 전체로 대신)
 - 링크 비율     : 그 시간 링크 통행시간 ÷ 링크 평소값
 - 링크 정체     : 링크 비율 > LINK_RATIO (기본 1.5 = 속도가 평소의 2/3 미만, 도로 단위 기준과 같게)
-- 정체 길이 비율: 정체 링크 거리 합 ÷ 관측된 링크 거리 합 (도로 · 방향 · 날짜 · 시간)
-- 도로 정체     : 정체 길이 비율 >= ROAD_LENGTH_RATIO (기본 0.3) → is_congested 열 (1 정체 · 0 아님 · 관측 없으면 빈값)
+- 정체 길이 비율: 정체 링크 거리 합 ÷ 도로 전체 거리 (도로 · 방향 · 날짜 · 시간)
+- 도로 정체     : 정체 길이 비율 >= ROAD_LENGTH_RATIO (기본 0.3) → is_congested 열 (1 정체 · 0 아님 · 링크가 하나라도 빠지면 빈값)
 - 결측 길이 비율: 속도가 없는 링크 거리 합 ÷ 도로 전체 거리 (통제 · 마비 신호로 따로 본다)
 
 기준값은 config/periods.yaml 의 thresholds (congestion_link_ratio · congestion_road_length_ratio)에서 읽는다.
@@ -65,9 +65,9 @@ def load_thresholds() -> dict:
 
 
 def add_is_congested(g: pd.DataFrame, road_length_ratio: float) -> pd.DataFrame:
-    """도로 · 방향 · 시간마다 정체 여부. 관측 거리가 없으면(비율 NaN) 빈값으로 둔다."""
+    """도로 · 방향 · 시간마다 정체 여부. 링크가 하나라도 빠지면(is_complete 아님) 빈값으로 둔다."""
     r = g["congestion_length_ratio"]
-    g["is_congested"] = (r >= road_length_ratio).astype("Int8").mask(r.isna())
+    g["is_congested"] = (r >= road_length_ratio).astype("Int8").mask(~g["is_complete"])
     return g
 COLUMNS = ["link_id", "road_id", "direction", "function_type", "date", "hour", "season", "split",
            "distance_m", "link_travel_time_seconds", "missing_reason", "event_id", "impact"]
@@ -116,21 +116,22 @@ def road_congestion_length(d: pd.DataFrame, b: pd.DataFrame, link_ratio: float) 
     x["cong_dist"] = x["distance_m"].where(valid & (x["link_ratio"] > link_ratio), 0.0)
     x["miss_dist"] = x["distance_m"].where(x["link_travel_time_seconds"].isna(), 0.0)
     x["is_cong"] = (valid & (x["link_ratio"] > link_ratio)).astype("int16")
+    x["is_obs"] = valid.astype("int16")
     g = (x.groupby(["date", "hour", "season", "split", "road_id", "direction", "function_type", "weather_group"])
-         .agg(n_links=("link_id", "size"), n_congested_links=("is_cong", "sum"),
+         .agg(n_links=("link_id", "size"), n_congested_links=("is_cong", "sum"), n_observed_links=("is_obs", "sum"),
               total_distance_m=("distance_m", "sum"), observed_distance_m=("obs_dist", "sum"),
               congested_distance_m=("cong_dist", "sum"), missing_distance_m=("miss_dist", "sum"),
               max_link_ratio=("link_ratio", "max"))
          .reset_index())
-    g["congestion_length_ratio"] = np.where(g["observed_distance_m"] > 0,
-                                            g["congested_distance_m"] / g["observed_distance_m"], np.nan)
+    g["congestion_length_ratio"] = g["congested_distance_m"] / g["total_distance_m"]
+    g["is_complete"] = g["n_observed_links"] == g["n_links"]  # 링크가 모두 관측된 시간
     g["missing_length_ratio"] = g["missing_distance_m"] / g["total_distance_m"]
     return g.sort_values(["date", "hour", "road_id", "direction"]).reset_index(drop=True)
 
 
 def compare_candidates(g: pd.DataFrame) -> pd.DataFrame:
     """학습 시즌만: 정체 길이 비율 기준마다 날씨 구분별 해당 시간 비율과 '악천후 ÷ 맑음' 배수."""
-    t = g[(g["split"] == "train") & g["congestion_length_ratio"].notna()]
+    t = g[(g["split"] == "train") & g["is_complete"]]
     rows = []
     for th in LENGTH_CANDIDATES:
         hit = t["congestion_length_ratio"] >= th
@@ -186,6 +187,7 @@ def main():
         "road_length_ratio_threshold": a.road_length_ratio,
         "congested_rows": {s: int(g.loc[g["split"] == s, "is_congested"].sum()) for s in ("train", "eval")},
         "congested_na_rows": int(g["is_congested"].isna().sum()),
+        "incomplete_rows": {s: int((~g.loc[g["split"] == s, "is_complete"]).sum()) for s in ("train", "eval")},
         "baseline_cells": len(b),
         "baseline_level_counts": b["baseline_level"].value_counts().to_dict(),
         "road_rows": len(g),
