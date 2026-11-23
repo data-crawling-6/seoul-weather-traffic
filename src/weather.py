@@ -470,25 +470,48 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None
     fl.to_csv(tables / "season_first_last.csv", index=False, encoding="utf-8-sig")
     opts.to_csv(tables / "research_period_options.csv", index=False, encoding="utf-8-sig")
 
-    cfg = {
-        "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
-        "owner": "B",
+    update_periods_yaml({
         "station": "ASOS 서울(108)",
         "seasons": {"train": [SEASON_NAMES[s] for s in TRAIN_SEASONS],
                     "eval": [SEASON_NAMES[s] for s in EVAL_SEASONS]},
         "research_period": rec,
         "commute_hours": COMMUTE_HOURS,
         "thresholds": th,
-        "files": {
-            "hourly": "data/processed/{train,eval}/weather_hourly_{split}.csv",
-            "events": "data/processed/{train,eval}/weather_events_{split}.csv",
-            "days": "data/processed/{train,eval}/weather_days_{split}.csv  (C 교통량 수집 날짜)",
-            "warnings": "data/processed/{train,eval}/weather_warnings_{split}.csv  (서울 특보 구간 · 생존분석 출발점)",
-        },
-    }
-    (ROOT / "config").mkdir(exist_ok=True)
-    with open(ROOT / "config/periods.yaml", "w", encoding="utf-8") as f:
-        yaml.safe_dump(cfg, f, allow_unicode=True, sort_keys=False)
+    })
+
+
+def update_periods_yaml(updates: dict, path: Path | None = None) -> bool:
+    """config/periods.yaml 에서 이 코드가 계산하는 값만 바꾼다.
+
+    - 파일을 통째로 다시 쓰지 않는다: periods · filters · time_definition · files 같은
+      다른 키(C · A가 읽는 값)는 그대로 둔다.
+    - thresholds 는 키 단위로 합친다 (파일에만 있는 기준값도 보존).
+    - 값이 하나도 바뀌지 않으면 파일을 건드리지 않는다 → 주석이 유지된다.
+    - 값이 바뀌면 바뀐 키를 출력한다. 이때 yaml 주석은 사라지므로 커밋 전에 git diff로 확인한다.
+    반환: 파일을 썼으면 True
+    """
+    import yaml
+
+    path = path or ROOT / "config" / "periods.yaml"
+    old = {}
+    if path.exists():
+        old = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    new = dict(old)
+    for key, value in updates.items():
+        if key == "thresholds":
+            new[key] = {**(old.get(key) or {}), **value}
+        else:
+            new[key] = value
+    changed = [k for k in new if k != "updated" and new.get(k) != old.get(k)]
+    if not changed:
+        print(f"periods.yaml: 바뀐 값 없음 → 파일 그대로 둠 ({path.name})")
+        return False
+    new["updated"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+    path.parent.mkdir(exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(new, f, allow_unicode=True, sort_keys=False)
+    print(f"periods.yaml: {', '.join(changed)} 갱신 (주석은 사라짐 · 커밋 전에 git diff config/periods.yaml 확인)")
+    return True
 
 
 def run_all(max_train_days: int = 30, max_eval_days: int = 15, min_coverage: float = 0.9):
