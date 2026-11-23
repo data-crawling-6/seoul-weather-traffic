@@ -59,10 +59,9 @@ seoul-weather-traffic/
 │   ├── 00_C_collect.ipynb
 │   ├── 01_A_topis_check.ipynb
 │   ├── 02_B_weather_events.ipynb
-│   ├── yang_seoyeon/
-│   │   ├── yang_seoyeon_03_travel_time.ipynb
-│   │   ├── yang_seoyeon_04_traffic_mapping.ipynb
-│   │   └── yang_seoyeon_05_traffic_volume.ipynb
+│   ├── 03_ysy_travel_time.ipynb
+│   ├── 04_ysy_traffic_volume_collect.ipynb
+│   ├── 05_ysy_traffic_mapping.ipynb
 │   ├── 10_B_comparison.ipynb
 │   ├── 11_A_prediction.ipynb
 │   ├── 12_B_alert_survival.ipynb
@@ -174,8 +173,8 @@ D:\seoul-weather-traffic-data\traffic_volume\
 SHA-256도 기록한다. 실행 시작 시 폴더를 `(중단)`으로 만들고 정상 완료 시
 `(성공)`, 오류 종료 시 `(실패)`로 바꾸므로 강제 종료 기록도 보존된다.
 
-`notebooks/yang_seoyeon/yang_seoyeon_05_traffic_volume.ipynb`는 핵심 함수 코드, 모든 실행
-이력, 오류·재시도 로그, Selenium 캡처, 검증표와 결과 표를 읽어 보여준다.
+`notebooks/04_ysy_traffic_volume_collect.ipynb`는 핵심 함수 코드, 모든 실행
+이력, 오류·재시도 로그, 검증표와 결과 표를 읽어 보여준다.
 조회 셀만 실행하면 Selenium은 시작되지 않으며, 실제 수집 셀의
 `EXECUTE_ONE_MONTH_TEST = True` 또는 `EXECUTE_COLLECTION = True`를 직접
 설정한 경우에만 수집한다. 1개월 시험은 전체 Parquet를 만들지 않고 해당
