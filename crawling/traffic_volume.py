@@ -725,6 +725,69 @@ def _finalize_run_dir(run_dir: Path, status: str) -> Path:
     return _rename_status(run_dir, "중단", status)
 
 
+def _rewrite_run_path_references(
+    value: object,
+    *,
+    old_run_dir: Path,
+    final_run_dir: Path,
+    status: str,
+) -> object:
+    """요약 내부의 실행 폴더 경로를 최종 상태 경로로 바꾼다."""
+    if isinstance(value, dict):
+        return {
+            key: _rewrite_run_path_references(
+                item,
+                old_run_dir=old_run_dir,
+                final_run_dir=final_run_dir,
+                status=status,
+            )
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [
+            _rewrite_run_path_references(
+                item,
+                old_run_dir=old_run_dir,
+                final_run_dir=final_run_dir,
+                status=status,
+            )
+            for item in value
+        ]
+    if isinstance(value, str) and str(old_run_dir) in value:
+        return value.replace(str(old_run_dir), str(final_run_dir)).replace(
+            "(중단)", f"({status})"
+        )
+    return value
+
+
+def _write_final_summary(
+    summary: dict[str, object],
+    *,
+    summary_path: Path,
+    old_run_dir: Path,
+    final_run_dir: Path,
+    status: str,
+) -> dict[str, object]:
+    """이름 변경이 끝난 후 summary의 모든 경로를 최종 위치로 다시 기록한다."""
+    finalized = _rewrite_run_path_references(
+        summary,
+        old_run_dir=old_run_dir,
+        final_run_dir=final_run_dir,
+        status=status,
+    )
+    if not isinstance(finalized, dict):
+        raise TypeError("최종 summary는 dict여야 합니다.")
+    finalized["run_dir"] = str(final_run_dir)
+    final_summary_path = final_run_dir / summary_path.name.replace(
+        "(중단)", f"({status})"
+    )
+    finalized["summary_path"] = str(final_summary_path)
+    final_summary_path.write_text(
+        json.dumps(finalized, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return finalized
+
+
 def run_test_month(
     month: str,
     *,
@@ -819,7 +882,13 @@ def run_test_month(
     }
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     final_dir = _finalize_run_dir(run_dir, final_status)
-    summary["run_dir"] = str(final_dir)
+    summary = _write_final_summary(
+        summary,
+        summary_path=summary_path,
+        old_run_dir=run_dir,
+        final_run_dir=final_dir,
+        status=final_status,
+    )
     progress(f"[1개월 시험 {final_status}] {final_dir}")
     if final_status == "실패":
         raise RuntimeError(f"1개월 시험 실패 기록: {final_dir}; 원인: {error}")
@@ -926,7 +995,13 @@ def run_pipeline(
     }
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     final_dir = _finalize_run_dir(run_dir, final_status)
-    summary["run_dir"] = str(final_dir)
+    summary = _write_final_summary(
+        summary,
+        summary_path=summary_path,
+        old_run_dir=run_dir,
+        final_run_dir=final_dir,
+        status=final_status,
+    )
     progress(f"[실행 {final_status}] {final_dir}")
     if final_status == "실패":
         raise RuntimeError(f"실행 실패 기록: {final_dir}; 원인: {error}")
