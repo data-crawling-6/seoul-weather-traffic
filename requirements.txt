@@ -11,3 +11,11 @@ holidays>=0.109
 pyarrow>=26.0.1
 matplotlib
 jupyter
+
+# 모델 · 시각화 (11/25 분석부터)
+scikit-learn     # 선형회귀(A) · 로지스틱 · 결정트리(B) · K-means(C)
+catboost         # 예측 (A)
+shap             # 변수 기여도 (A)
+lifelines        # 생존분석 (B)
+tslearn          # DTW 군집 (C)
+folium           # 취약 도로 지도 (C)

@@ -1,10 +1,20 @@
 {
- "run_at": "2026-11-23T01:15:11+09:00",
+ "run_at": "2026-11-23T22:38:27+09:00",
  "input": "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet",
  "link_rows": 5732310,
  "links": 1753,
  "link_tt_nan_rows": 1838,
  "link_ratio_threshold": 1.5,
+ "road_length_ratio_threshold": 0.3,
+ "congested_rows": {
+  "train": 7796,
+  "eval": 2515
+ },
+ "congested_na_rows": 1108,
+ "incomplete_rows": {
+  "train": 666,
+  "eval": 442
+ },
  "baseline_cells": 350600,
  "baseline_level_counts": {
   "weekday": 350600

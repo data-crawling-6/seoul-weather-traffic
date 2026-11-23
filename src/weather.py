@@ -10,7 +10,8 @@
 6. select_days()        : 악천후일 · 비교일 목록 (C의 교통량 수집용, 개수 제한)
 7. save_outputs()       : 학습 / 평가로 나눠 저장 + config/periods.yaml
 
-기준 숫자는 아래 THRESHOLDS 에서 바꾼다.
+기준 숫자는 config/periods.yaml 의 thresholds 가 우선이다 (팀의 약속).
+아래 THRESHOLDS 는 yaml에 없는 키에만 쓰는 기본값이고, 둘이 다르면 경고를 출력한다.
 """
 from __future__ import annotations
 
@@ -24,7 +25,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# ── 기준값 (팀에서 확정하면 여기만 고친다) ─────────────────────────
+# ── 기준값 기본값 (실제 값은 config/periods.yaml 의 thresholds 가 우선) ──────
 THRESHOLDS = {
     "snow_temp_c": 1.0,          # 강수가 있고 기온이 이 값 이하면 눈으로 본다
     "event_gap_h": 3,            # 비 · 눈이 이 시간보다 오래 끊기면 다른 사건
@@ -34,6 +35,8 @@ THRESHOLDS = {
     "rain_heavy_mmh": 30.0,      # 시간당 30mm 이상 또는
     "rain_heavy_total_mm": 80.0, # 사건 총 80mm 이상 = 호우
     "summer_day_mm": 30.0,       # 여름 기간을 정할 때 쓰는 '큰비 날' (하루 30mm 이상)
+    "congestion_link_ratio": 1.5,        # 링크 정체: 통행시간 ÷ 평소값 > 1.5 (속도가 평소의 2/3 미만)
+    "congestion_road_length_ratio": 0.3, # 도로 정체: 정체 링크 거리가 도로 길이의 30% 이상
     "freezing_temp_c": 0.5,      # 비 사건 중 기온이 이 값 이하인 시간이 있으면 어는비 표시
     "impact_after_snow_h": 12,   # 눈이 그친 뒤 영향을 보는 시간
     "impact_after_rain_h": 3,    # 비가 그친 뒤 영향을 보는 시간
@@ -43,6 +46,26 @@ THRESHOLDS = {
 #   ASOS 08시 강수량 = 07:00~08:00 누적 → 두 자료 모두 끝 시각 기준이라 같은 시각끼리 바로 붙인다.
 #   (TOPIS "~24시"는 다음 날 00시와 같은 칸)
 COMMUTE_HOURS = [8, 9, 18, 19, 20]  # 출근: ~08 · ~09시 / 퇴근: ~18 · ~19 · ~20시
+BASELINE_DAYS = 28  # 평소값 구간: 연구 기간 시작 28일(4주) 전부터 (periods 의 baseline_start)
+
+
+def apply_yaml_thresholds(th: dict, path: Path | None = None) -> dict:
+    """config/periods.yaml 의 thresholds 로 th 를 덮는다 (제자리 수정).
+
+    yaml 이 팀의 약속이라 yaml 값이 이긴다. 코드 값과 다르면 경고를 출력한다.
+    yaml 이 없거나 thresholds 가 없으면 코드 기본값을 그대로 쓴다.
+    """
+    path = path or ROOT / "config" / "periods.yaml"
+    try:
+        import yaml
+        cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except (FileNotFoundError, ImportError):
+        return th
+    for key, value in (cfg.get("thresholds") or {}).items():
+        if key in th and th[key] != value:
+            print(f"⚠️ 기준값 {key}: 코드 기본값 {th[key]} 대신 periods.yaml 값 {value} 사용")
+        th[key] = value
+    return th
 
 # 학습 3년 · 평가 시즌 (겨울은 11월이 속한 해로 부른다: W2022 = 2022~23 겨울)
 TRAIN_SEASONS = ["W2022", "W2023", "W2024", "S2023", "S2024", "S2025"]
@@ -59,6 +82,8 @@ SUMMER_WINDOW = ((5, 1), (9, 30))   # 5/1 ~ 9/30
 # 실제 자료에서 비 오는 시간엔 01, 2025-12-04 눈 오는 시간엔 05가 찍힌 것을 확인했다. 최종은 기상청 코드표로 확인.
 RAIN_CODES = {"01"}
 SNOW_CODES = {"05"}
+
+apply_yaml_thresholds(THRESHOLDS)  # 함수 기본값(th=THRESHOLDS)도 같은 dict 를 보므로 yaml 값이 모든 계산에 쓰인다
 
 INTENSITY_ORDER = {"많은 눈": 6, "호우": 5, "보통 눈": 4, "강한 비": 3, "약한 눈": 2, "약한 비": 1, "눈(안 쌓임)": 1}
 BAD_INTENSITIES = {"많은 눈", "보통 눈", "호우", "강한 비"}
@@ -331,6 +356,30 @@ def in_period(ts: pd.Timestamp, season: str, period: dict) -> bool:
     return date(sy, sm, sd) <= ts.date() <= date(ey, em, ed)
 
 
+def build_periods(period: dict) -> list[dict]:
+    """research_period(MM-DD)로 시즌별 날짜 목록(periods)을 만든다. C 병합 코드가 이 목록을 읽는다.
+
+    in_period() 와 같은 규칙으로 해를 붙이고, baseline_start 는 시작일 BASELINE_DAYS 일 전.
+    """
+    rows = []
+    for s in TRAIN_SEASONS + EVAL_SEASONS:
+        winter = s.startswith("W")
+        y = int(s[1:])
+        p = period["겨울" if winter else "여름"]
+        sm, sd = map(int, p["start"].split("-"))
+        em, ed = map(int, p["end"].split("-"))
+        sy = y if (not winter or sm >= 7) else y + 1
+        ey = y + 1 if (winter and em < 7) else y
+        if em == 2 and ed == 29 and ey % 4 != 0:
+            ed = 28
+        start = date(sy, sm, sd)
+        rows.append({"season": f"{y}-{str(y + 1)[2:]}_winter" if winter else f"{y}_summer",
+                     "split": "train" if s in TRAIN_SEASONS else "eval",
+                     "start": start, "end": date(ey, em, ed),
+                     "baseline_start": start - timedelta(days=BASELINE_DAYS)})
+    return sorted(rows, key=lambda r: r["start"])
+
+
 # ── 6. 악천후일 · 비교일 ─────────────────────────────────────────
 def _holiday_set(years):
     try:
@@ -468,25 +517,49 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None
     fl.to_csv(tables / "season_first_last.csv", index=False, encoding="utf-8-sig")
     opts.to_csv(tables / "research_period_options.csv", index=False, encoding="utf-8-sig")
 
-    cfg = {
-        "updated": datetime.now(KST).strftime("%Y-%m-%d %H:%M KST"),
-        "owner": "B",
+    update_periods_yaml({
         "station": "ASOS 서울(108)",
         "seasons": {"train": [SEASON_NAMES[s] for s in TRAIN_SEASONS],
                     "eval": [SEASON_NAMES[s] for s in EVAL_SEASONS]},
         "research_period": rec,
+        "periods": build_periods(rec),
         "commute_hours": COMMUTE_HOURS,
         "thresholds": th,
-        "files": {
-            "hourly": "data/processed/{train,eval}/weather_hourly_{split}.csv",
-            "events": "data/processed/{train,eval}/weather_events_{split}.csv",
-            "days": "data/processed/{train,eval}/weather_days_{split}.csv  (C 교통량 수집 날짜)",
-            "warnings": "data/processed/{train,eval}/weather_warnings_{split}.csv  (서울 특보 구간 · 생존분석 출발점)",
-        },
-    }
-    (ROOT / "config").mkdir(exist_ok=True)
-    with open(ROOT / "config/periods.yaml", "w", encoding="utf-8") as f:
-        yaml.safe_dump(cfg, f, allow_unicode=True, sort_keys=False)
+    })
+
+
+def update_periods_yaml(updates: dict, path: Path | None = None) -> bool:
+    """config/periods.yaml 에서 이 코드가 계산하는 값만 바꾼다.
+
+    - 파일을 통째로 다시 쓰지 않는다: periods · filters · time_definition · files 같은
+      다른 키(C · A가 읽는 값)는 그대로 둔다.
+    - thresholds 는 키 단위로 합친다 (파일에만 있는 기준값도 보존).
+    - 값이 하나도 바뀌지 않으면 파일을 건드리지 않는다 → 주석이 유지된다.
+    - 값이 바뀌면 바뀐 키를 출력한다. 이때 yaml 주석은 사라지므로 커밋 전에 git diff로 확인한다.
+    반환: 파일을 썼으면 True
+    """
+    import yaml
+
+    path = path or ROOT / "config" / "periods.yaml"
+    old = {}
+    if path.exists():
+        old = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    new = dict(old)
+    for key, value in updates.items():
+        if key == "thresholds":
+            new[key] = {**(old.get(key) or {}), **value}
+        else:
+            new[key] = value
+    changed = [k for k in new if k != "updated" and new.get(k) != old.get(k)]
+    if not changed:
+        print(f"periods.yaml: 바뀐 값 없음 → 파일 그대로 둠 ({path.name})")
+        return False
+    new["updated"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+    path.parent.mkdir(exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(new, f, allow_unicode=True, sort_keys=False)
+    print(f"periods.yaml: {', '.join(changed)} 갱신 (주석은 사라짐 · 커밋 전에 git diff config/periods.yaml 확인)")
+    return True
 
 
 def run_all(max_train_days: int = 30, max_eval_days: int = 15, min_coverage: float = 0.9):

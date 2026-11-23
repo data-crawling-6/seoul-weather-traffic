@@ -59,6 +59,8 @@ thresholds:
   freezing_temp_c: 0.5
   impact_after_snow_h: 12
   impact_after_rain_h: 3
+  congestion_link_ratio: 1.5
+  congestion_road_length_ratio: 0.3   # 학습 후보 10·20·30·50% 중 구분력(악천후÷맑음 2.56배)과 정답 수(7,796행)의 균형 (outputs/tables/congestion_length_candidates_train.csv)
 
 files:
   hourly: data/processed/{train,eval}/weather_hourly_{split}.csv
