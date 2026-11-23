@@ -1,0 +1,32 @@
+{
+  "run_at": "2026-11-22T01:27:13.058445+09:00",
+  "method_version": "v2_plan_aligned",
+  "topis_file_count": 44,
+  "stable_link_count": 1753,
+  "stable_road_count": 90,
+  "link_output_rows": 49841262,
+  "road_output_rows": 588550,
+  "weather_hour_count": 3270,
+  "weather_hours_by_split": {
+    "eval": 810,
+    "train": 2460
+  },
+  "road_duplicate_keys": 0,
+  "road_weather_missing_rows": 0,
+  "road_travel_time_missing_rows": 92,
+  "topis_system_gap_count": 41,
+  "link_path": "D:\\seoul-weather-traffic-data\\processed\\yang_seoyeon_topis_weather_link_hourly_20261122_v01.parquet",
+  "link_bytes": 621657280,
+  "link_sha256": "b27fc96d2d4358391d89e1a9e4e3529d5a58ed9d608cbd52e22ecf2fd0b2c7df",
+  "road_path": "D:\\seoul-weather-traffic-data\\processed\\yang_seoyeon_topis_weather_commute_20261122_v02.parquet",
+  "road_bytes": 10307840,
+  "road_sha256": "681a27da05c396e6c18977ea393cbe3227e8185498d7fd4588c87dc61179c89a",
+  "summary_path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_topis_weather_merge_summary_20261122_v02.csv",
+  "road_sample_path": "C:\\Users\\USER\\seoul-weather-traffic\\data\\sample\\yang_seoyeon_topis_weather_commute_sample_20261122_v02.csv",
+  "link_sample_path": "C:\\Users\\USER\\seoul-weather-traffic\\data\\sample\\yang_seoyeon_topis_weather_link_sample_20261122_v01.csv",
+  "stable_links_path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v01.csv",
+  "limitations": [
+    "겨울 baseline_start 10/30~10/31 TOPIS 원자료가 Release에 없어 각 겨울 2일이 비어 있음",
+    "여름 휴가 절정 주간의 날짜 정의가 미확정이라 is_summer_vacation_peak는 NA"
+  ]
+}
