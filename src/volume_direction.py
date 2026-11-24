@@ -15,7 +15,7 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
 - 같은 지점의 유입 · 유출이 같은 방향으로 붙으면(conflict) 둘 다 비운다.
 
 입력
-  data/raw/c_traffic/yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
+  data/raw/traffic/yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
   data/raw/topis/topis_speed_2025-12.zip   (A 릴리즈 topis-data-v1, 링크 이름 · 방향만 쓴다)
 
 결과
@@ -45,7 +45,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 KST = timezone(timedelta(hours=9))
-DEFAULT_VOLUME = ROOT / "data" / "raw" / "c_traffic" / "yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv"
+DEFAULT_VOLUME = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv"
 DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis" / "topis_speed_2025-12.zip"
 PROC_DIR = ROOT / "data" / "processed"
 MIN_PARTIAL = 2   # 부분 일치로 볼 최소 글자 수

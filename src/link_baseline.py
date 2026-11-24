@@ -43,7 +43,7 @@ import pyarrow.dataset as ds
 
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_LINK = ROOT / "data" / "raw" / "c_traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
+DEFAULT_LINK = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
 PROC_DIR = ROOT / "data" / "processed"
 TABLE_DIR = ROOT / "outputs" / "tables"
 
