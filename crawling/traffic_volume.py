@@ -141,7 +141,7 @@ def _unique_run_dir(base: Path, run_id: str, label: str = "") -> tuple[Path, str
     for version in range(1, 1000):
         version_text = f"v{version:02d}"
         candidate = runs_dir / (
-            f"yang_seoyeon_traffic_volume{label_part}_{run_id}_{version_text}_(중단)"
+            f"traffic_volume{label_part}_{run_id}_{version_text}_(중단)"
         )
         try:
             candidate.mkdir()
@@ -176,7 +176,11 @@ def list_run_history(root: Path | None = None) -> pd.DataFrame:
     for history_root in (base / RUN_SUBDIR, base / LEGACY_RUN_SUBDIR):
         if not history_root.is_dir():
             continue
-        for run_dir in sorted(history_root.glob("yang_seoyeon_traffic_volume_*")):
+        run_dirs = {
+            *history_root.glob("traffic_volume_*"),
+            *history_root.glob("yang_seoyeon_traffic_volume_*"),
+        }
+        for run_dir in sorted(run_dirs):
             resolved = run_dir.resolve()
             if resolved not in seen:
                 seen.add(resolved)
@@ -184,8 +188,14 @@ def list_run_history(root: Path | None = None) -> pd.DataFrame:
     for run_dir in run_dirs:
         status_match = re.search(r"\((성공|실패|중단)\)$", run_dir.name)
         status = status_match.group(1) if status_match else "미확인"
-        summaries = sorted(run_dir.glob("yang_seoyeon_summary_*.json"))
-        configs = sorted(run_dir.glob("yang_seoyeon_run_config_*.json"))
+        summaries = sorted({
+            *run_dir.glob("summary_*.json"),
+            *run_dir.glob("yang_seoyeon_summary_*.json"),
+        })
+        configs = sorted({
+            *run_dir.glob("run_config_*.json"),
+            *run_dir.glob("yang_seoyeon_run_config_*.json"),
+        })
         summary: dict[str, object] = {}
         config: dict[str, object] = {}
         try:
@@ -354,8 +364,8 @@ def download_required_months(
     record_dir = run_dir or (base / LOG_SUBDIR)
     record_dir.mkdir(parents=True, exist_ok=True)
     effective_run_id = run_id or datetime.now(KST).strftime("%Y%m%dT%H%M%S")
-    log_path = record_dir / f"yang_seoyeon_collection_log_{effective_run_id}_(중단).jsonl"
-    manifest_path = record_dir / f"yang_seoyeon_download_manifest_{effective_run_id}_(중단).csv"
+    log_path = record_dir / f"collection_log_{effective_run_id}_(중단).jsonl"
+    manifest_path = record_dir / f"download_manifest_{effective_run_id}_(중단).csv"
     raw_dir.mkdir(parents=True, exist_ok=True)
     targets = list(months or required_months())
     invalid = [month for month in targets if not re.fullmatch(r"20\d{2}-(0[1-9]|1[0-2])", month)]
@@ -627,8 +637,8 @@ def preprocess_downloads(
     record_dir = run_dir or (base / LOG_SUBDIR)
     record_dir.mkdir(parents=True, exist_ok=True)
     effective_run_id = run_id or datetime.now(KST).strftime("%Y%m%dT%H%M%S")
-    log_path = record_dir / f"yang_seoyeon_preprocess_{effective_run_id}_(중단).json"
-    validation_path = record_dir / f"yang_seoyeon_validation_{effective_run_id}_(중단).csv"
+    log_path = record_dir / f"preprocess_{effective_run_id}_(중단).json"
+    validation_path = record_dir / f"validation_{effective_run_id}_(중단).csv"
     days = load_target_days()
     months = required_months(days)
     files = {
@@ -748,8 +758,8 @@ def validate_test_month(
             }
         ]
     )
-    validation_path = run_dir / f"yang_seoyeon_test_validation_{month}_{run_id}_(중단).csv"
-    sample_path = run_dir / f"yang_seoyeon_test_sample_{month}_{run_id}_(중단).csv"
+    validation_path = run_dir / f"test_validation_{month}_{run_id}_(중단).csv"
+    sample_path = run_dir / f"test_sample_{month}_{run_id}_(중단).csv"
     validation.to_csv(validation_path, index=False, encoding="utf-8-sig")
     selected.head(100).to_csv(sample_path, index=False, encoding="utf-8-sig")
     if selected.empty:
@@ -856,8 +866,8 @@ def run_test_month(
     base = (root or data_root()).resolve()
     run_id = datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     run_dir, version = _unique_run_dir(base, run_id, label=f"test_{month}")
-    config_path = run_dir / f"yang_seoyeon_run_config_{run_id}_(중단).json"
-    summary_path = run_dir / f"yang_seoyeon_summary_{run_id}_(중단).json"
+    config_path = run_dir / f"run_config_{run_id}_(중단).json"
+    summary_path = run_dir / f"summary_{run_id}_(중단).json"
     config = {
         "run_id": run_id,
         "version": version,
@@ -959,8 +969,8 @@ def run_pipeline(
     base = (root or data_root()).resolve()
     run_id = datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     run_dir, version = _unique_run_dir(base, run_id)
-    config_path = run_dir / f"yang_seoyeon_run_config_{run_id}_(중단).json"
-    summary_path = run_dir / f"yang_seoyeon_summary_{run_id}_(중단).json"
+    config_path = run_dir / f"run_config_{run_id}_(중단).json"
+    summary_path = run_dir / f"summary_{run_id}_(중단).json"
     months = required_months()
     config = {
         "run_id": run_id,
