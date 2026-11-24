@@ -54,7 +54,7 @@ EXPECTED_HEAD = ["일자", "요일", "도로명", "링크아이디", "시점명"
 N_COLS = 12 + 24  # 정보 12열 + 시간별 속도 24열
 
 # 연구 기간 (11/20 확정): 겨울 11/27~3/10, 여름 5/9~9/23
-# 평소값용으로 기간 앞 4주도 필요 -> 여름은 4월 파일까지 받음 (겨울 4주 전 10/30은 11월로 충분)
+# 평소값용으로 기간 앞 4주도 필요 -> 겨울은 10월(10/30~31), 여름은 4월 파일까지 받음
 ALL_SEASONS = ["winter-2022", "winter-2023", "winter-2024", "winter-2025",
                "summer-2023", "summer-2024", "summer-2025", "summer-2026"]
 
@@ -79,7 +79,7 @@ def season_months(season):
     kind, year = season.split("-")
     y = int(year)
     if kind == "winter":
-        return [(y, 11), (y, 12), (y + 1, 1), (y + 1, 2), (y + 1, 3)]
+        return [(y, 10), (y, 11), (y, 12), (y + 1, 1), (y + 1, 2), (y + 1, 3)]
     if kind == "summer":
         return [(y, m) for m in range(4, 10)]
     raise ValueError(f"시즌 이름 오류: {season} (예: winter-2024, summer-2025)")
