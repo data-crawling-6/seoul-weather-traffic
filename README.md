@@ -55,15 +55,15 @@ seoul-weather-traffic/
 │
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
 │   ├── 00_A_collect.ipynb   # 수집 기록 (담당자별 1개)
-│   ├── 00_B_collect.ipynb
+│   ├── 00_ljh_collect.ipynb
 │   ├── 00_ysy_collect.ipynb
 │   ├── 01_A_topis_check.ipynb
-│   ├── 02_B_weather_events.ipynb
+│   ├── 02_ljh_weather_events.ipynb
 │   ├── 03_ysy_travel_time.ipynb
 │   ├── 04_ysy_traffic_mapping.ipynb
-│   ├── 10_B_comparison.ipynb
+│   ├── 10_ljh_comparison.ipynb
 │   ├── 11_A_prediction.ipynb
-│   ├── 12_B_alert_survival.ipynb
+│   ├── 12_ljh_alert_survival.ipynb
 │   ├── 13_C_clustering.ipynb
 │   └── 20_all_case_1204.ipynb
 │
@@ -87,8 +87,9 @@ seoul-weather-traffic/
 │   └── tables/             # MAE 비교표, 경보 성능표 등
 │
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
-    ├── screenshots/        # 기존 A·B Selenium 화면 캡처
-    └── yang_seoyeon/       # C 개인 실행·오류·검증 기록
+    ├── kmj/                # A 실행 기록 (topis_speed · topis_network · topis_manifest) · screenshots/ 화면 캡처
+    ├── ljh/                # B 실행 기록 (kma_* · hrfco_waterlevel · baseline · link_baseline · volume_direction) · screenshots/ 화면 캡처
+    └── ysy/                # C 개인 실행·오류·검증 기록
         ├── travel_time/
         ├── traffic_mapping/
         ├── traffic_volume/
@@ -198,15 +199,17 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 
 ## 노트북 작성 방법
 
-### 노트북 이름 (번호 = 단계, 영문자 = 담당)
+### 노트북 이름 (번호 = 단계, 이니셜 = 담당)
 
-`번호_담당_내용.ipynb` (예: `02_B_weather_events.ipynb`). 담당은 A 예측 · B 날씨와 경보 · C 교통량과 공간 · `all` 함께. 이름순으로 정렬하면 작업 순서가 된다.
+`번호_이니셜_내용.ipynb` (예: `02_ljh_weather_events.ipynb`). 이니셜은 `ljh` 이정희(B 날씨와 경보) · `ysy` 양서연(C 교통량과 공간) · `kmj` 강민주(A 예측) · `all` 함께. `notebooks/` 바로 아래에 두고 하위 폴더는 만들지 않는다. 이름순으로 정렬하면 작업 순서가 된다.
+
+> 11/24 영문자(A · B · C)에서 이니셜로 바꾸는 중. 아직 영문자인 노트북은 담당자가 바꾼다.
 
 | 번호 | 단계 | 언제 | 노트북 |
 | --- | --- | --- | --- |
-| 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_A` · `00_B` · `00_C_collect` |
-| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_A_topis_check` · `02_B_weather_events` · `03_C_travel_time` · `04_C_traffic_mapping` |
-| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_B_comparison` · `11_A_prediction` · `12_B_alert_survival` · `13_C_clustering` |
+| 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_kmj` · `00_ljh_collect` · `00_ysy_collect` |
+| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_A_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` |
+| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_A_prediction` · `12_ljh_alert_survival` · `13_C_clustering` |
 | 20–29 | 사례 검증 (함께) | 12/10 ~ | `20_all_case_1204` |
 | 30 | 제출용 안내 (함께) | 12/14 제출 정리 | `30_all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
 
@@ -224,9 +227,9 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 - 처음 해 보는 전처리는 노트북에서 먼저 짜도 된다. 다른 사람도 쓰게 되면 `src/`로 옮긴다.
 - `data/processed/` 공통 표는 **.py로만 만든다**. 노트북은 읽기만 하고, 노트북에서 만든 그래프 · 표는 `outputs/`에 저장한다.
 
-### 수집 기록 노트북 `00_X_collect.ipynb` (담당자별 1개)
+### 수집 기록 노트북 `00_이니셜_collect.ipynb` (담당자별 1개)
 
-노트북은 .py를 **실행하지 않고 읽기만** 한다 (다시 실행해도 데이터를 다시 받거나 덮어쓰지 않는다). 예시는 `notebooks/00_B_collect.ipynb`. 복사해서 이름과 자료만 바꿔 쓴다.
+노트북은 .py를 **실행하지 않고 읽기만** 한다 (다시 실행해도 데이터를 다시 받거나 덮어쓰지 않는다). 예시는 `notebooks/00_ljh_collect.ipynb`. 복사해서 이름과 자료만 바꿔 쓴다.
 
 ```
 맨 위   자료 목록 표 (자료 · 방법 · 코드 파일)
@@ -234,7 +237,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 자료마다 (1, 2, 3 …)
   ① 출처 · 흐름 · 실행한 명령어 · 어려웠던 점 한두 줄
   ② 핵심 코드: 함수마다 '하는 일 · 동적 페이지라서 한 처리' 설명 표 + show_func로 원문 보여 주기
-  ③ 실행 화면: logs/screenshots/ 전후 캡처 (Selenium 자료)
+  ③ 실행 화면: logs/이니셜/screenshots/ 전후 캡처 (Selenium 자료)
   ④ 실행 로그 요약: 기간 · 건수 · WARNING/ERROR 수
   ⑤ 결과 표: 행 수 · 기간 · 결측 · 앞 몇 줄
 마지막  실패 · 재시도 모아 보기: 로그의 WARNING/ERROR를 종류별로 세기 + 문제 → 원인 → 해결 → 결과 표

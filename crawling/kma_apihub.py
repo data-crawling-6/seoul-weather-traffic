@@ -21,8 +21,8 @@
 
 - 이미 받은 시각 · 발표는 건너뛴다 (이어받기). 같은 명령을 다시 치면 이어서 받는다.
 - 실패하면 3번까지 다시 시도한다. 인증 오류면 바로 멈추고 활용신청 확인을 안내한다.
-- 오늘 호출 수를 logs/kma_apihub_calls.json 에 세서, 하루 19,000건이 되면 멈춘다.
-- 로그(logs/kma_apihub.log)와 오류 메시지에서 인증키는 *** 로 가린다.
+- 오늘 호출 수를 logs/ljh/kma_apihub_calls.json 에 세서, 하루 19,000건이 되면 멈춘다.
+- 로그(logs/ljh/kma_apihub.log)와 오류 메시지에서 인증키는 *** 로 가린다.
 
 인증키: api_keys.txt 에  KMA_APIHUB_KEY=발급받은키  (기상청 API허브 마이페이지의 authKey)
 활용신청: 지상관측 > 방재기상관측(AWS) > 3.1.6 정시자료(awsh.php),
@@ -52,8 +52,8 @@ ROOT = Path(__file__).resolve().parents[1]
 AWS_DIR = ROOT / "data" / "raw" / "kma_aws"
 FCST_DIR = ROOT / "data" / "raw" / "kma_fcst"
 PROC_DIR = ROOT / "data" / "processed"
-LOG_PATH = ROOT / "logs" / "kma_apihub.log"
-CALLS_PATH = ROOT / "logs" / "kma_apihub_calls.json"
+LOG_PATH = ROOT / "logs" / "ljh" / "kma_apihub.log"
+CALLS_PATH = ROOT / "logs" / "ljh" / "kma_apihub_calls.json"
 
 AWS_URL = "https://apihub.kma.go.kr/api/typ01/url/awsh.php"
 # 과거 단기예보는 격자 API만 제공한다 (getVilageFcst는 최근 3일만). 한 번에 전국 격자 1개 변수
@@ -301,7 +301,7 @@ def probe(session, key, calls, today):
     for var in ("TMP", "PCP"):
         text = get(session, GRID_URL, {"tmfc": base.strftime("%Y%m%d%H"), "tmef": tmef.strftime("%Y%m%d%H"),
                                        "vars": var}, key, calls, today)
-        raw = ROOT / "logs" / f"probe_grid_{var}.txt"
+        raw = ROOT / "logs" / "ljh" / f"probe_grid_{var}.txt"
         raw.write_text(text, encoding="utf-8")
         lines = text.splitlines()
         nums = grid_values(text)

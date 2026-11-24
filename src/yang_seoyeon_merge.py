@@ -404,7 +404,7 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
 
     summary_dir = project_root / "outputs" / "tables"
     sample_dir = project_root / "data" / "sample"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "travel_time"
+    log_dir = project_root / "logs" / "ysy" / "travel_time"
     log_dir.mkdir(parents=True, exist_ok=True)
     summary_path = _next_version(summary_dir, f"yang_seoyeon_topis_weather_merge_summary_{run_date}", ".csv")
     sample_path = _next_version(sample_dir, f"yang_seoyeon_topis_weather_commute_sample_{run_date}", ".csv")

@@ -158,8 +158,8 @@ def main():
         "clear_ratio_median_train": float(r.loc[(r["split"] == "train") & (r["weather_group"] == "맑음"), "ratio"].median()),
         "min_n": MIN_N,
     }
-    (ROOT / "logs").mkdir(exist_ok=True)
-    (ROOT / "logs" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "ljh" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
 
