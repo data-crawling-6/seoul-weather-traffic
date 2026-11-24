@@ -277,7 +277,7 @@ def execute_record_f03_evidence(project_root: Path, data_root: Path) -> int:
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
     status = "성공" if error is None else "실패"
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     logs.mkdir(parents=True, exist_ok=True)
     stamp = started.strftime("%Y%m%dT%H%M%S")
     report = {"run_kind": "f03_spatial_evidence_only", "status": "success" if error is None else "failure",
@@ -584,7 +584,7 @@ class AuditValidationError(Exception):
 
 # [서연] Create new audit output files exclusively, with a unique timestamp if needed.
 def allocate_output_paths(project_root: Path, stamp: str, success: bool) -> tuple[Path, Path]:
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     tables = project_root / "outputs" / "tables"
     logs.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -831,7 +831,7 @@ def generate_mapping_candidates(
 
 # [서연] Allocate timestamped output paths without overwriting audits or previous maps.
 def allocate_map_paths(project_root: Path, stamp: str, success: bool) -> dict[str, Path]:
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     tables = project_root / "outputs" / "tables"
     logs.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -1104,7 +1104,7 @@ def select_candidate_file(project_root: Path) -> Path:
 def allocate_candidate_analysis_paths(
     project_root: Path, stamp: str, success: bool
 ) -> dict[str, Path]:
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     tables = project_root / "outputs" / "tables"
     logs.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -1344,7 +1344,7 @@ def validate_alternative_review(
 
 # [서연] Allocate versioned alternative-review evidence without overwriting prior work.
 def allocate_alternative_review_paths(project_root: Path, stamp: str, success: bool) -> dict[str, Path]:
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     tables = project_root / "outputs" / "tables"
     logs.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -1480,7 +1480,7 @@ def validate_road_review(source: pd.DataFrame, reviewed: pd.DataFrame) -> dict[s
 # [서연] Build the exact v02 filename from its v01 source; never allocate a replacement v02.
 def road_review_output_paths(project_root: Path, source_path: Path) -> dict[str, Path]:
     output = source_path.with_name(source_path.name.replace("_v01.csv", "_v02.csv"))
-    log = project_root / "logs" / "yang_seoyeon" / "traffic_mapping" / (
+    log = project_root / "logs" / "ysy" / "traffic_mapping" / (
         source_path.stem.replace("yang_seoyeon_alternative_link_review_", "road_review_validation_") + ".json"
     )
     return {"review": output, "json": log}
@@ -1693,7 +1693,7 @@ def execute_classify_manual_reviews(project_root: Path, final_review: Path | Non
         raise ValueError(f"Manual classification checks failed: {report['validation_checks']}")
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     folder = project_root / "outputs" / "tables"
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     folder.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     version = 1
@@ -1835,7 +1835,7 @@ def execute_assess_nearby_roads(project_root: Path, classification: Path | None 
     result, report = assess_nearby_road_frame(classified, candidate_frame)
     if not all(report.get("validation_checks", {}).values()):
         raise ValueError(f"Assessment validation failed: {report.get('validation_checks')}")
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     folder.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -1996,7 +1996,7 @@ def execute_assess_all_manual(project_root: Path, classification: Path | None = 
     result, report = assess_all_manual_frame(classified, candidate_frame)
     if not all(report["validation_checks"].values()):
         raise ValueError(f"Bulk validation failed: {report['validation_checks']}")
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     folder.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -2129,7 +2129,7 @@ def assess_coordinate_history_frame(classified: pd.DataFrame, candidates: pd.Dat
 def execute_assess_coordinate_history(project_root: Path, classification: Path | None = None,
                                       candidates: Path | None = None, bulk_assessment: Path | None = None) -> int:
     folder = project_root / "outputs" / "tables"
-    logs = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    logs = project_root / "logs" / "ysy" / "traffic_mapping"
     def latest(pattern: str) -> Path:
         options = sorted(folder.glob(pattern))
         if not options:
@@ -2296,7 +2296,7 @@ def execute_full_road_evaluation(project_root: Path, data_root: Path) -> int:
     if not all(report["validation_checks"].values()):
         raise ValueError(f"Failed full geometry validation: {report['validation_checks']}")
     output_dir = project_root / "outputs" / "tables"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    log_dir = project_root / "logs" / "ysy" / "traffic_mapping"
     output_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -2425,7 +2425,7 @@ def execute_official_road_mapping(project_root: Path, data_root: Path) -> int:
     if not all(report["expected_reference_checks"].values()):
         raise ValueError(f"Reference counts changed; inspect source before exporting: {report['expected_reference_checks']}")
     output_dir = project_root / "outputs" / "tables"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    log_dir = project_root / "logs" / "ysy" / "traffic_mapping"
     output_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -2551,7 +2551,7 @@ def execute_official_observation_join(project_root: Path, data_root: Path) -> in
         raise ValueError(f"Observation join failed validation: {report['validation_checks']}")
     # [서연] Preserve duplicate-key evidence; do not claim unique hourly observations.
     output_dir = project_root / "outputs" / "tables"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    log_dir = project_root / "logs" / "ysy" / "traffic_mapping"
     output_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -2669,7 +2669,7 @@ def execute_baseline_audit(project_root: Path, data_root: Path) -> int:
     report["inputs"] = {"train": str(inputs["train"]), "eval": str(inputs["eval"]),
                         "stable_links": str(stable_path)}
     out_dir = project_root / "outputs" / "tables"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    log_dir = project_root / "logs" / "ysy" / "traffic_mapping"
     out_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
@@ -2762,7 +2762,7 @@ def execute_date_audit(project_root: Path, data_root: Path) -> int:
     dates, months, report = audit_traffic_dates(volume, stable)
     report["inputs"] = {"train": str(inputs["train"]), "eval": str(inputs["eval"]), "stable_links": str(stable_path)}
     out_dir = project_root / "outputs" / "tables"
-    log_dir = project_root / "logs" / "yang_seoyeon" / "traffic_mapping"
+    log_dir = project_root / "logs" / "ysy" / "traffic_mapping"
     out_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")

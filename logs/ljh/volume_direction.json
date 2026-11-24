@@ -1,0 +1,19 @@
+{
+ "run_at": "2026-11-24T02:34:03+09:00",
+ "volume_input": "yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv",
+ "topis_input": "topis_speed_2025-12.zip",
+ "spot_io_rows": 168,
+ "spot_io_matched": 106,
+ "spots_both_matched": 52,
+ "spots_total": 84,
+ "roads_with_direction": 39,
+ "match_method_counts": {
+  "path_exact": 89,
+  "not_found": 62,
+  "path_partial": 17
+ },
+ "road_dir_rows": {
+  "train": 22800,
+  "eval": 11400
+ }
+}

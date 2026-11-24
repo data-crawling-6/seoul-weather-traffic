@@ -150,7 +150,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             with patch.object(mapping, "run_input_audit", side_effect=FileNotFoundError("test missing input")):
                 status = mapping.execute_audit(root, root)
             self.assertEqual(status, 1)
-            files = list((root / "logs" / "yang_seoyeon" / "traffic_mapping").glob("*_(실패).json"))
+            files = list((root / "logs" / "ysy" / "traffic_mapping").glob("*_(실패).json"))
             self.assertEqual(len(files), 1)
             payload = json.loads(files[0].read_text(encoding="utf-8"))
             self.assertEqual(payload["status"], "failure")
@@ -659,7 +659,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
                  patch.object(mapping, "git_provenance", return_value={}):
                 self.assertEqual(mapping.execute_record_f03_evidence(root, root), 0)
                 self.assertEqual(mapping.execute_record_f03_evidence(root, root), 0)
-            outputs = list((root / "logs" / "yang_seoyeon" / "traffic_mapping").glob("f03_link_evidence_*_(성공)_v01.json"))
+            outputs = list((root / "logs" / "ysy" / "traffic_mapping").glob("f03_link_evidence_*_(성공)_v01.json"))
             self.assertEqual(len(outputs), 2)
             for output in outputs:
                 payload = json.loads(output.read_text(encoding="utf-8"))
@@ -673,7 +673,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             root = Path(temp)
             with patch.object(mapping, "git_provenance", return_value={}):
                 self.assertEqual(mapping.execute_record_f03_evidence(root, root), 1)
-            outputs = list((root / "logs" / "yang_seoyeon" / "traffic_mapping").glob("*_(실패)_v01.json"))
+            outputs = list((root / "logs" / "ysy" / "traffic_mapping").glob("*_(실패)_v01.json"))
             self.assertEqual(len(outputs), 1)
             self.assertIsNone(json.loads(outputs[0].read_text(encoding="utf-8"))["evidence"])
 

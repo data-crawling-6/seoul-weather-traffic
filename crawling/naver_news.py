@@ -308,7 +308,7 @@ def run_collection(
             raise ValueError(f"악천후일 목록에 없는 테스트 날짜입니다: {test_date}")
     roads = load_roads(root)
     mode = "test" if test_date else "collection"
-    log_parent = root / "logs/yang_seoyeon/naver_news"
+    log_parent = root / "logs/ysy/naver_news"
     raw_parent = data_root / "naver_news/raw"
     log_parent.mkdir(parents=True, exist_ok=True)
     raw_parent.mkdir(parents=True, exist_ok=True)
@@ -518,7 +518,7 @@ def preprocess_main():
     parser.add_argument('mode',choices=['preprocess'])
     parser.add_argument('--input',type=Path,required=True)
     parser.add_argument('--output-dir',type=Path,default=DEFAULT_DATA_ROOT/'naver_news'/'processed')
-    parser.add_argument('--log-dir',type=Path,default=ROOT/'logs'/'yang_seoyeon'/'naver_news')
+    parser.add_argument('--log-dir',type=Path,default=ROOT/'logs'/'ysy'/'naver_news')
     args=parser.parse_args()
     print(json.dumps(preprocess_news(args.input,args.output_dir,args.log_dir),ensure_ascii=False,indent=2))
 

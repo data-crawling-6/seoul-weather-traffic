@@ -17,7 +17,7 @@
   특정 관측소만 받으려면 --codes 1018683 1018680 처럼 준다.
 - 한 번에 관측소 1곳 × 한 달씩 요청한다. 이미 받은 달은 건너뛴다 (이어받기).
 - 실패하면 3번까지 다시 시도하고, 그래도 실패한 건은 건너뛴다. 다시 실행하면 그것만 받는다.
-- 인증 오류로 보이면 바로 멈춘다. 로그(logs/hrfco_waterlevel.log)에서 인증키는 *** 로 가린다.
+- 인증 오류로 보이면 바로 멈춘다. 로그(logs/ljh/hrfco_waterlevel.log)에서 인증키는 *** 로 가린다.
 
 인증키: api_keys.txt 에  HRFCO_KEY=발급받은키
 
@@ -46,7 +46,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw" / "hrfco"
 PROC_DIR = ROOT / "data" / "processed"
-LOG_PATH = ROOT / "logs" / "hrfco_waterlevel.log"
+LOG_PATH = ROOT / "logs" / "ljh" / "hrfco_waterlevel.log"
 
 
 YEARS = {2023: "train", 2024: "train", 2025: "train", 2026: "eval"}

@@ -179,7 +179,7 @@ def cluster_roads(
 
 
 def _latest_analysis_report(root: Path) -> tuple[Path, dict]:
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     files = sorted({
         *log_dir.glob("traffic_analysis_*_(성공)_v*.json"),
         *log_dir.glob("yang_seoyeon_traffic_analysis_*_(성공)_v*.json"),
@@ -221,7 +221,7 @@ def visualize_latest(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weathe
     suffix = f"{stamp}_(성공)_v01"
     figure_dir = root / "outputs/figures/yang_seoyeon"
     table_dir = root / "outputs/tables"
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "train_eval_plot": figure_dir / f"yang_seoyeon_cluster_train_eval_{suffix}.png",
@@ -454,7 +454,7 @@ def combine_travel_time(
     suffix = f"{stamp}_(성공)_v01"
     table_dir = root / "outputs/tables"
     figure_dir = root / "outputs/figures/yang_seoyeon"
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     figure_dir.mkdir(parents=True, exist_ok=True)
@@ -585,7 +585,7 @@ def validate_relationships(root: Path = ROOT) -> dict:
     suffix = f"{stamp}_(성공)_v01"
     table_dir = root / "outputs/tables"
     figure_dir = root / "outputs/figures/yang_seoyeon"
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     paths = {
@@ -657,7 +657,7 @@ def run(root: Path = ROOT, input_path: Path | None = None) -> dict:
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     suffix = f"{stamp}_(성공)_v01"
     table_dir = root / "outputs/tables"
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     log_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "pairs": table_dir / f"yang_seoyeon_traffic_pairs_{suffix}.csv",
@@ -755,7 +755,7 @@ def combine_news(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weather-tr
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f")
     suffix = f"{stamp}_(성공)_v01"
     fig_dir = root / "outputs/figures/yang_seoyeon"
-    log_dir = root / "logs/yang_seoyeon/traffic_analysis"
+    log_dir = root / "logs/ysy/traffic_analysis"
     for folder in [table_dir, fig_dir, log_dir]: folder.mkdir(parents=True, exist_ok=True)
     frames = {"news_case_audit":cases,"news_case_road_days":selected,"news_case_hourly":hourly,"news_cluster_cases":cluster_cases,"news_representative_cases":representatives,"news_date_support":date_support}
     paths = {k:table_dir / f"yang_seoyeon_{k}_{suffix}.csv" for k in frames}

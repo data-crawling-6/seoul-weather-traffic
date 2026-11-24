@@ -13,7 +13,7 @@ C의 도로 통행시간 표(v04)로 도로 × 방향마다 '평소 통행시간
              기준은 학습 시즌만 보고 정한다 (평가 시즌은 열지 않음)
 
 입력
-  C 릴리스 yang-seoyeon-traffic-weather-v3 의 v04 zip을 data/raw/c_traffic/ 에 풀어 둔 parquet
+  C 릴리스 yang-seoyeon-traffic-weather-v3 의 v04 zip을 data/raw/traffic/ 에 풀어 둔 parquet
   (v03을 넣어도 링크가 일부라도 빠진 행을 NaN으로 두는 v04 규칙을 여기서 한 번 더 적용하므로 결과가 같다)
 
 실행
@@ -36,7 +36,7 @@ import pandas as pd
 
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_ROAD = ROOT / "data" / "raw" / "c_traffic" / "yang_seoyeon_topis_weather_commute_20261122_v04.parquet"
+DEFAULT_ROAD = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_commute_20261122_v04.parquet"
 PROC_DIR = ROOT / "data" / "processed"
 TABLE_DIR = ROOT / "outputs" / "tables"
 
@@ -158,8 +158,8 @@ def main():
         "clear_ratio_median_train": float(r.loc[(r["split"] == "train") & (r["weather_group"] == "맑음"), "ratio"].median()),
         "min_n": MIN_N,
     }
-    (ROOT / "logs").mkdir(exist_ok=True)
-    (ROOT / "logs" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "ljh" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
 
