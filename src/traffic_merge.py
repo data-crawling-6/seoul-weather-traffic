@@ -1,4 +1,4 @@
-"""양서연 담당 TOPIS 링크 기본표와 도로 통행시간표 생성.
+"""C 담당 TOPIS 링크 기본표와 도로 통행시간표 생성.
 
 원본을 수정하지 않는다. 링크 기본표는 전 시간·전 날짜를 보존하고,
 도로 분석표에서 연구기간의 평일 출퇴근 시간과 공휴일 제외 규칙을
@@ -409,7 +409,7 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
     summary_path = _next_version(summary_dir, f"yang_seoyeon_topis_weather_merge_summary_{run_date}", ".csv")
     sample_path = _next_version(sample_dir, f"yang_seoyeon_topis_weather_commute_sample_{run_date}", ".csv")
     link_sample_path = _next_version(sample_dir, f"yang_seoyeon_topis_weather_link_sample_{run_date}", ".csv")
-    log_path = _next_version(log_dir, f"yang_seoyeon_topis_weather_merge_{run_date}", ".json")
+    log_path = _next_version(log_dir, f"topis_weather_merge_{run_date}", ".json")
     stable_path = _next_version(summary_dir, f"yang_seoyeon_stable_links_{run_date}", ".csv")
     pd.DataFrame(monthly_stats).to_csv(summary_path, encoding="utf-8-sig", index=False)
     road.head(200).to_csv(sample_path, encoding="utf-8-sig", index=False)
