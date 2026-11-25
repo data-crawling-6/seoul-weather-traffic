@@ -14,7 +14,15 @@
   없으면(첫 시즌 · 출퇴근 외 시간) 있는 표본으로 계산한다
 - 결과는 연구 기간 안 평일(공휴일 제외) 날짜만. 평소값 구간(앞 4주)은 계산 재료로만 쓴다
 
-prior_source: window28 (28일 표본 MIN_N 이상) / prev_season / short_window (표본 부족, 있는 것만)
+결과 열
+  season, split, date, hour     키. hour는 구간 끝 시각 (8 = 07:00~08:00)
+  link_id 또는 road_id          링크 표는 road_id · direction도 함께 둔다
+  direction
+  prior_tt_s                    입력용 평소 통행시간 (초)
+  prior_n                       d-28 ~ d-1 맑은 평일 같은 시간 표본 수 (대체한 행도 28일 표본 수를 그대로 남긴다)
+  prior_source                  window28: 28일 표본 MIN_N(8) 이상
+                                prev_season: 표본 부족 → 지난 시즌(같은 계절 1년 전) 정답용 평소값, d와 같은 요일 · 시간
+                                short_window: 표본 부족이고 지난 시즌 값도 없음 → 있는 표본의 중앙값 (0개면 빈값)
 
 입력
   data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (C 릴리스 v3)
