@@ -21,3 +21,9 @@
 2026-11-20 22:09:25 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2024&mainBdwrRowNum=12
 2026-11-20 22:09:25 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2025&mainBdwrRowNum=12
 2026-11-20 22:09:25 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2026&mainBdwrRowNum=12
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectYearList.do | blbdDivCd=06
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2026&mainBdwrRowNum=12
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2022&mainBdwrRowNum=12
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2023&mainBdwrRowNum=12
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2024&mainBdwrRowNum=12
+2026-11-25 01:30:53 | POST https://topis.seoul.go.kr/refroom/selectRefRoomListASC.do | blbdDivCd=06&bdwrDivCd=2025&mainBdwrRowNum=12
