@@ -21,8 +21,8 @@
   prior_tt_s                    입력용 평소 통행시간 (초)
   prior_n                       d-28 ~ d-1 맑은 평일 같은 시간 표본 수 (대체한 행도 28일 표본 수를 그대로 남긴다)
   prior_source                  window28: 28일 표본 MIN_N(8) 이상
-                                prev_season: 표본 부족 → 지난 시즌(같은 계절 1년 전) 정답용 평소값, d와 같은 요일 · 시간
-                                short_window: 표본 부족이고 지난 시즌 값도 없음 → 있는 표본의 중앙값 (0개면 빈값)
+                                prev_season: 표본 부족 -> 지난 시즌(같은 계절 1년 전) 정답용 평소값, d와 같은 요일 · 시간
+                                short_window: 표본 부족이고 지난 시즌 값도 없음 -> 있는 표본의 중앙값 (0개면 빈값)
   prior_replaced                prior_source가 window28이 아니면 True (대체한 행만 따로 오차를 볼 때)
 
 입력
