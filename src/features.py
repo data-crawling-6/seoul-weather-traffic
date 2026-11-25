@@ -37,6 +37,7 @@
   data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (24시간 통행시간)
   data/processed/{train,eval}/prior_road_*.parquet, weather_hourly_*.csv, waterlevel_hourly_*.csv
   data/raw/topis/csv/topis_speed_2025-12.csv (링크 차선 수 · 도심/외곽)
+    -> 저장소에는 없다. Release topis-data-v1의 topis_speed_2025-12.zip을 받아 이 폴더에 먼저 풀어야 한다
 
 실행
   python src/features.py
@@ -153,6 +154,36 @@ def season_rows(season: str, prior: pd.DataFrame) -> pd.DataFrame:
     return rh
 
 
+def make_rows(rh: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFrame:
+    """도로 × 방향 × 날짜 × 시간 통행시간 표(rh) + 날씨 표 -> 목표 시각 × 예측 거리 행.
+    rh 열: road_id, direction, function_type, date, hour, tt, prior_tt_s, prior_replaced, ratio"""
+    key = ["road_id", "direction", "date", "hour"]
+    ratio = rh.set_index(key)["ratio"]
+    city = rh.groupby(["date", "hour"])["ratio"].median().rename("city_ratio_t0")
+    typ = rh.groupby(["function_type", "date", "hour"])["ratio"].median().rename("type_ratio_t0")
+
+    target = rh[rh["hour"].isin(TARGET_HOURS)].rename(columns={
+        "hour": "target_hour", "tt": "tt_target_s", "prior_tt_s": "prior_target_s",
+        "prior_replaced": "prior_replaced_target", "ratio": "y_ratio"})
+    out = []
+    for h in HORIZONS:
+        f = target.assign(horizon=h, t_hour=target["target_hour"] - h)
+        for lag in [0, 1, 2]:
+            idx = pd.MultiIndex.from_arrays([f["road_id"], f["direction"], f["date"], f["t_hour"] - lag])
+            f[f"ratio_t{lag}"] = ratio.reindex(idx).to_numpy()
+            f[f"ratio_t{lag}_missing"] = f[f"ratio_t{lag}"].isna()
+        f = f.merge(city, left_on=["date", "t_hour"], right_index=True, how="left")
+        f = f.merge(typ, left_on=["function_type", "date", "t_hour"], right_index=True, how="left")
+        f["t_datetime"] = f["date"] + pd.to_timedelta(f["t_hour"], unit="h")
+        f["target_datetime"] = f["date"] + pd.to_timedelta(f["target_hour"], unit="h")
+        f = f.merge(weather.drop(columns=["weather_class", "weather_kind"]), left_on="t_datetime",
+                    right_on="datetime", how="left").drop(columns="datetime")
+        f = f.merge(weather[["datetime", "weather_class", "weather_kind"]], left_on="target_datetime",
+                    right_on="datetime", how="left").drop(columns="datetime")
+        out.append(f)
+    return pd.concat(out, ignore_index=True)
+
+
 def build(seasons: list[str]) -> tuple[pd.DataFrame, dict]:
     periods = load_periods().set_index("season")
     prior = pd.concat([pd.read_parquet(PROC_DIR / s / f"prior_road_{s}.parquet") for s in ["train", "eval"]])
@@ -170,29 +201,9 @@ def build(seasons: list[str]) -> tuple[pd.DataFrame, dict]:
             static = road_static(_links_with_distance(season))
         rh = rh.merge(static[["road_id", "direction", "function_type"]], on=["road_id", "direction"], how="left")
 
-        key = ["road_id", "direction", "date", "hour"]
-        ratio = rh.set_index(key)["ratio"]
-        city = rh.groupby(["date", "hour"])["ratio"].median().rename("city_ratio_t0")
-        typ = rh.groupby(["function_type", "date", "hour"])["ratio"].median().rename("type_ratio_t0")
-
-        target = rh[rh["hour"].isin(TARGET_HOURS)].rename(columns={
-            "hour": "target_hour", "tt": "tt_target_s", "prior_tt_s": "prior_target_s",
-            "prior_replaced": "prior_replaced_target", "ratio": "y_ratio"})
-        for h in HORIZONS:
-            f = target.assign(horizon=h, t_hour=target["target_hour"] - h)
-            for lag in [0, 1, 2]:
-                idx = pd.MultiIndex.from_arrays([f["road_id"], f["direction"], f["date"], f["t_hour"] - lag])
-                f[f"ratio_t{lag}"] = ratio.reindex(idx).to_numpy()
-                f[f"ratio_t{lag}_missing"] = f[f"ratio_t{lag}"].isna()
-            f = f.merge(city, left_on=["date", "t_hour"], right_index=True, how="left")
-            f = f.merge(typ, left_on=["function_type", "date", "t_hour"], right_index=True, how="left")
-            f["t_datetime"] = f["date"] + pd.to_timedelta(f["t_hour"], unit="h")
-            f["target_datetime"] = f["date"] + pd.to_timedelta(f["target_hour"], unit="h")
-            f = f.merge(weather.drop(columns=["weather_class", "weather_kind"]), left_on="t_datetime",
-                        right_on="datetime", how="left").drop(columns="datetime")
-            f = f.merge(weather[["datetime", "weather_class", "weather_kind"]], left_on="target_datetime",
-                        right_on="datetime", how="left").drop(columns="datetime")
-            out.append(f.assign(season=season, split=row["split"], model_set=MODEL_SETS[season]))
+        f = make_rows(rh, weather)
+        out.append(f.assign(season=season, split=row["split"], model_set=MODEL_SETS[season]))
+        target = f[f["horizon"] == HORIZONS[0]]
         summary[season] = {"targets": int(len(target)), "y_nan": int(target["y_ratio"].isna().sum())}
         print(season, summary[season])
 
