@@ -1,0 +1,61 @@
+{
+  "source_rows": 125100,
+  "matched_rows": 75600,
+  "matched_date_count": 90,
+  "date_min": "2022-12-21",
+  "date_max": "2026-09-08",
+  "hour_distribution": {
+    "8": 15120,
+    "9": 15120,
+    "18": 15120,
+    "19": 15120,
+    "20": 15120
+  },
+  "weekday_distribution": {
+    "0": 8400,
+    "1": 13440,
+    "2": 21840,
+    "3": 20160,
+    "4": 11760
+  },
+  "daily_rows_min": 840,
+  "daily_rows_max": 840,
+  "daily_rows_median": 840.0,
+  "baseline_groups": 4200,
+  "groups_with_3_valid_days": 4160,
+  "groups_with_5_valid_days": 4075,
+  "groups_below_3_valid_days": 40,
+  "weather_candidate_columns": [],
+  "all_source_columns": [
+    "date",
+    "split",
+    "role",
+    "season",
+    "season_name",
+    "spot_id",
+    "spot_name",
+    "road_name",
+    "io_type",
+    "direction_detail",
+    "latitude",
+    "longitude",
+    "volume_start_hour",
+    "hour",
+    "commute_period",
+    "traffic_volume",
+    "source_month",
+    "source_file"
+  ],
+  "notes": [
+    "Three/five valid days is a diagnostic threshold, not a scientifically established baseline.",
+    "Weather-normal-day baseline cannot be approved until weather-day flags are joined.",
+    "Training-only/past-only baselines must be computed separately to avoid leakage.",
+    "Daily coverage counts present records, not missing expected time-grid cells."
+  ],
+  "inputs": {
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv"
+  },
+  "table_path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_baseline_feasibility_20261124T014349_(성공)_v01.csv"
+}

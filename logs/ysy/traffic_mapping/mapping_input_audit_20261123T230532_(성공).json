@@ -1,0 +1,1420 @@
+{
+  "audit_kind": "fresh_execution_recalculation_not_historical_reconstruction",
+  "inputs": {
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv",
+    "vertices": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_link_vertices_raw_20261123T213044_v01_(성공).csv",
+    "lines": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson"
+  },
+  "traffic_volume": {
+    "rows": 125100,
+    "unique_dates": 90,
+    "unique_spots": 139,
+    "missing_traffic_volume_rows": 22774,
+    "missing_traffic_volume_percent": 18.204636,
+    "zero_latitude_or_longitude_rows": 130,
+    "spot_direction_pairs": 278,
+    "pairs_with_multiple_valid_coordinates": 217,
+    "coordinate_count_distribution": {
+      "1": 61,
+      "2": 196,
+      "3": 21
+    },
+    "changed_spot_directions": [
+      {
+        "spot_id": "A-01",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 38.623
+      },
+      {
+        "spot_id": "A-01",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 38.623
+      },
+      {
+        "spot_id": "A-02",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 35.086
+      },
+      {
+        "spot_id": "A-02",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.789
+      },
+      {
+        "spot_id": "A-05",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 49.05
+      },
+      {
+        "spot_id": "A-05",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 32.846
+      },
+      {
+        "spot_id": "A-06",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 33.901
+      },
+      {
+        "spot_id": "A-06",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 26.4
+      },
+      {
+        "spot_id": "A-07",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 2.75
+      },
+      {
+        "spot_id": "A-07",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 115.543
+      },
+      {
+        "spot_id": "A-08",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 37.61
+      },
+      {
+        "spot_id": "A-09",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 94.827
+      },
+      {
+        "spot_id": "A-09",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.336
+      },
+      {
+        "spot_id": "A-10",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.731
+      },
+      {
+        "spot_id": "A-11",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 42.051
+      },
+      {
+        "spot_id": "A-12",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 48.358
+      },
+      {
+        "spot_id": "A-13",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 152.572
+      },
+      {
+        "spot_id": "A-13",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 61.526
+      },
+      {
+        "spot_id": "A-14",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 15.441
+      },
+      {
+        "spot_id": "A-14",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 161.29
+      },
+      {
+        "spot_id": "A-15",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 36.983
+      },
+      {
+        "spot_id": "A-15",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 36.983
+      },
+      {
+        "spot_id": "A-16",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 33.187
+      },
+      {
+        "spot_id": "A-16",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 5.517
+      },
+      {
+        "spot_id": "A-17",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 25.487
+      },
+      {
+        "spot_id": "A-18",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 30.355
+      },
+      {
+        "spot_id": "A-19",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 9.946
+      },
+      {
+        "spot_id": "A-19",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 9.946
+      },
+      {
+        "spot_id": "A-21",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 1222.533
+      },
+      {
+        "spot_id": "A-21",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 1222.533
+      },
+      {
+        "spot_id": "A-22",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 31.854
+      },
+      {
+        "spot_id": "A-22",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 31.854
+      },
+      {
+        "spot_id": "A-23",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.205
+      },
+      {
+        "spot_id": "A-23",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.205
+      },
+      {
+        "spot_id": "B-01",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 48.075
+      },
+      {
+        "spot_id": "B-03",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 100.718
+      },
+      {
+        "spot_id": "B-03",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.329
+      },
+      {
+        "spot_id": "B-04",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 130.592
+      },
+      {
+        "spot_id": "B-05",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.674
+      },
+      {
+        "spot_id": "B-06",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.249
+      },
+      {
+        "spot_id": "B-06",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 33.668
+      },
+      {
+        "spot_id": "B-07",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 35.741
+      },
+      {
+        "spot_id": "B-07",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 699.148
+      },
+      {
+        "spot_id": "B-08",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.512
+      },
+      {
+        "spot_id": "B-08",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 79.401
+      },
+      {
+        "spot_id": "B-09",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 88.316
+      },
+      {
+        "spot_id": "B-09",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 18.568
+      },
+      {
+        "spot_id": "B-10",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 1489.703
+      },
+      {
+        "spot_id": "B-10",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 1519.359
+      },
+      {
+        "spot_id": "B-11",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 9.508
+      },
+      {
+        "spot_id": "B-11",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 354.226
+      },
+      {
+        "spot_id": "B-12",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 70.93
+      },
+      {
+        "spot_id": "B-12",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 70.93
+      },
+      {
+        "spot_id": "B-13",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 100.431
+      },
+      {
+        "spot_id": "B-13",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.595
+      },
+      {
+        "spot_id": "B-14",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 15.942
+      },
+      {
+        "spot_id": "B-14",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 51.531
+      },
+      {
+        "spot_id": "B-15",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.108
+      },
+      {
+        "spot_id": "B-15",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 120.685
+      },
+      {
+        "spot_id": "B-16",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 23.634
+      },
+      {
+        "spot_id": "B-16",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 105.882
+      },
+      {
+        "spot_id": "B-17",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 42.959
+      },
+      {
+        "spot_id": "B-17",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 47.966
+      },
+      {
+        "spot_id": "B-18",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 43.283
+      },
+      {
+        "spot_id": "B-18",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 31.625
+      },
+      {
+        "spot_id": "B-19",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 11.175
+      },
+      {
+        "spot_id": "B-21",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 236.611
+      },
+      {
+        "spot_id": "B-22",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 184.084
+      },
+      {
+        "spot_id": "B-23",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 1273.643
+      },
+      {
+        "spot_id": "B-23",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 1273.643
+      },
+      {
+        "spot_id": "B-24",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 56.833
+      },
+      {
+        "spot_id": "B-24",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 14.016
+      },
+      {
+        "spot_id": "B-25",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 8.205
+      },
+      {
+        "spot_id": "B-25",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.95
+      },
+      {
+        "spot_id": "B-26",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.446
+      },
+      {
+        "spot_id": "B-26",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.446
+      },
+      {
+        "spot_id": "B-27",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.986
+      },
+      {
+        "spot_id": "B-27",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.986
+      },
+      {
+        "spot_id": "B-28",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 6.973
+      },
+      {
+        "spot_id": "B-28",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 6.973
+      },
+      {
+        "spot_id": "B-29",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 36.477
+      },
+      {
+        "spot_id": "B-30",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 28.752
+      },
+      {
+        "spot_id": "B-30",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 25.318
+      },
+      {
+        "spot_id": "B-31",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 60.428
+      },
+      {
+        "spot_id": "B-32",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.62
+      },
+      {
+        "spot_id": "B-32",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.62
+      },
+      {
+        "spot_id": "B-33",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.507
+      },
+      {
+        "spot_id": "B-33",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 24.949
+      },
+      {
+        "spot_id": "B-34",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 9.874
+      },
+      {
+        "spot_id": "B-34",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.825
+      },
+      {
+        "spot_id": "B-35",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 29.209
+      },
+      {
+        "spot_id": "B-35",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 39.059
+      },
+      {
+        "spot_id": "B-36",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 21.163
+      },
+      {
+        "spot_id": "B-36",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 22.881
+      },
+      {
+        "spot_id": "B-37",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.217
+      },
+      {
+        "spot_id": "B-37",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 51.333
+      },
+      {
+        "spot_id": "B-38",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 41.625
+      },
+      {
+        "spot_id": "C-01",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 43.369
+      },
+      {
+        "spot_id": "C-02",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.377
+      },
+      {
+        "spot_id": "C-02",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 375.692
+      },
+      {
+        "spot_id": "C-03",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 445.955
+      },
+      {
+        "spot_id": "C-04",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 547.858
+      },
+      {
+        "spot_id": "C-04",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 549.452
+      },
+      {
+        "spot_id": "C-05",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.413
+      },
+      {
+        "spot_id": "C-05",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.413
+      },
+      {
+        "spot_id": "C-06",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.581
+      },
+      {
+        "spot_id": "C-06",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.581
+      },
+      {
+        "spot_id": "C-07",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 6.766
+      },
+      {
+        "spot_id": "C-07",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 2.542
+      },
+      {
+        "spot_id": "C-08",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 498.091
+      },
+      {
+        "spot_id": "C-08",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 514.917
+      },
+      {
+        "spot_id": "C-09",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 17.02
+      },
+      {
+        "spot_id": "C-09",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 21.913
+      },
+      {
+        "spot_id": "C-10",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.09
+      },
+      {
+        "spot_id": "C-10",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 43.588
+      },
+      {
+        "spot_id": "C-11",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.717
+      },
+      {
+        "spot_id": "C-11",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 37.98
+      },
+      {
+        "spot_id": "C-13",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 20.118
+      },
+      {
+        "spot_id": "C-13",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 31.464
+      },
+      {
+        "spot_id": "C-14",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.546
+      },
+      {
+        "spot_id": "C-14",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 32.007
+      },
+      {
+        "spot_id": "C-15",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 15.346
+      },
+      {
+        "spot_id": "C-15",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 23.948
+      },
+      {
+        "spot_id": "C-16",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.775
+      },
+      {
+        "spot_id": "C-16",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 22.426
+      },
+      {
+        "spot_id": "C-17",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 342.367
+      },
+      {
+        "spot_id": "C-17",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 447.659
+      },
+      {
+        "spot_id": "C-18",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 29.567
+      },
+      {
+        "spot_id": "C-18",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.351
+      },
+      {
+        "spot_id": "C-19",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.113
+      },
+      {
+        "spot_id": "C-19",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 12.303
+      },
+      {
+        "spot_id": "C-20",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 11.132
+      },
+      {
+        "spot_id": "C-21",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 4.029
+      },
+      {
+        "spot_id": "C-21",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 4.029
+      },
+      {
+        "spot_id": "D-01",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 25.907
+      },
+      {
+        "spot_id": "D-01",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 20.828
+      },
+      {
+        "spot_id": "D-03",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 24.887
+      },
+      {
+        "spot_id": "D-03",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 22.32
+      },
+      {
+        "spot_id": "D-04",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 21.02
+      },
+      {
+        "spot_id": "D-05",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 12.035
+      },
+      {
+        "spot_id": "D-06",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.907
+      },
+      {
+        "spot_id": "D-07",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 58.802
+      },
+      {
+        "spot_id": "D-08",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 37.354
+      },
+      {
+        "spot_id": "D-08",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 36.838
+      },
+      {
+        "spot_id": "D-09",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 60.822
+      },
+      {
+        "spot_id": "D-09",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 60.822
+      },
+      {
+        "spot_id": "D-10",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 184.519
+      },
+      {
+        "spot_id": "D-10",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 184.417
+      },
+      {
+        "spot_id": "D-11",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 37.857
+      },
+      {
+        "spot_id": "D-11",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 4.853
+      },
+      {
+        "spot_id": "D-12",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.761
+      },
+      {
+        "spot_id": "D-12",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 128.079
+      },
+      {
+        "spot_id": "D-13",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 10.794
+      },
+      {
+        "spot_id": "D-13",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 60.623
+      },
+      {
+        "spot_id": "D-14",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 46.897
+      },
+      {
+        "spot_id": "D-15",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 149.506
+      },
+      {
+        "spot_id": "D-15",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 113.162
+      },
+      {
+        "spot_id": "D-16",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 39.539
+      },
+      {
+        "spot_id": "D-17",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 18.351
+      },
+      {
+        "spot_id": "D-17",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 16.522
+      },
+      {
+        "spot_id": "D-18",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 22.072
+      },
+      {
+        "spot_id": "D-18",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 26.097
+      },
+      {
+        "spot_id": "D-19",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 153.848
+      },
+      {
+        "spot_id": "D-19",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 149.111
+      },
+      {
+        "spot_id": "D-20",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 9.496
+      },
+      {
+        "spot_id": "D-20",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 4.864
+      },
+      {
+        "spot_id": "D-21",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 68.007
+      },
+      {
+        "spot_id": "D-21",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 25.644
+      },
+      {
+        "spot_id": "D-22",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 51.975
+      },
+      {
+        "spot_id": "D-22",
+        "io_type": "유출",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 76.896
+      },
+      {
+        "spot_id": "D-23",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 28.182
+      },
+      {
+        "spot_id": "D-23",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.152
+      },
+      {
+        "spot_id": "D-24",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 58.973
+      },
+      {
+        "spot_id": "D-24",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 8.254
+      },
+      {
+        "spot_id": "D-25",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 19.176
+      },
+      {
+        "spot_id": "D-25",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 23.923
+      },
+      {
+        "spot_id": "D-26",
+        "io_type": "유입",
+        "valid_coordinate_count": 3,
+        "max_coordinate_distance_m": 115.707
+      },
+      {
+        "spot_id": "D-26",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 115.707
+      },
+      {
+        "spot_id": "D-27",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 221.819
+      },
+      {
+        "spot_id": "D-27",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 221.819
+      },
+      {
+        "spot_id": "D-29",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 1.618
+      },
+      {
+        "spot_id": "D-29",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 254.528
+      },
+      {
+        "spot_id": "D-30",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 14.82
+      },
+      {
+        "spot_id": "D-30",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 32.141
+      },
+      {
+        "spot_id": "D-31",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 115.203
+      },
+      {
+        "spot_id": "D-32",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 62.44
+      },
+      {
+        "spot_id": "D-33",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 27.266
+      },
+      {
+        "spot_id": "D-33",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 68.787
+      },
+      {
+        "spot_id": "D-34",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 38.576
+      },
+      {
+        "spot_id": "D-34",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 38.576
+      },
+      {
+        "spot_id": "D-35",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 11.543
+      },
+      {
+        "spot_id": "D-35",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 204.586
+      },
+      {
+        "spot_id": "D-36",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 170.303
+      },
+      {
+        "spot_id": "D-37",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 27.483
+      },
+      {
+        "spot_id": "D-38",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 93.906
+      },
+      {
+        "spot_id": "D-38",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 42.485
+      },
+      {
+        "spot_id": "D-39",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 23.797
+      },
+      {
+        "spot_id": "D-39",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 40.94
+      },
+      {
+        "spot_id": "D-40",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.438
+      },
+      {
+        "spot_id": "D-40",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 33.013
+      },
+      {
+        "spot_id": "D-41",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.001
+      },
+      {
+        "spot_id": "D-41",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 7.25
+      },
+      {
+        "spot_id": "D-43",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 7.098
+      },
+      {
+        "spot_id": "D-43",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 65.851
+      },
+      {
+        "spot_id": "D-44",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 36.473
+      },
+      {
+        "spot_id": "D-45",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 85.813
+      },
+      {
+        "spot_id": "D-45",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 89.354
+      },
+      {
+        "spot_id": "D-46",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 877.047
+      },
+      {
+        "spot_id": "F-01",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 52.067
+      },
+      {
+        "spot_id": "F-02",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 13.349
+      },
+      {
+        "spot_id": "F-02",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 276.402
+      },
+      {
+        "spot_id": "F-03",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 4182.539
+      },
+      {
+        "spot_id": "F-05",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 167.368
+      },
+      {
+        "spot_id": "F-06",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 8.187
+      },
+      {
+        "spot_id": "F-06",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 368.132
+      },
+      {
+        "spot_id": "F-07",
+        "io_type": "유입",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 5.619
+      },
+      {
+        "spot_id": "F-07",
+        "io_type": "유출",
+        "valid_coordinate_count": 2,
+        "max_coordinate_distance_m": 68.52
+      }
+    ],
+    "maximum_coordinate_change_m": 4182.539
+  },
+  "vertices": {
+    "rows": 33023,
+    "unique_links": 5092,
+    "coordinate_columns": [
+      "grs80tm_x",
+      "grs80tm_y"
+    ],
+    "missing_coordinate_rows": 0,
+    "non_numeric_or_missing_coordinate_rows": 0,
+    "minimum_vertices_per_link": 2,
+    "missing_vertex_order_rows": 0,
+    "invalid_vertex_order_rows": 0,
+    "duplicate_vertex_order_within_link_rows": 0,
+    "links_with_fewer_than_two_vertices": 0
+  },
+  "links": {
+    "stable_link_rows": 1753,
+    "stable_unique_links": 1753,
+    "analysis_roads": 90,
+    "geojson_rows": 5092,
+    "geojson_unique_links": 5092,
+    "matched_analysis_links": 1753,
+    "unmatched_analysis_links": 0,
+    "unmatched_link_ids": [],
+    "duplicate_stable_link_rows": 0,
+    "duplicate_geojson_link_rows": 0,
+    "links_assigned_to_multiple_roads": 0,
+    "missing_or_empty_geometries": 0,
+    "non_linestring_geometries": 0,
+    "expected_1753_links": true,
+    "expected_90_roads": true
+  },
+  "checks": {
+    "analysis_links_1753": true,
+    "analysis_roads_90": true,
+    "all_analysis_links_have_geometry": true,
+    "stable_links_not_duplicated": true,
+    "geometry_links_not_duplicated": true,
+    "no_cross_road_link_assignment": true,
+    "valid_linestring_geometries": true,
+    "vertices_have_two_or_more_points": true,
+    "vertices_have_numeric_coordinates": true,
+    "vertices_have_valid_vertex_order": true,
+    "vertices_have_unique_order_per_link": true
+  },
+  "provenance": {
+    "git": {
+      "commit_id": "b5c616c7413848112cc354b23da5de85eef30c38",
+      "has_uncommitted_changes": true,
+      "git_error": null
+    },
+    "python": {
+      "executable": "C:\\Users\\USER\\.conda\\envs\\youth-isolation\\python.exe",
+      "version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+      "implementation": "CPython"
+    },
+    "input_files": {
+      "stable_links": {
+        "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv",
+        "size_bytes": 100478,
+        "sha256": "652bca41194e906b11324cc3ed369d7fe3c73152d5bf424151399f997b480472"
+      },
+      "vertices": {
+        "path": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_link_vertices_raw_20261123T213044_v01_(성공).csv",
+        "size_bytes": 1064859,
+        "sha256": "e90f02102094644c6a48e9d6b1fe2c9be9aa70cac3d7aa4dcce788e5e0aeebc6"
+      },
+      "lines": {
+        "path": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson",
+        "size_bytes": 2202638,
+        "sha256": "9838293c435130cc26d820eaf020aa181dee84df299bd036ad8d42547f03663b"
+      },
+      "eval": {
+        "path": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+        "size_bytes": 139005,
+        "sha256": "8432b394ffabe6b5feeaf69749992bed1dc39c1af43d079a7c109d56ecd87f8c"
+      },
+      "train": {
+        "path": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+        "size_bytes": 201837,
+        "sha256": "54a4cd2538d18ea5840b358ab7d2e9d5bf58b6592e494320dc8968b8aaf5f4b8"
+      }
+    }
+  },
+  "status": "success",
+  "started_at": "2026-11-23T23:05:32.805779+09:00",
+  "finished_at": "2026-11-23T23:05:34.952352+09:00",
+  "record_notice": "Fresh audit executed now; not a reconstruction of earlier runs.",
+  "error": null,
+  "coordinate_review_path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_coordinate_review_20261123T230532_v01.csv"
+}

@@ -1,0 +1,190 @@
+{
+  "status": "성공",
+  "source_analysis_log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_analysis\\yang_seoyeon_traffic_analysis_20261124T122846_(성공)_v01.json",
+  "best_k": 2,
+  "silhouette_score": 0.4401053204398002,
+  "train_eval_cluster_agreement_rate": 0.803921568627451,
+  "eval_unclustered_roads": 1,
+  "cluster_statistics": [
+    {
+      "split": "eval",
+      "cluster": 0.0,
+      "road_count": 11,
+      "median_change_pct": -5.2668052668052665,
+      "median_change_iqr": 10.369866728908919,
+      "median_decrease_share": 0.76,
+      "morning_median": -4.332075345851095,
+      "evening_median": -5.849938152989718,
+      "rain_median": -5.139014410307935,
+      "snow_median": -4.889206221238693,
+      "median_valid_road_hours": 75.0
+    },
+    {
+      "split": "eval",
+      "cluster": 1.0,
+      "road_count": 40,
+      "median_change_pct": -3.1032115142634673,
+      "median_change_iqr": 7.240701885586445,
+      "median_decrease_share": 0.72,
+      "morning_median": -2.7256720646403556,
+      "evening_median": -3.3032572501747013,
+      "rain_median": -2.7797898281392426,
+      "snow_median": -2.8361979552505465,
+      "median_valid_road_hours": 75.0
+    },
+    {
+      "split": "train",
+      "cluster": 0.0,
+      "road_count": 8,
+      "median_change_pct": -5.788823390722266,
+      "median_change_iqr": 11.235780872697408,
+      "median_decrease_share": 0.6000000000000001,
+      "morning_median": -5.522924937010323,
+      "evening_median": -6.420143007930645,
+      "rain_median": -5.038229851690504,
+      "snow_median": -7.224181047666196,
+      "median_valid_road_hours": 122.5
+    },
+    {
+      "split": "train",
+      "cluster": 1.0,
+      "road_count": 44,
+      "median_change_pct": -2.8962900059135377,
+      "median_change_iqr": 8.13181576264939,
+      "median_decrease_share": 0.6866666666666668,
+      "morning_median": -2.2875722349702996,
+      "evening_median": -3.314818015668175,
+      "rain_median": -2.524662646408931,
+      "snow_median": -4.721997277611525,
+      "median_valid_road_hours": 150.0
+    }
+  ],
+  "representative_roads": [
+    {
+      "cluster": 0,
+      "road_id": "R009",
+      "road_name": "서부간선지하도로",
+      "distance_to_centroid": 1.3537993326843523,
+      "median_change_pct": -5.4785935711603635,
+      "change_iqr": 14.289952768087359,
+      "decrease_share": 0.7133333333333334,
+      "morning_median": -4.906821462606406,
+      "evening_median": -6.296063608914007
+    },
+    {
+      "cluster": 0,
+      "road_id": "R047",
+      "road_name": "서빙고로",
+      "distance_to_centroid": 1.8122016598819555,
+      "median_change_pct": -5.568304996751192,
+      "change_iqr": 9.571540749854254,
+      "decrease_share": 0.7733333333333333,
+      "morning_median": -3.3900476804032427,
+      "evening_median": -6.5442224069472825
+    },
+    {
+      "cluster": 0,
+      "road_id": "R008",
+      "road_name": "분당수서로",
+      "distance_to_centroid": 2.0170933936855717,
+      "median_change_pct": -6.410530931430753,
+      "change_iqr": 9.727921417893725,
+      "decrease_share": 0.78,
+      "morning_median": -6.466346052876408,
+      "evening_median": -6.257451133044497
+    },
+    {
+      "cluster": 0,
+      "road_id": "R071",
+      "road_name": "을지로",
+      "distance_to_centroid": 2.0903446445968714,
+      "median_change_pct": -6.2282108731877495,
+      "change_iqr": 14.613175050006902,
+      "decrease_share": 0.36666666666666664,
+      "morning_median": -6.139028411414239,
+      "evening_median": -7.057587322612214
+    },
+    {
+      "cluster": 0,
+      "road_id": "R007",
+      "road_name": "북부간선도로",
+      "distance_to_centroid": 2.1013008245305658,
+      "median_change_pct": -6.009341784693341,
+      "change_iqr": 9.691519078719992,
+      "decrease_share": 0.7666666666666667,
+      "morning_median": -6.657254589842815,
+      "evening_median": -5.035373537640967
+    },
+    {
+      "cluster": 1,
+      "road_id": "R026",
+      "road_name": "대학로",
+      "distance_to_centroid": 0.1786232163728044,
+      "median_change_pct": -2.7468243790934217,
+      "change_iqr": 8.415392076764622,
+      "decrease_share": 0.64,
+      "morning_median": -2.5063665318187813,
+      "evening_median": -3.253962486576395
+    },
+    {
+      "cluster": 1,
+      "road_id": "R053",
+      "road_name": "세종대로",
+      "distance_to_centroid": 0.698718285232009,
+      "median_change_pct": -2.492840758081669,
+      "change_iqr": 8.506082416149106,
+      "decrease_share": 0.7133333333333334,
+      "morning_median": -2.0336098434820453,
+      "evening_median": -3.2067434130324335
+    },
+    {
+      "cluster": 1,
+      "road_id": "R031",
+      "road_name": "동작대로",
+      "distance_to_centroid": 0.8600116348289842,
+      "median_change_pct": -2.7920978966386363,
+      "change_iqr": 10.380587111754933,
+      "decrease_share": 0.62,
+      "morning_median": -2.6855950280992356,
+      "evening_median": -3.3472063679741453
+    },
+    {
+      "cluster": 1,
+      "road_id": "R078",
+      "road_name": "창경궁로",
+      "distance_to_centroid": 0.9805320742445022,
+      "median_change_pct": -2.5921765083590533,
+      "change_iqr": 8.671536796536797,
+      "decrease_share": 0.68,
+      "morning_median": -3.1593463686958856,
+      "evening_median": -2.1066936804174903
+    },
+    {
+      "cluster": 1,
+      "road_id": "R012",
+      "road_name": "강남대로",
+      "distance_to_centroid": 0.9864318813828562,
+      "median_change_pct": -2.8331616203331285,
+      "change_iqr": 6.451080993658329,
+      "decrease_share": 0.7,
+      "morning_median": -1.8858365433946935,
+      "evening_median": -3.1404877600386145
+    }
+  ],
+  "interpretation_notes": [
+    "군집 번호는 순위가 아니라 교통량 변화 특성이 유사한 도로 묶음이다.",
+    "군집은 train 자료로만 학습했고 eval은 train 기준으로 예측했다.",
+    "교통량 지점이 연결된 52개 도로 결과이며 전체 90개 도로를 대표하지 않는다.",
+    "결측으로 군집화되지 않은 eval 도로는 별도 표에 보존했다."
+  ],
+  "outputs": {
+    "train_eval_plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_cluster_train_eval_20261124T124129_(성공)_v01.png",
+    "commute_plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_cluster_commute_20261124T124129_(성공)_v01.png",
+    "weather_plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_cluster_weather_20261124T124129_(성공)_v01.png",
+    "map_png": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_cluster_map_20261124T124129_(성공)_v01.png",
+    "map_html": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_cluster_map_20261124T124129_(성공)_v01.html",
+    "eval_unclustered": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_cluster_eval_unclassified_20261124T124129_(성공)_v01.csv",
+    "interpretation": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_cluster_interpretation_20261124T124129_(성공)_v01.json",
+    "visualization_log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_analysis\\yang_seoyeon_traffic_visualization_20261124T124129_(성공)_v01.json"
+  }
+}

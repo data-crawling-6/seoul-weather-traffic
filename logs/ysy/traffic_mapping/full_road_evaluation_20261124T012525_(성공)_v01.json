@@ -1,0 +1,29 @@
+{
+  "coordinate_versions": 649,
+  "full_geometry_evidence_counts": {
+    "road_candidate_strong_geometry_only": 361,
+    "no_exact_name_road_in_analysis": 252,
+    "competing_road_too_close": 25,
+    "matching_road_too_far": 10,
+    "invalid_coordinate": 1
+  },
+  "review_proposals_total": 350,
+  "new_review_proposals_excluding_baseline_auto": 168,
+  "baseline_conflicts": 0,
+  "validation_checks": {
+    "population_preserved": true,
+    "unique_versions": true,
+    "no_decisions_changed": true
+  },
+  "status": "success",
+  "baseline": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_final_review_20261123T232007_(성공)_v01.csv",
+  "source_files": {
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv",
+    "lines": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson"
+  },
+  "output_csv": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_full_road_evaluation_20261124T012525_(성공)_v01.csv",
+  "output_json": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_full_road_evaluation_20261124T012525_(성공)_v01.json",
+  "limitations": "Review proposals only; road layers, physical carriageway and direction are unverified."
+}

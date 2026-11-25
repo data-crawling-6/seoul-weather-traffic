@@ -1,0 +1,25 @@
+{
+  "run_kind": "fresh_read_only_candidate_diagnostics",
+  "generated_at": "2026-11-23T23:27:44.334637+09:00",
+  "source": {
+    "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_candidates_20261123T232007_(성공)_v01.csv",
+    "size_bytes": 578358,
+    "sha256": "5eda95d59ffd55fa71e3dd076bda3cfac8022e0e7eed5aea454e45c14c89c683"
+  },
+  "counts": {
+    "candidate_rows": 1944,
+    "candidate_coordinate_versions": 648,
+    "nearest_road_name_mismatch_versions": 271,
+    "nearest_road_name_mismatch_within_50m": 113,
+    "nearest_mismatch_with_alternative_matching_candidate_within_50m": 7,
+    "multiple_candidate_roads_versions": 265
+  },
+  "notes": [
+    "No mapping statuses or selected links are changed.",
+    "Unmapped versions without candidates are not present in the candidate CSV; use the mapping review CSV to reconcile the full 649 versions."
+  ],
+  "outputs": {
+    "mismatch_pairs": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_name_mismatch_pairs_20261123T232744318619+0900_v01.csv",
+    "mismatch_review": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_name_mismatch_review_20261123T232744318619+0900_v01.csv"
+  }
+}

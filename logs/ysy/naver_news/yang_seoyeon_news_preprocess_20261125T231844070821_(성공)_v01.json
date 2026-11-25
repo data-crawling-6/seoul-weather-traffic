@@ -1,0 +1,31 @@
+{
+  "status": "성공",
+  "source": "D:\\seoul-weather-traffic-data\\naver_news\\raw\\yang_seoyeon_naver_news_raw_20261125T230604_v01_(부분성공).csv",
+  "raw_rows": 2119,
+  "raw_unique_urls": 1255,
+  "raw_road_mentioned_rows": 326,
+  "articles": 1255,
+  "event_links": 1837,
+  "road_candidates": 360,
+  "date_status": {
+    "in_window": 2112,
+    "review": 5,
+    "out_of_window": 2
+  },
+  "relevance": {
+    "review": 1110,
+    "candidate": 525,
+    "low_evidence": 484
+  },
+  "road_case_status": {
+    "manual_review": 298,
+    "candidate_review": 62
+  },
+  "outputs": {
+    "news_audit": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_audit_20261125T231844070821_(성공)_v01.csv",
+    "news_articles": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_articles_20261125T231844070821_(성공)_v01.csv",
+    "news_event_links": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_event_links_20261125T231844070821_(성공)_v01.csv",
+    "news_road_candidates": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_road_candidates_20261125T231844070821_(성공)_v01.csv"
+  },
+  "limitations": "제목 및 검색 화면 메타데이터 기반 후보이며 기사 본문, 실제 사건일, 인과관계는 미검증"
+}

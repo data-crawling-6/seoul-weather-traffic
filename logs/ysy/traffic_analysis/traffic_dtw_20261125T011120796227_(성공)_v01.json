@@ -1,0 +1,108 @@
+{
+  "status": "성공",
+  "input": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261124T124508_(성공)_v01.csv",
+  "input_rows": 11700,
+  "eligible_roads": {
+    "train": 52,
+    "eval": 48
+  },
+  "excluded_roads": {
+    "train": 0,
+    "eval": 4
+  },
+  "min_paired_days_per_hour": 3,
+  "train_scaler_mean": [
+    -3.3842757045531795,
+    -0.00289691294898799
+  ],
+  "train_scaler_scale": [
+    2.3456262078941736,
+    4.50174990688425
+  ],
+  "medoids": {
+    "euclidean": [
+      "R009",
+      "R051"
+    ],
+    "dtw": [
+      "R009",
+      "R051"
+    ]
+  },
+  "scores": [
+    {
+      "method": "euclidean",
+      "k": 2,
+      "silhouette": 0.4005361068115876
+    },
+    {
+      "method": "euclidean",
+      "k": 3,
+      "silhouette": 0.35904481542471345
+    },
+    {
+      "method": "euclidean",
+      "k": 4,
+      "silhouette": 0.31137939407601906
+    },
+    {
+      "method": "euclidean",
+      "k": 5,
+      "silhouette": 0.29221070405161204
+    },
+    {
+      "method": "euclidean",
+      "k": 6,
+      "silhouette": 0.30024147610597984
+    },
+    {
+      "method": "dtw",
+      "k": 2,
+      "silhouette": 0.40780733112010886
+    },
+    {
+      "method": "dtw",
+      "k": 3,
+      "silhouette": 0.3674315096841363
+    },
+    {
+      "method": "dtw",
+      "k": 4,
+      "silhouette": 0.3207486538929581
+    },
+    {
+      "method": "dtw",
+      "k": 5,
+      "silhouette": 0.28376052240635674
+    },
+    {
+      "method": "dtw",
+      "k": 6,
+      "silhouette": 0.30027784874364916
+    }
+  ],
+  "distance_rank_correlation": 0.9927430519075572,
+  "warping_reduced_pairs": 292,
+  "road_pairs": 1326,
+  "dtw_euclidean_ari": 1.0,
+  "kmeans_comparison": {
+    "eval": {
+      "comparable": 48,
+      "ari": 0.09541757587780203
+    },
+    "train": {
+      "comparable": 52,
+      "ari": 0.30811113295724374
+    }
+  },
+  "limitations": "대표 시간대 중앙값 패턴; 출근 2점은 DTW와 고정 거리 동일, 퇴근 3점만 최대 1슬롯 정렬 허용. 날짜 연속 시계열이나 실제 지연 시간 추정 아님. train 평균/표준편차 및 군집만 학습, eval 최근접 train medoid 배정. 최소 3일 기준은 탐색적 설정.",
+  "outputs": {
+    "dtw_profiles": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_profiles_20261125T011120796227_(성공)_v01.csv",
+    "dtw_clusters": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_clusters_20261125T011120796227_(성공)_v01.csv",
+    "dtw_scores": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_scores_20261125T011120796227_(성공)_v01.csv",
+    "dtw_distance_euclidean": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_distance_euclidean_20261125T011120796227_(성공)_v01.csv",
+    "dtw_distance_dtw": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_distance_dtw_20261125T011120796227_(성공)_v01.csv",
+    "plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_dtw_patterns_20261125T011120796227_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_dtw_20261125T011120796227_(성공)_v01.json"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "run_kind": "fresh_read_only_alternative_candidate_review",
+  "status": "success",
+  "started_at": "2026-11-23T23:40:35.174144+09:00",
+  "finished_at": "2026-11-23T23:40:35.287112+09:00",
+  "record_notice": "This output suggests manual comparisons and never changes existing mapping decisions.",
+  "error": null,
+  "thresholds": {
+    "name_matching_alternative_max_distance_m": 50.0
+  },
+  "counts": {
+    "alternative_rows": 9,
+    "coordinate_versions": 7
+  },
+  "validation_checks": {
+    "rows_reference_existing_candidates": true,
+    "only_non_nearest_candidates": true,
+    "only_name_matches": true,
+    "only_within_50m": true,
+    "only_manual_review_versions": true,
+    "mapping_status_preserved": true,
+    "selected_links_not_filled": true,
+    "manual_fields_initially_blank": true
+  },
+  "provenance": {
+    "git": {
+      "commit_id": "b5c616c7413848112cc354b23da5de85eef30c38",
+      "has_uncommitted_changes": true,
+      "git_error": null
+    },
+    "python": {
+      "executable": "C:\\Users\\USER\\.conda\\envs\\youth-isolation\\python.exe",
+      "version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+      "implementation": "CPython"
+    },
+    "input_files": {
+      "candidates": {
+        "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_candidates_20261123T232007_(성공)_v01.csv",
+        "size_bytes": 578358,
+        "sha256": "5eda95d59ffd55fa71e3dd076bda3cfac8022e0e7eed5aea454e45c14c89c683"
+      },
+      "final_review": {
+        "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_final_review_20261123T232007_(성공)_v01.csv",
+        "size_bytes": 188180,
+        "sha256": "99ec145f6daf1e69815f6118353ab8f7c87947b23e363693e045ee46ee64f6c4"
+      }
+    }
+  },
+  "requested_inputs": {
+    "candidates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_candidates_20261123T232007_(성공)_v01.csv",
+    "final_review": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_final_review_20261123T232007_(성공)_v01.csv"
+  },
+  "output_files": {
+    "json": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_alternative_review_20261123T234035_(성공).json",
+    "alternative_review": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_alternative_link_review_20261123T234035_(성공)_v01.csv"
+  }
+}

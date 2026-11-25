@@ -1,0 +1,42 @@
+{
+  "status": "성공",
+  "source_rows": 75600,
+  "output_rows": 75600,
+  "weather_day_rows": 90,
+  "traffic_dates": 90,
+  "joined_dates": 90,
+  "label_mismatches": {
+    "split": 0,
+    "role": 0,
+    "season": 0
+  },
+  "duplicate_observation_key_rows": 0,
+  "traffic_volume_nan": 14354,
+  "role_counts": {
+    "악천후일": 37800,
+    "비교일": 37800
+  },
+  "split_counts": {
+    "train": 50400,
+    "eval": 25200
+  },
+  "validation_checks": {
+    "row_count_preserved": true,
+    "all_dates_joined": true,
+    "weather_day_count_90": true,
+    "observation_keys_unique": true,
+    "labels_agree": true
+  },
+  "notice": "B's confirmed day metadata only; no new weather threshold or baseline inferred.",
+  "inputs": {
+    "traffic": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_matched_share_20261124_v01.csv",
+    "weather_days": [
+      "C:\\Users\\USER\\seoul-weather-traffic\\data\\processed\\train\\weather_days_train.csv",
+      "C:\\Users\\USER\\seoul-weather-traffic\\data\\processed\\eval\\weather_days_eval.csv"
+    ]
+  },
+  "outputs": {
+    "joined_csv": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_weather_days_joined_20261124T021832_(성공)_v01.csv",
+    "validation_json": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_traffic_weather_days_join_20261124T021832_(성공)_v01.json"
+  }
+}

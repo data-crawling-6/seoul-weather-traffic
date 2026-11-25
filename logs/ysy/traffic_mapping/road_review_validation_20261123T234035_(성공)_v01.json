@@ -1,0 +1,74 @@
+{
+  "run_kind": "manual_road_only_alternative_review_v02",
+  "status": "success",
+  "started_at": "2026-11-24T00:18:17.425235+09:00",
+  "finished_at": "2026-11-24T00:18:17.863478+09:00",
+  "git": {
+    "commit_id": "b5c616c7413848112cc354b23da5de85eef30c38",
+    "has_uncommitted_changes": true,
+    "git_error": null
+  },
+  "input_v01": {
+    "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_alternative_link_review_20261123T234035_(성공)_v01.csv",
+    "sha256": "60e4f35f6f497138cb0b58cb3c69b3a5402732c2787f81fd3cafb960935fcc56"
+  },
+  "output_v02": {
+    "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_alternative_link_review_20261123T234035_(성공)_v02.csv",
+    "sha256": "740084f8d6babfed897156856fdebfae8f5af6c4db7a8859554ab93f04efc703"
+  },
+  "counts": {
+    "rows": 9,
+    "coordinate_versions": 7,
+    "road_only_confirmed": {
+      "rows": 7,
+      "coordinate_versions": 6
+    },
+    "pending_review": {
+      "rows": 2,
+      "coordinate_versions": 1
+    }
+  },
+  "validation_checks": {
+    "source_required_columns": true,
+    "source_unique_columns": true,
+    "source_exactly_9_rows": true,
+    "source_exactly_7_versions": true,
+    "source_exact_versions": true,
+    "source_manual_fields_initially_blank": true,
+    "source_selected_fields_blank": true,
+    "source_mapping_status_manual_review": true,
+    "source_version_row_counts": true,
+    "source_spot_version_relationship": true,
+    "source_candidate_road_relationship": true,
+    "source_candidate_link_unique": true,
+    "same_column_order": true,
+    "same_row_count": true,
+    "all_other_columns_unchanged": true,
+    "exact_decisions_and_notes": true,
+    "duplicate_version_consistency": true,
+    "decision_counts": true,
+    "version_decision_counts": true
+  },
+  "roundtrip_validation_checks": {
+    "source_required_columns": true,
+    "source_unique_columns": true,
+    "source_exactly_9_rows": true,
+    "source_exactly_7_versions": true,
+    "source_exact_versions": true,
+    "source_manual_fields_initially_blank": true,
+    "source_selected_fields_blank": true,
+    "source_mapping_status_manual_review": true,
+    "source_version_row_counts": true,
+    "source_spot_version_relationship": true,
+    "source_candidate_road_relationship": true,
+    "source_candidate_link_unique": true,
+    "same_column_order": true,
+    "same_row_count": true,
+    "all_other_columns_unchanged": true,
+    "exact_decisions_and_notes": true,
+    "duplicate_version_consistency": true,
+    "decision_counts": true,
+    "version_decision_counts": true
+  },
+  "record_notice": "Road-only manual decision only; exact link_id and link_direction remain unconfirmed. Original mapping_status and selected IDs unchanged."
+}

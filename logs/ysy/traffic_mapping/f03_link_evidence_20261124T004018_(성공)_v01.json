@@ -1,0 +1,1314 @@
+{
+  "run_kind": "f03_spatial_evidence_only",
+  "status": "success",
+  "started_at": "2026-11-24T00:40:18.610914+09:00",
+  "finished_at": "2026-11-24T00:40:21.588107+09:00",
+  "provenance": {
+    "git": {
+      "commit_id": "b5c616c7413848112cc354b23da5de85eef30c38",
+      "has_uncommitted_changes": true,
+      "git_error": null
+    },
+    "python": {
+      "executable": "C:\\Users\\USER\\.conda\\envs\\youth-isolation\\python.exe",
+      "version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+      "implementation": "CPython"
+    },
+    "input_files": {
+      "train": {
+        "path": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+        "size_bytes": 201837,
+        "sha256": "54a4cd2538d18ea5840b358ab7d2e9d5bf58b6592e494320dc8968b8aaf5f4b8"
+      },
+      "eval": {
+        "path": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+        "size_bytes": 139005,
+        "sha256": "8432b394ffabe6b5feeaf69749992bed1dc39c1af43d079a7c109d56ecd87f8c"
+      },
+      "stable_links": {
+        "path": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv",
+        "size_bytes": 100478,
+        "sha256": "652bca41194e906b11324cc3ed369d7fe3c73152d5bf424151399f997b480472"
+      },
+      "road_lines": {
+        "path": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson",
+        "size_bytes": 2202638,
+        "sha256": "9838293c435130cc26d820eaf020aa181dee84df299bd036ad8d42547f03663b"
+      }
+    }
+  },
+  "evidence": {
+    "spot_id": "F-03",
+    "road_id_reference": "R005",
+    "road_name_reference": "내부순환로",
+    "coordinate_history": {
+      "spot_id": "F-03",
+      "rows": 900,
+      "directions": [
+        {
+          "io_type": "유입",
+          "rows": 450,
+          "first_date": "2022-12-21",
+          "last_date": "2026-09-08",
+          "coordinate_variants": [
+            {
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 450,
+              "first_date": "2022-12-21",
+              "last_date": "2026-09-08",
+              "days": 90
+            }
+          ],
+          "days_with_multiple_coordinates": [],
+          "daily_coordinate_rows": [
+            {
+              "day": "2022-12-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-01-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-06-07",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-06-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-06",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-07",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-03",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-09",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-22",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-23",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-11-30",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-15",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-24",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-25",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-29",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-05",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-15",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-20",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-22",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-23",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-29",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-30",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-31",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-11-27",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-11-28",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-12-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-12-12",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-02-25",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-03-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-02",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-20",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-09-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-09-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-11-28",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-05",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-05",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-06",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-12",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-19",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-23",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-26",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-02-02",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-02-09",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-05-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-05-20",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-06-24",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-06-30",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-09",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-15",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-28",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-29",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-08-24",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-08-31",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-09-01",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2026-09-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            }
+          ]
+        },
+        {
+          "io_type": "유출",
+          "rows": 450,
+          "first_date": "2022-12-21",
+          "last_date": "2026-09-08",
+          "coordinate_variants": [
+            {
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 300,
+              "first_date": "2022-12-21",
+              "last_date": "2025-09-17",
+              "days": 60
+            },
+            {
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 150,
+              "first_date": "2025-11-28",
+              "last_date": "2026-09-08",
+              "days": 30
+            }
+          ],
+          "days_with_multiple_coordinates": [],
+          "daily_coordinate_rows": [
+            {
+              "day": "2022-12-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-01-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-06-07",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-06-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-06",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-07",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-07-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-03",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-09",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-22",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-08-23",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-11-30",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2023-12-15",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-24",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-25",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-01-29",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-05",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-08",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-15",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-20",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-22",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-23",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-02-29",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-30",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-07-31",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-11-27",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-11-28",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-12-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2024-12-12",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-02-25",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-03-04",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-02",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-11",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-16",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-07-18",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-13",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-14",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-20",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-08-21",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-09-10",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-09-17",
+              "latitude": 37.608679,
+              "longitude": 126.998878,
+              "rows": 5
+            },
+            {
+              "day": "2025-11-28",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-04",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-05",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2025-12-18",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-05",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-06",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-12",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-13",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-16",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-19",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-23",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-01-26",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-02-02",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-02-09",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-05-13",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-05-20",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-06-24",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-06-30",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-08",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-09",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-14",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-15",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-16",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-21",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-28",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-07-29",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-08-24",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-08-31",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-09-01",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            },
+            {
+              "day": "2026-09-08",
+              "latitude": 37.596363,
+              "longitude": 126.95411397,
+              "rows": 5
+            }
+          ]
+        }
+      ]
+    },
+    "link_location_comparisons": [
+      {
+        "spot_id": "F-03",
+        "io_type": "유입",
+        "direction_detail": "[내부순환로] 정릉터널→국민대램프",
+        "source_road_name": "내부순환로",
+        "latitude": 37.608679,
+        "longitude": 126.998878,
+        "rows": 150,
+        "nearest_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "nearest_same_name_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "same_name_link_count": 28,
+        "direction_verdict": "unconfirmed: io_type and link_direction cannot be equated"
+      },
+      {
+        "spot_id": "F-03",
+        "io_type": "유입",
+        "direction_detail": "[내부순환로]정릉터널->국민대램프",
+        "source_road_name": "내부순환로",
+        "latitude": 37.608679,
+        "longitude": 126.998878,
+        "rows": 300,
+        "nearest_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "nearest_same_name_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "same_name_link_count": 28,
+        "direction_verdict": "unconfirmed: io_type and link_direction cannot be equated"
+      },
+      {
+        "spot_id": "F-03",
+        "io_type": "유출",
+        "direction_detail": "[내부순환로] 홍지문터널→홍은램프",
+        "source_road_name": "내부순환로",
+        "latitude": 37.596363,
+        "longitude": 126.95411397,
+        "rows": 150,
+        "nearest_link": {
+          "link_id": "1120013900",
+          "road_id": "R052",
+          "road_name": "세검정로",
+          "link_direction": "하행",
+          "distance_m": 2.913
+        },
+        "nearest_same_name_link": {
+          "link_id": "1120002100",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "하행",
+          "distance_m": 2.93
+        },
+        "same_name_link_count": 28,
+        "direction_verdict": "unconfirmed: io_type and link_direction cannot be equated"
+      },
+      {
+        "spot_id": "F-03",
+        "io_type": "유출",
+        "direction_detail": "[내부순환로]홍지문터널->홍은램프",
+        "source_road_name": "내부순환로",
+        "latitude": 37.608679,
+        "longitude": 126.998878,
+        "rows": 300,
+        "nearest_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "nearest_same_name_link": {
+          "link_id": "1070001300",
+          "road_id": "R005",
+          "road_name": "내부순환로",
+          "link_direction": "상행",
+          "distance_m": 3.957
+        },
+        "same_name_link_count": 28,
+        "direction_verdict": "unconfirmed: io_type and link_direction cannot be equated"
+      }
+    ],
+    "r005_link_direction_counts": {
+      "상행": 14,
+      "하행": 14
+    },
+    "geometry_order_candidate": [
+      "1120002300",
+      "1120002100",
+      "1120001700"
+    ],
+    "geometry_endpoint_gaps": [
+      {
+        "from_link_id": "1120002300",
+        "to_link_id": "1120002100",
+        "geometry_end_to_start_gap_m": 0.206
+      },
+      {
+        "from_link_id": "1120002100",
+        "to_link_id": "1120001700",
+        "geometry_end_to_start_gap_m": 0.0
+      }
+    ],
+    "confirmed": [
+      "F-03 source road name is 내부순환로",
+      "coordinate B is near R005 link 1120002100",
+      "three R005 links have 하행 attributes and nearly touching geometry endpoints"
+    ],
+    "unconfirmed": [
+      "하행 corresponds to actual 홍지문터널→홍은램프 driving direction",
+      "GeoJSON coordinate order corresponds to vehicle travel direction",
+      "exact link_id and link_direction mapping selection"
+    ],
+    "review_status": "pending_review",
+    "decision_notice": "Evidence only. No road_id, link_id, link_direction, or mapping_status selection changed."
+  },
+  "error": null,
+  "mapping_modified": false
+}
