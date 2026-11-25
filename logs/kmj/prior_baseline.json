@@ -1,0 +1,144 @@
+{
+ "run_at": "2026-11-25T21:23:43+09:00",
+ "input": "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet",
+ "window_days": 28,
+ "min_n": 8,
+ "seasons": {
+  "2022-23_winter": {
+   "split": "train",
+   "prev_season": null,
+   "dates": 72,
+   "link_rows": 3029184,
+   "road_rows": 311040,
+   "link_source": {
+    "window28": 3029184
+   },
+   "road_source": {
+    "window28": 311040
+   },
+   "link_prior_nan": 0,
+   "road_prior_nan": 0
+  },
+  "2023_summer": {
+   "split": "train",
+   "prev_season": null,
+   "dates": 96,
+   "link_rows": 4038912,
+   "road_rows": 414720,
+   "link_source": {
+    "window28": 4038896,
+    "short_window": 16
+   },
+   "road_source": {
+    "window28": 414712,
+    "short_window": 8
+   },
+   "link_prior_nan": 0,
+   "road_prior_nan": 0
+  },
+  "2023-24_winter": {
+   "split": "train",
+   "prev_season": "2022-23_winter",
+   "dates": 70,
+   "link_rows": 2945040,
+   "road_rows": 302400,
+   "link_source": {
+    "window28": 2944843,
+    "short_window": 183,
+    "prev_season": 14
+   },
+   "road_source": {
+    "window28": 302203,
+    "short_window": 183,
+    "prev_season": 14
+   },
+   "link_prior_nan": 8,
+   "road_prior_nan": 8
+  },
+  "2024_summer": {
+   "split": "train",
+   "prev_season": "2023_summer",
+   "dates": 92,
+   "link_rows": 3870624,
+   "road_rows": 397440,
+   "link_source": {
+    "window28": 3869851,
+    "short_window": 639,
+    "prev_season": 134
+   },
+   "road_source": {
+    "window28": 396667,
+    "short_window": 639,
+    "prev_season": 134
+   },
+   "link_prior_nan": 77,
+   "road_prior_nan": 77
+  },
+  "2024-25_winter": {
+   "split": "train",
+   "prev_season": "2023-24_winter",
+   "dates": 67,
+   "link_rows": 2818824,
+   "road_rows": 289440,
+   "link_source": {
+    "window28": 2818814,
+    "short_window": 10
+   },
+   "road_source": {
+    "window28": 289430,
+    "short_window": 10
+   },
+   "link_prior_nan": 0,
+   "road_prior_nan": 0
+  },
+  "2025_summer": {
+   "split": "train",
+   "prev_season": "2024_summer",
+   "dates": 95,
+   "link_rows": 3996840,
+   "road_rows": 410400,
+   "link_source": {
+    "window28": 3996840
+   },
+   "road_source": {
+    "window28": 410400
+   },
+   "link_prior_nan": 0,
+   "road_prior_nan": 0
+  },
+  "2025-26_winter": {
+   "split": "eval",
+   "prev_season": "2024-25_winter",
+   "dates": 68,
+   "link_rows": 2860896,
+   "road_rows": 293760,
+   "link_source": {
+    "window28": 2860896
+   },
+   "road_source": {
+    "window28": 293760
+   },
+   "link_prior_nan": 0,
+   "road_prior_nan": 0
+  },
+  "2026_summer": {
+   "split": "eval",
+   "prev_season": "2025_summer",
+   "dates": 94,
+   "link_rows": 3954768,
+   "road_rows": 406080,
+   "link_source": {
+    "window28": 3953150,
+    "short_window": 1272,
+    "prev_season": 346
+   },
+   "road_source": {
+    "window28": 404462,
+    "short_window": 1272,
+    "prev_season": 346
+   },
+   "link_prior_nan": 350,
+   "road_prior_nan": 350
+  }
+ }
+}
