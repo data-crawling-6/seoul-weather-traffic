@@ -9,19 +9,19 @@
 
 정답
   y_ratio           목표 시각 통행시간 ÷ 목표 날짜 입력용 평소값 (prior_road, 분석 설계 8.1)
-  tt_target_s       목표 시각 통행시간 (초). 링크가 하나라도 빠지면 빈값 → y도 빈값
+  tt_target_s       목표 시각 통행시간 (초). 링크가 하나라도 빠지면 빈값 -> y도 빈값
 
 입력 (분석 설계 8.2)
-  ① 도로       road_id, direction, function_type, n_links, total_distance_m, lanes(거리 가중 평균),
+  (1) 도로       road_id, direction, function_type, n_links, total_distance_m, lanes(거리 가중 평균),
                 urban_share(도심권 거리 비율), is_riverside(올림픽대로 · 강변북로 · 동부간선도로 · 내부순환로)
-  ② 시간       target_hour, horizon, weekday, month, season_kind, is_vacation_peak
-  ③ 최근 상태  ratio_t0 · ratio_t1 · ratio_t2 (t · t-1 · t-2 시점 비율), *_missing,
+  (2) 시간       target_hour, horizon, weekday, month, season_kind, is_vacation_peak
+  (3) 최근 상태  ratio_t0 · ratio_t1 · ratio_t2 (t · t-1 · t-2 시점 비율), *_missing,
                 city_ratio_t0 · type_ratio_t0 (서울 전체 · 같은 기능유형 도로의 t 시점 비율 중앙값)
-  ④ 관측 날씨  서울 ASOS t 시점: temp_c, temp_drop_3h, precip_1h, precip_3h, new_snow_3h_cm,
+  (4) 관측 날씨  서울 ASOS t 시점: temp_c, temp_drop_3h, precip_1h, precip_3h, new_snow_3h_cm,
                 snow_depth_cm, precip_type
                 한강 수위(하천변 도로만): wl_rise_3h, wl_over_attention, wl_over_warning (주 관측소),
                 wl2_* (보조 관측소, 동부간선도로만 중랑교). 절대 수위는 관측소마다 기준 높이가 달라 쓰지 않는다
-  ⑤ 특보       warn_snow · warn_rain · warn_cold (t에 발효 중인 서울 권역 수),
+  (5) 특보       warn_snow · warn_rain · warn_cold (t에 발효 중인 서울 권역 수),
                 *_upcoming(발표됐지만 발효 전), *_hours(발효 후 지난 시간)
 
 평가용 (입력 금지)
@@ -29,9 +29,9 @@
   prior_replaced_target, model_set(train / dev / test)
 
 넣지 않은 것
-  event_id · impact: 사건이 끝난 뒤에 정해지는 값이라 입력으로 쓰면 누수 → 평가 구분용으로만
-  구별 AWS · 예보(⑥): B가 연구 기간 평일 전체로 다시 받는 중 (노션 8.2, 4단계까지는 빼고 돌린다)
-  권역: 도로별 권역은 C 링크 좌표가 나온 뒤에 붙인다 → 그 전까지 city/type 비율로 대신
+  event_id · impact: 사건이 끝난 뒤에 정해지는 값이라 입력으로 쓰면 누수 -> 평가 구분용으로만
+  구별 AWS · 예보((6)): B가 연구 기간 평일 전체로 다시 받는 중 (노션 8.2, 4단계까지는 빼고 돌린다)
+  권역: 도로별 권역은 C 링크 좌표가 나온 뒤에 붙인다 -> 그 전까지 city/type 비율로 대신
 
 입력
   data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (24시간 통행시간)
@@ -68,10 +68,10 @@ TARGET_HOURS = [8, 9, 18, 19, 20]
 HORIZONS = [1, 3]
 LINK_ATTR_MONTH = "2025-12"  # roads.csv metadata_reference_month와 같은 달
 
-# 🟡 휴가 절정 주간 (노션 8.2, 날짜 미확정)
+# 휴가 절정 주간 (노션 8.2, 11/25 확정)
 VACATION_PEAK = ("07-21", "08-15")
 
-# 노션 2.2 (4)③ · 8.2 하천변 도로 → 수위 관측소 [주, 보조]
+# 노션 2.2 (4)(3) · 8.2 하천변 도로 -> 수위 관측소 [주, 보조]
 # - 동부간선도로: 서울시 통제 기준은 중랑천 월계1교인데 자료에 없다. 바로 위 상류 월계2교를 주로 쓰고
 #   (상류가 먼저 올라 신호가 빠르다) 중랑교를 보조로 넣는다. 월계2교는 2023~2026 여름 빈값 0%
 # - 내부순환로: 성동JC~사근~마장 구간이 중랑천 옆이라 2022 · 2024년 통제됨. 2023~2025 여름 호우 때
@@ -93,7 +93,7 @@ MODEL_SETS = {
 
 
 def road_static(links: pd.DataFrame) -> pd.DataFrame:
-    """링크 목록(road_id · direction · link_id · distance_m) + TOPIS 링크 속성 → 도로 × 방향 정보"""
+    """링크 목록(road_id · direction · link_id · distance_m) + TOPIS 링크 속성 -> 도로 × 방향 정보"""
     raw = read_topis(LINK_ATTR_MONTH)
     attr = (raw.assign(link_id=raw["링크아이디"].astype(str))
             .drop_duplicates("link_id")[["link_id", "차선수", "도심/외곽구분"]])
@@ -227,17 +227,17 @@ COLUMNS = [
     # 키 · 평가용
     "season", "split", "model_set", "date", "target_hour", "horizon", "t_hour", "road_id", "road_name", "direction",
     "y_ratio", "tt_target_s", "prior_target_s", "prior_replaced_target", "weather_class", "weather_kind",
-    # ① 도로
+    # (1) 도로
     "function_type", "n_links", "total_distance_m", "lanes", "urban_share", "is_riverside",
-    # ② 시간
+    # (2) 시간
     "weekday", "month", "season_kind", "is_vacation_peak",
-    # ③ 최근 상태
+    # (3) 최근 상태
     "ratio_t0", "ratio_t1", "ratio_t2", "ratio_t0_missing", "ratio_t1_missing", "ratio_t2_missing",
     "city_ratio_t0", "type_ratio_t0",
-    # ④ 관측 날씨
+    # (4) 관측 날씨
     "temp_c", "temp_drop_3h", "precip_1h", "precip_3h", "new_snow_3h_cm", "snow_depth_cm", "precip_type",
     "wl_rise_3h", "wl_over_attention", "wl_over_warning", "wl2_rise_3h", "wl2_over_attention", "wl2_over_warning",
-    # ⑤ 특보
+    # (5) 특보
     "warn_snow", "warn_snow_upcoming", "warn_snow_hours", "warn_rain", "warn_rain_upcoming", "warn_rain_hours",
     "warn_cold", "warn_cold_upcoming", "warn_cold_hours",
 ]
