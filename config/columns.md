@@ -90,6 +90,17 @@
 | `warn_rain` | boolean | `True`, `False` | 호우특보 여부 |
 | `warn_cold` | boolean | `True`, `False` | 한파특보 여부 |
 
+## 입력용 평소값 열
+
+강민주가 2026-11-25 추가. `src/prior_baseline.py` → `data/processed/{train,eval}/prior_{link,road}_{split}.parquet`. 규칙은 노션 '분석 설계 3.4'. 예측 입력과 A 예측 정답 y의 분모에 쓰고, 정답용 평소값(`baseline_link_tt_s` · `baseline_travel_time_s`)과 섞지 않는다.
+
+| 열 이름 | 자료형 | 단위/허용값 | 의미 |
+|---|---|---|---|
+| `prior_tt_s` | float | 초 | 기준일 d 이전 28일(d-28 ~ d-1) 맑은 평일 같은 시간 통행시간 중앙값. 당일 · 미래 값은 쓰지 않음 |
+| `prior_n` | integer | 개 | 위 28일 안의 표본 수. 대체한 행도 28일 표본 수를 그대로 남김 |
+| `prior_source` | category | `window28`, `prev_season`, `short_window` | `window28`: 표본 8개 이상 / `prev_season`: 표본 부족 → 지난 시즌(같은 계절 1년 전) 정답용 평소값 / `short_window`: 표본 부족이고 지난 시즌 값도 없음 → 있는 표본의 중앙값(0개면 결측) |
+| `prior_replaced` | boolean | `True`, `False` | `prior_source`가 `window28`이 아니면 `True`. 대체한 행만 따로 오차를 볼 때 쓴다 (분석 설계 3.4 (4)) |
+
 ## 향후 교통량·공간 열
 
 | 열 이름 | 자료형 | 단위 | 의미 |
