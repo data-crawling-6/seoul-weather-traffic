@@ -6,6 +6,8 @@ api_keys.txt
 data/raw/*
 !data/raw/.gitkeep
 data/interim/
+# 입력용 평소값 링크 표는 커서 Release(prior-link-v1)에 둔다
+data/processed/*/prior_link_*.parquet
 *.xlsx
 *.zip
 

@@ -94,6 +94,7 @@ class FallbackTest(unittest.TestCase):
         self.assertLess(r["prior_n"], MIN_N)
         self.assertEqual(r["prior_tt_s"], 999.0)
         self.assertEqual(r["prior_source"], "prev_season")
+        self.assertTrue(r["prior_replaced"])
 
     def test_지난_시즌이_없으면_있는_표본으로(self):
         r = self.run_fallback(None)
@@ -111,6 +112,7 @@ class FallbackTest(unittest.TestCase):
         r = r.set_index("date").loc[self.target]
         self.assertGreaterEqual(r["prior_n"], MIN_N)
         self.assertEqual(r["prior_source"], "window28")
+        self.assertFalse(r["prior_replaced"])
 
 
 class RoadSumTest(unittest.TestCase):
@@ -155,6 +157,11 @@ class OutputTest(unittest.TestCase):
             if path.exists():
                 r = pd.read_parquet(path, columns=["date", "hour", "link_id"])
                 self.assertEqual(r.duplicated().sum(), 0)
+
+    def test_대체_표시_열은_window28이_아닌_행과_같다(self):
+        for split in ["train", "eval"]:
+            r = pd.read_parquet(PROC_DIR / split / f"prior_road_{split}.parquet", columns=["prior_source", "prior_replaced"])
+            self.assertTrue((r["prior_replaced"] == (r["prior_source"].astype(str) != "window28")).all())
 
     def test_결과는_연구_기간_평일만(self):
         r = pd.read_parquet(PROC_DIR / "train" / "prior_road_train.parquet", columns=["date"])

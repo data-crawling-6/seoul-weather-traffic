@@ -23,6 +23,7 @@
   prior_source                  window28: 28일 표본 MIN_N(8) 이상
                                 prev_season: 표본 부족 → 지난 시즌(같은 계절 1년 전) 정답용 평소값, d와 같은 요일 · 시간
                                 short_window: 표본 부족이고 지난 시즌 값도 없음 → 있는 표본의 중앙값 (0개면 빈값)
+  prior_replaced                prior_source가 window28이 아니면 True (대체한 행만 따로 오차를 볼 때)
 
 입력
   data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (C 릴리스 v3)
@@ -143,6 +144,7 @@ def apply_fallback(r: pd.DataFrame, prev: pd.DataFrame, keys: list[str], prev_se
     use_prev = ~enough & r["prev_tt_s"].notna()
     r["prior_tt_s"] = np.where(use_prev, r["prev_tt_s"], r["window_tt_s"])
     r["prior_source"] = np.select([enough, use_prev], ["window28", "prev_season"], "short_window")
+    r["prior_replaced"] = r["prior_source"] != "window28"  # 이 행만 따로 오차를 본다 (분석 설계 3.4 (4))
     return r.drop(columns=["weekday", "prev_tt_s", "window_tt_s"])
 
 
@@ -189,8 +191,10 @@ def main():
     if a.seasons:
         return
 
-    cols_link = ["season", "split", "date", "hour", "link_id", "road_id", "direction", "prior_tt_s", "prior_n", "prior_source"]
-    cols_road = ["season", "split", "date", "hour", "road_id", "direction", "prior_tt_s", "prior_n", "prior_source"]
+    cols_link = ["season", "split", "date", "hour", "link_id", "road_id", "direction",
+                 "prior_tt_s", "prior_n", "prior_source", "prior_replaced"]
+    cols_road = ["season", "split", "date", "hour", "road_id", "direction",
+                 "prior_tt_s", "prior_n", "prior_source", "prior_replaced"]
     link_all = pd.concat(link_out, ignore_index=True)[cols_link]
     road_all = pd.concat(road_out, ignore_index=True)[cols_road]
     for t in (link_all, road_all):
