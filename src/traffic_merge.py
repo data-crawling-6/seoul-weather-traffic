@@ -254,9 +254,9 @@ def process_link_month(
     return result, stats
 
 
-def aggregate_road_commute(link_frame: pd.DataFrame, commute_hours: dict[int, str]) -> pd.DataFrame:
+def aggregate_road_commute(link_frame: pd.DataFrame, commute_hours: dict[int, str], *, include_baseline: bool = False) -> pd.DataFrame:
     selected = link_frame.loc[
-        link_frame["in_period"]
+        (link_frame["in_period"] | (include_baseline & link_frame["is_baseline_buffer"]))
         & link_frame["is_weekday"]
         & ~link_frame["is_holiday"]
         & link_frame["hour"].isin(commute_hours)
@@ -462,5 +462,109 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
     return log
 
 
+# [서연] 기존 v04의 링크 집합과 계산식을 유지한 10월 보완 버전.
+def extend_v04_october(data_root: Path, project_root: Path, source_path: Path,
+                       link_path: Path) -> dict[str, object]:
+    data_root, project_root = Path(data_root), Path(project_root)
+    source_path, link_path = Path(source_path), Path(link_path)
+    output = source_path.with_name(source_path.name.replace("_v04.parquet", "_v05.parquet"))
+    if output == source_path or output.exists():
+        raise ValueError(f"v04 파일명 또는 v05 기존 파일 확인: {output}")
+    old = pd.read_parquet(source_path)
+    keys = ["date", "hour", "road_id", "direction"]
+    if old.duplicated(keys).any():
+        raise ValueError("기존 v04 키 중복")
+    periods, commute = load_periods(project_root)
+    weather = load_weather(data_root / "weather" / "processed")
+    gaps = set(read_topis_gaps(project_root)["datetime"])
+    kr = holidays.KR(years=range(2022, 2027))
+    # 기존 링크 기본표 첫 row group의 링크 ID를 사용하고 v04의 방향별 링크 수와 대조.
+    pf = pq.ParquetFile(link_path)
+    cols = ["link_id", "road_id", "road_name", "function_type", "direction"]
+    meta = pf.read_row_group(0, columns=cols).to_pandas().drop_duplicates()
+    if meta["link_id"].duplicated().any():
+        raise ValueError("기존 링크 메타데이터 중복")
+    meta["link_id"] = meta["link_id"].astype("string").str.strip()
+    group = ["road_id", "road_name", "function_type", "direction"]
+    expected = old[group + ["link_count"]].drop_duplicates()
+    actual = meta.groupby(group, dropna=False).size().rename("link_count").reset_index()
+    check = expected.merge(actual, on=group, how="outer", suffixes=("_old", "_new"), indicator=True)
+    if not (check["_merge"].eq("both") & check["link_count_old"].eq(check["link_count_new"])).all():
+        raise ValueError("기존 v04와 링크 구성 불일치: 기존 링크 기본표 확인 필요")
+    ref = pd.read_csv(data_root / "topis_speed/csv/topis_speed_2025-12.csv",
+                      encoding="utf-8-sig", usecols=["링크아이디", "거리"], dtype="string").drop_duplicates("링크아이디")
+    ref["link_id"] = ref["링크아이디"].str.strip()
+    ref["reference_distance_m"] = pd.to_numeric(ref["거리"], errors="coerce")
+    meta = meta.merge(ref[["link_id", "reference_distance_m"]], on="link_id", how="left", validate="one_to_one")
+    if meta["reference_distance_m"].isna().any():
+        raise ValueError("기준월 링크 거리 누락")
+    parts, stats = [], []
+    for year in range(2022, 2026):
+        start = pd.Timestamp(year, 10, 1)
+        end = pd.Timestamp(year, 10, 31)
+        winter = [p for p in periods if p["start"].year == year and p["start"].month == 11]
+        if len(winter) != 1:
+            raise ValueError(f"{year} 겨울 기간 설정 확인 필요")
+        scope = [{**winter[0], "baseline_start": start, "start": end + pd.Timedelta(days=1), "end": end + pd.Timedelta(days=1)}]
+        path = data_root / "topis_speed/csv" / f"topis_speed_{year}-10.csv"
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        links, info = process_link_month(path, data_root, set(meta["link_id"]), meta, weather, scope, gaps, kr)
+        links = links.loc[links["date"].between(start, end)].copy()
+        road = aggregate_road_commute(links, commute, include_baseline=True)
+        if road.empty:
+            raise ValueError(f"{year} 10월 집계 결과 없음")
+        info.update(road_rows=len(road), road_weather_missing_rows=int(road["temp_c"].isna().sum()),
+                    road_travel_time_missing_rows=int(road["travel_time_seconds"].isna().sum()))
+        stats.append(info)
+        parts.append(road)
+        print(f"[10월] {year}: {len(road):,}행", flush=True)
+    added = pd.concat(parts, ignore_index=True)
+    if set(added.columns) != set(old.columns):
+        raise ValueError(f"v04 열 불일치: {set(added.columns) ^ set(old.columns)}")
+    added = added[old.columns]
+    result = pd.concat([old, added], ignore_index=True)
+    if result.duplicated(keys).any():
+        raise ValueError("결합 키 중복: 기존 데이터와 10월 중복 확인")
+    pd.testing.assert_frame_equal(result.iloc[:len(old)].reset_index(drop=True), old.reset_index(drop=True), check_dtype=False)
+    log_dir = project_root / "logs/ysy/travel_time"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(KST).strftime("%Y%m%dT%H%M%S%f")
+    log_path = log_dir / f"traffic_october_v05_{stamp}.json"
+    tmp = output.with_suffix(".tmp.parquet")
+    if tmp.exists():
+        raise FileExistsError(tmp)
+    try:
+        result.to_parquet(tmp, index=False, compression="snappy")
+        reread = pd.read_parquet(tmp)
+        pd.testing.assert_frame_equal(reread.iloc[:len(old)].reset_index(drop=True), old.reset_index(drop=True), check_dtype=False)
+        if len(reread) != len(result) or reread.duplicated(keys).any():
+            raise ValueError("저장 후 검증 실패")
+        tmp.rename(output)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+    log = {"status": "성공", "source": str(source_path), "output": str(output),
+           "old_rows": len(old), "added_rows": len(added), "output_rows": len(result),
+           "stable_links": len(meta), "duplicate_keys": 0, "old_rows_preserved": True,
+           "monthly_stats": stats, "output_sha256": _sha256(output),
+           "limitations": "10월 평일 출퇴근만 추가. 연구 기간 변경 없음. 기존 v04에는 다른 baseline_buffer 날짜가 제외되어 있으므로 입력용 평소값 계산 전 별도 확인 필요. 10월 기상 결측은 보간하지 않음.",
+           "log_path": str(log_path)}
+    log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+    return log
+
 if __name__ == "__main__":
-    raise SystemExit("노트북 또는 명시적 함수 호출로 run_merge()를 실행하세요.")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--extend-v04-october", action="store_true")
+    parser.add_argument("--data-root", type=Path, default=Path(r"D:\seoul-weather-traffic-data"))
+    parser.add_argument("--source-v04", type=Path)
+    parser.add_argument("--link-path", type=Path)
+    args = parser.parse_args()
+    if not args.extend_v04_october:
+        parser.error("노트북 또는 명시적 함수 호출로 run_merge()를 실행하세요.")
+    root = args.data_root
+    result = extend_v04_october(root, Path(__file__).resolve().parents[1],
+        args.source_v04 or root / "processed/yang_seoyeon_topis_weather_commute_20261122_v04.parquet",
+        args.link_path or root / "processed/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet")
+    print(json.dumps(result, ensure_ascii=False, indent=2))
