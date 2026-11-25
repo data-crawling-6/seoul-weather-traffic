@@ -13,7 +13,7 @@
 
 입력 (분석 설계 8.2)
   ① 도로       road_id, direction, function_type, n_links, total_distance_m, lanes(거리 가중 평균),
-                urban_share(도심권 거리 비율), is_riverside
+                urban_share(도심권 거리 비율), is_riverside(올림픽대로 · 강변북로 · 동부간선도로 · 내부순환로)
   ② 시간       target_hour, horizon, weekday, month, season_kind, is_vacation_peak
   ③ 최근 상태  ratio_t0 · ratio_t1 · ratio_t2 (t · t-1 · t-2 시점 비율), *_missing,
                 city_ratio_t0 · type_ratio_t0 (서울 전체 · 같은 기능유형 도로의 t 시점 비율 중앙값)
@@ -70,11 +70,16 @@ LINK_ATTR_MONTH = "2025-12"  # roads.csv metadata_reference_month와 같은 달
 # 🟡 휴가 절정 주간 (노션 8.2, 날짜 미확정)
 VACATION_PEAK = ("07-21", "08-15")
 
-# 노션 2.2 (4)③ '하천변 도로(올림픽대로 · 강변북로 · 동부간선 등)' → 가까운 수위 관측소
+# 노션 2.2 (4)③ 하천변 도로 → 가까운 수위 관측소
+# - 동부간선도로: 서울시 통제 기준은 중랑천 월계1교 수위인데 수위 자료에 월계1교가 없어 중랑교로 대신한다
+#   (중랑천 관측소는 창동교 · 월계2교 · 중랑교뿐. 월계1교와 가장 가까운 건 월계2교)
+# - 내부순환로: 성동JC~사근~마장 구간이 중랑천 옆이라 2022 · 2024년 통제됨. 2023~2025 여름 호우 때
+#   이 구간 4개 링크만 속도 빈 비율이 3~4%(다른 구간 0.4%), 2024-07-18에는 5~10시간 비어 있었다 (11/25 확인)
 RIVERSIDE_STATION = {
     "올림픽대로": "서울시(한강대교)",
     "강변북로": "서울시(한강대교)",
     "동부간선도로": "서울시(중랑교)",
+    "내부순환로": "서울시(중랑교)",
 }
 
 # 노션 7.2 (11/25). B의 add_model_set()이 생기면 그걸로 바꾼다
