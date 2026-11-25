@@ -1,7 +1,8 @@
 name: TOPIS 교통예보 매일 저장
 
 # 매일 06:00 KST(= 전날 21:00 UTC)에 교통예보 스냅샷을 저장한다. 12/14까지 쓰고 끈다.
-# 결과는 실행 기록의 첨부파일(artifact)로 남긴다. 저장소에 커밋하지 않는다.
+# 결과는 실행 기록의 첨부파일(artifact)로 남기고, data-collect 브랜치의 data/raw/topis_forecast/에도 커밋한다.
+# main에는 커밋하지 않는다 (팀원 PR과 섞이지 않게).
 on:
   schedule:
     - cron: "0 21 * * *"
@@ -11,7 +12,7 @@ on:
     paths: [crawling/topis_forecast.py, .github/workflows/topis_forecast.yml]
 
 permissions:
-  contents: read
+  contents: write   # data-collect 브랜치에 결과를 커밋하려고
 
 jobs:
   forecast:
@@ -35,3 +36,19 @@ jobs:
             logs/kmj/topis_forecast.log
             logs/kmj/screenshots/forecast_*.png
           retention-days: 90
+      - name: 결과를 data-collect 브랜치에 커밋
+        if: success()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin data-collect; then
+            git worktree add -B data-collect ../collect FETCH_HEAD
+          else
+            git worktree add --orphan -b data-collect ../collect   # 처음 한 번만: 빈 브랜치 만들기
+          fi
+          mkdir -p ../collect/data/raw/topis_forecast
+          cp -r forecast/. ../collect/data/raw/topis_forecast/
+          cd ../collect
+          git add data/raw/topis_forecast
+          git commit -q -m "A chore: TOPIS 교통예보 $(date +%F)" || { echo "새 파일 없음"; exit 0; }
+          git push origin data-collect
