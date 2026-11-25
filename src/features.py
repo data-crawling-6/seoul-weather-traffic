@@ -19,7 +19,8 @@
                 city_ratio_t0 · type_ratio_t0 (서울 전체 · 같은 기능유형 도로의 t 시점 비율 중앙값)
   ④ 관측 날씨  서울 ASOS t 시점: temp_c, temp_drop_3h, precip_1h, precip_3h, new_snow_3h_cm,
                 snow_depth_cm, precip_type
-                한강 수위(하천변 도로만): wl_last, wl_rise_3h, wl_over_attention
+                한강 수위(하천변 도로만): wl_rise_3h, wl_over_attention, wl_over_warning (주 관측소),
+                wl2_* (보조 관측소, 동부간선도로만 중랑교). 절대 수위는 관측소마다 기준 높이가 달라 쓰지 않는다
   ⑤ 특보       warn_snow · warn_rain · warn_cold (t에 발효 중인 서울 권역 수),
                 *_upcoming(발표됐지만 발효 전), *_hours(발효 후 지난 시간)
 
@@ -70,16 +71,17 @@ LINK_ATTR_MONTH = "2025-12"  # roads.csv metadata_reference_month와 같은 달
 # 🟡 휴가 절정 주간 (노션 8.2, 날짜 미확정)
 VACATION_PEAK = ("07-21", "08-15")
 
-# 노션 2.2 (4)③ 하천변 도로 → 가까운 수위 관측소
-# - 동부간선도로: 서울시 통제 기준은 중랑천 월계1교 수위인데 수위 자료에 월계1교가 없어 중랑교로 대신한다
-#   (중랑천 관측소는 창동교 · 월계2교 · 중랑교뿐. 월계1교와 가장 가까운 건 월계2교)
+# 노션 2.2 (4)③ · 8.2 하천변 도로 → 수위 관측소 [주, 보조]
+# - 동부간선도로: 서울시 통제 기준은 중랑천 월계1교인데 자료에 없다. 바로 위 상류 월계2교를 주로 쓰고
+#   (상류가 먼저 올라 신호가 빠르다) 중랑교를 보조로 넣는다. 월계2교는 2023~2026 여름 빈값 0%
 # - 내부순환로: 성동JC~사근~마장 구간이 중랑천 옆이라 2022 · 2024년 통제됨. 2023~2025 여름 호우 때
 #   이 구간 4개 링크만 속도 빈 비율이 3~4%(다른 구간 0.4%), 2024-07-18에는 5~10시간 비어 있었다 (11/25 확인)
-RIVERSIDE_STATION = {
-    "올림픽대로": "서울시(한강대교)",
-    "강변북로": "서울시(한강대교)",
-    "동부간선도로": "서울시(중랑교)",
-    "내부순환로": "서울시(중랑교)",
+# 관측소마다 기준 높이가 달라 절대 수위는 쓰지 않고, 3시간 상승폭과 관심 · 주의 수위 초과만 쓴다
+RIVERSIDE_STATIONS = {
+    "올림픽대로": ["서울시(한강대교)"],
+    "강변북로": ["서울시(한강대교)"],
+    "동부간선도로": ["서울시(월계2교)", "서울시(중랑교)"],
+    "내부순환로": ["서울시(중랑교)"],
 }
 
 # 노션 7.2 (11/25). B의 add_model_set()이 생기면 그걸로 바꾼다
@@ -105,7 +107,7 @@ def road_static(links: pd.DataFrame) -> pd.DataFrame:
     g["urban_share"] = g["urban_m"] / g["total_distance_m"]
     roads = pd.read_csv(ROOT / "config" / "roads.csv", encoding="utf-8-sig")[["road_id", "road_name", "function_type"]]
     g = g.merge(roads, on="road_id", how="left")
-    g["is_riverside"] = g["road_name"].isin(RIVERSIDE_STATION)
+    g["is_riverside"] = g["road_name"].isin(RIVERSIDE_STATIONS)
     return g.drop(columns=["lane_m", "urban_m"])
 
 
@@ -134,9 +136,9 @@ def weather_table() -> pd.DataFrame:
 def water_table() -> pd.DataFrame:
     wl = pd.concat([pd.read_csv(PROC_DIR / s / f"waterlevel_hourly_{s}.csv", parse_dates=["datetime"])
                     for s in ["train", "eval"]])
-    wl = wl[wl["obsnm"].isin(set(RIVERSIDE_STATION.values()))]
-    return wl[["datetime", "obsnm", "wl_last", "wl_rise_3h", "over_attwl"]].rename(
-        columns={"over_attwl": "wl_over_attention"}).drop_duplicates(["datetime", "obsnm"])
+    wl = wl[wl["obsnm"].isin({s for v in RIVERSIDE_STATIONS.values() for s in v})]
+    return wl[["datetime", "obsnm", "wl_rise_3h", "over_attwl", "over_wrnwl"]].rename(
+        columns={"over_attwl": "wl_over_attention", "over_wrnwl": "wl_over_warning"}).drop_duplicates(["datetime", "obsnm"])
 
 
 def season_rows(season: str, prior: pd.DataFrame) -> pd.DataFrame:
@@ -197,9 +199,12 @@ def build(seasons: list[str]) -> tuple[pd.DataFrame, dict]:
     f = pd.concat(out, ignore_index=True)
     f = f.merge(static.drop(columns=["function_type"]), on=["road_id", "direction"], how="left")
 
-    f["station"] = f["road_name"].map(RIVERSIDE_STATION)
-    f = f.merge(water, left_on=["t_datetime", "station"], right_on=["datetime", "obsnm"], how="left").drop(
-        columns=["datetime", "obsnm", "station"])
+    for i, prefix in [(0, "wl_"), (1, "wl2_")]:
+        stations = f["road_name"].map(lambda r: RIVERSIDE_STATIONS.get(r, []))
+        station = stations.map(lambda s: s[i] if len(s) > i else None)
+        w = water.rename(columns={c: prefix + c[3:] for c in water.columns if c.startswith("wl_")})
+        f = f.assign(station=station).merge(w, left_on=["t_datetime", "station"], right_on=["datetime", "obsnm"],
+                                            how="left").drop(columns=["datetime", "obsnm", "station"])
 
     f["weekday"] = f["date"].dt.weekday.astype("int8")
     f["month"] = f["date"].dt.month.astype("int8")
@@ -231,7 +236,7 @@ COLUMNS = [
     "city_ratio_t0", "type_ratio_t0",
     # ④ 관측 날씨
     "temp_c", "temp_drop_3h", "precip_1h", "precip_3h", "new_snow_3h_cm", "snow_depth_cm", "precip_type",
-    "wl_last", "wl_rise_3h", "wl_over_attention",
+    "wl_rise_3h", "wl_over_attention", "wl_over_warning", "wl2_rise_3h", "wl2_over_attention", "wl2_over_warning",
     # ⑤ 특보
     "warn_snow", "warn_snow_upcoming", "warn_snow_hours", "warn_rain", "warn_rain_upcoming", "warn_rain_hours",
     "warn_cold", "warn_cold_upcoming", "warn_cold_hours",
@@ -255,7 +260,7 @@ def main():
         f[f["split"] == split].to_parquet(PROC_DIR / split / f"features_{split}.parquet", index=False)
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "rows": len(f),
            "target_hours": TARGET_HOURS, "horizons": HORIZONS, "vacation_peak": VACATION_PEAK,
-           "riverside_station": RIVERSIDE_STATION, "seasons": summary}
+           "riverside_stations": RIVERSIDE_STATIONS, "seasons": summary}
     (ROOT / "logs" / "kmj").mkdir(parents=True, exist_ok=True)
     (ROOT / "logs" / "kmj" / "features.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
 
