@@ -118,7 +118,7 @@ def main():
     fetched = now_kst()
     today = fetched.date()
     days = [today + timedelta(days=i) for i in range(a.days)]
-    out_dir = a.out / f"{today:%Y-%m-%d}"
+    out_dir = (ROOT / a.out).resolve() / f"{today:%Y-%m-%d}"  # --out이 상대 경로여도 저장소 기준으로
     out_dir.mkdir(parents=True, exist_ok=True)
     stamp = fetched.isoformat(timespec="seconds")
     log(f"=== 교통예보 수집 시작: {', '.join(map(str, days))} ===")
