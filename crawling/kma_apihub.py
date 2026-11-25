@@ -1,7 +1,9 @@
 """
 구별 AWS 시간자료 · 과거 단기예보 수집 (B 담당 · 기상청 API허브)
 
-악천후일 · 비교일 90일(data/processed/{train,eval}/weather_days_*.csv)에 대해
+악천후일 · 비교일 90일(data/processed/{train,eval}/weather_days_*.csv),
+또는 --part full 이면 연구 기간 평일(공휴일 제외) 전체에 대해 (11/25 결정: 예측 · 경보 모델이
+연구 기간 평일 출퇴근 전체로 학습 · 평가하므로, 예보 · AWS도 같은 범위가 있어야 입력으로 쓸 수 있다)
   1) 방재기상관측(AWS) 정시자료  : 서울 29개 지점, 하루당 36시간 (전날 13시 ~ 그날 24시)
   2) 단기예보(격자 nph-dfs_shrt_grd): 서울 4개 권역 격자, 출퇴근 목표 시각(~08·~09 / ~18·~19·~20시)을
      1 · 3시간 전에 볼 수 있던 발표만 (하루 8쌍 × 4변수 = 32건)
@@ -16,6 +18,9 @@
   python crawling/kma_apihub.py --part all --workers 4   # 동시 4개 (504로 느릴 때)
   python crawling/kma_apihub.py --part all --only fcst   # 예보만 (AWS만: --only aws)
   python crawling/kma_apihub.py --part 1 --dry-run   # 호출 수만 세고 받지 않음
+  python crawling/kma_apihub.py --part full --dry-run          # 연구 기간 평일 전체: 호출 수 먼저 확인
+  python crawling/kma_apihub.py --part full --workers 4        # 연구 기간 평일 전체 (약 3만 건 → 이틀에 나눠짐)
+      하루 19,000건에서 자동으로 멈춘다. 다음 날 같은 명령을 다시 치면 남은 것만 이어 받는다.
   python crawling/kma_apihub.py --parse    # 받은 원본을 표로 정리만 다시
   python crawling/kma_apihub.py --probe    # 단기예보 격자 응답 형식 확인 (2건)
 
@@ -120,9 +125,12 @@ def load_key(name="KMA_APIHUB_KEY"):
 
 
 def load_days(part):
-    """part: test / 1(평가) / 2(학습 겨울) / 3(학습 여름) / all(90일 전부) → [(날짜, split)]"""
+    """part: test / 1(평가) / 2(학습 겨울) / 3(학습 여름) / all(90일 전부) / full(연구 기간 평일 전체)
+    → [(날짜, split)]"""
     if part == "test":
         return [(pd.Timestamp(TEST_DAY), "eval")]
+    if part == "full":
+        return load_full_days()
     frames = []
     for split in ("train", "eval"):
         d = pd.read_csv(PROC_DIR / split / f"weather_days_{split}.csv", encoding="utf-8-sig")
@@ -140,6 +148,31 @@ def load_days(part):
     else:
         raise ValueError(f"--part 는 1, 2, 3, all 중 하나: {part}")
     return [(pd.Timestamp(x), s) for x, s in sorted(set(zip(d["date"], d["split"])))]
+
+
+def load_full_days():
+    """연구 기간(config/periods.yaml 의 periods, 앞 4주 buffer 제외) 안 평일 전체 + 악천후일 · 비교일 90일
+    → [(날짜, split)]. 공휴일은 holidays 패키지가 있으면 뺀다 (weather.py 와 같은 규칙)."""
+    import yaml
+
+    cfg = yaml.safe_load((ROOT / "config" / "periods.yaml").read_text(encoding="utf-8")) or {}
+    periods = cfg.get("periods") or []
+    if not periods:
+        raise ValueError("config/periods.yaml 에 periods 가 없습니다. 먼저 python src/weather.py 를 실행하세요.")
+    try:
+        import holidays  # pip install holidays
+        kr = holidays.KR(years=list(range(2022, 2028)))
+    except ImportError:
+        log.warning("holidays 패키지가 없어 공휴일을 빼지 못했습니다 (호출 수가 조금 늘어남). pip install holidays")
+        kr = {}
+    out = {}
+    for p in periods:
+        for day in pd.date_range(str(p["start"]), str(p["end"]), freq="D"):
+            if day.weekday() < 5 and day.date() not in kr:
+                out[day] = p["split"]
+    for day, split in load_days("all"):   # 90일 목록에 있는 날은 항상 포함 (이미 받은 원본과 이어짐)
+        out.setdefault(day, split)
+    return sorted(out.items())
 
 
 def aws_times(day):
@@ -357,9 +390,12 @@ def collect(part, dry_run=False, only="both", workers=1):
     days = load_days(part)
     aws_need = sorted({t for d, _ in days for t in aws_times(d)})
     fcst_need = sorted({p for d, _ in days for p in fcst_pairs(d)})
-    aws_todo = [t for t in aws_need if not (AWS_DIR / f"aws_{t:%Y%m%d%H}.txt").exists()]
+    # 이미 받은 파일 이름을 한 번에 읽어 둔다 (파일마다 exists()를 부르면 수만 건일 때 느리다)
+    have_aws = {q.name for q in AWS_DIR.glob("aws_*.txt")} if AWS_DIR.exists() else set()
+    have_fcst = {q.name for q in FCST_DIR.glob("fcst_*.json")} if FCST_DIR.exists() else set()
+    aws_todo = [t for t in aws_need if f"aws_{t:%Y%m%d%H}.txt" not in have_aws]
     fcst_todo = [(b, t, v) for b, t in fcst_need for v in FCST_VARS
-                 if not (FCST_DIR / f"fcst_{b:%Y%m%d%H}_{t:%Y%m%d%H}_{v}.json").exists()]
+                 if f"fcst_{b:%Y%m%d%H}_{t:%Y%m%d%H}_{v}.json" not in have_fcst]
     if GRID_ORDER is None:
         log.info("단기예보 격자 순서를 아직 확인하지 않아 이번에는 AWS만 받습니다 (--probe 먼저).")
         fcst_todo = []
@@ -398,15 +434,13 @@ def collect(part, dry_run=False, only="both", workers=1):
 
 def parse_all():
     """받은 원본 전체를 split별 표로 정리한다."""
+    # 연구 기간 평일 전체(+90일) 기준으로 split 을 붙인다. 90일만 받았어도 그대로 맞게 붙는다.
     split_of = {}
-    for split in ("train", "eval"):
-        d = pd.read_csv(PROC_DIR / split / f"weather_days_{split}.csv", encoding="utf-8-sig")
-        for x in d["date"]:
-            day = pd.Timestamp(x)
-            for t in aws_times(day):
-                split_of[("aws", t)] = split
-            for b, t in fcst_pairs(day):
-                split_of[("fcst", b, t)] = split
+    for day, split in load_full_days():
+        for t in aws_times(day):
+            split_of.setdefault(("aws", t), split)
+        for b, t in fcst_pairs(day):
+            split_of.setdefault(("fcst", b, t), split)
 
     aws_frames, bad = [], 0
     for p in sorted(AWS_DIR.glob("aws_*.txt")):
@@ -454,7 +488,8 @@ def main():
     p = argparse.ArgumentParser(description="구별 AWS · 과거 단기예보 수집 (기상청 API허브)")
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument("--test", action="store_true", help=f"{TEST_DAY} 하루만")
-    g.add_argument("--part", choices=["1", "2", "3", "all"], help="1 평가 / 2 학습 겨울 / 3 학습 여름 / all 90일 전부")
+    g.add_argument("--part", choices=["1", "2", "3", "all", "full"],
+                   help="1 평가 / 2 학습 겨울 / 3 학습 여름 / all 90일 전부 / full 연구 기간 평일 전체")
     g.add_argument("--parse", action="store_true", help="받은 원본을 표로 정리만")
     g.add_argument("--probe", action="store_true", help="단기예보 격자 응답 형식 확인 (2건)")
     p.add_argument("--dry-run", action="store_true", help="호출 수만 세기")
