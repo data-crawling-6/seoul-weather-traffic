@@ -13,6 +13,22 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
+
+import sys  # noqa: E402
+
+if str(ROOT) not in sys.path:  # python src/traffic_analysis.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(ROOT))
+from src.io_utils import data_root as _data_root  # noqa: E402
+
+# 데이터 위치: 환경변수 SEOUL_TRAFFIC_DATA_ROOT, 없으면 D:\seoul-weather-traffic-data (io_utils.data_root)
+DATA_ROOT = _data_root()
+TRAVEL_FILE = "yang_seoyeon_topis_weather_commute_20261122_v05.parquet"
+
+
+def _default_travel_path() -> Path:
+    """통행시간 v05: 저장소 data/raw/traffic/ 에 있으면 그것, 없으면 데이터 루트 processed/."""
+    local = ROOT / "data" / "raw" / "traffic" / TRAVEL_FILE
+    return local if local.is_file() else DATA_ROOT / "processed" / TRAVEL_FILE
 REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_name",
             "spot_id", "io_type", "hour", "commute_period", "traffic_volume",
             "intensity", "precip_mm", "new_snow_cm"}
@@ -195,7 +211,7 @@ def _latest_analysis_report(root: Path) -> tuple[Path, dict]:
     return path, report
 
 
-def visualize_latest(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weather-traffic-data")) -> dict:
+def visualize_latest(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
     """[서연] 최신 분석 결과만 읽어 표·그래프·지도를 만든다. 분석은 재실행하지 않는다."""
     try:
         import matplotlib.pyplot as plt
@@ -330,7 +346,7 @@ def visualize_latest(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weathe
 
 def combine_travel_time(
     root: Path = ROOT,
-    travel_path: Path = Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v05.parquet"),
+    travel_path: Path = _default_travel_path(),
 ) -> dict:
     """[서연] 최신 교통량 변화와 v05 통행시간 변화를 도로·시간 단위로 결합한다."""
     try:
@@ -686,7 +702,7 @@ def run(root: Path = ROOT, input_path: Path | None = None) -> dict:
     return report
 
 
-def combine_news(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weather-traffic-data"),
+def combine_news(root: Path = ROOT, data_root: Path = DATA_ROOT,
                  news_dir: Path | None = None, combined_path: Path | None = None,
                  summary_path: Path | None = None) -> dict:
     """[서연] 기존 분석 결과에 뉴스 후보를 연결한다. 수집·학습은 재실행하지 않는다."""
@@ -894,7 +910,7 @@ def analyze_dtw(root: Path = ROOT, combined_path: Path | None = None) -> dict:
     return report
 
 
-def visualize_dtw_map(root: Path = ROOT, data_root: Path = Path(r'D:\seoul-weather-traffic-data')) -> dict:
+def visualize_dtw_map(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
     """[서연] 기존 DTW 군집 결과와 공식 링크 매핑을 지도에 표시한다."""
     import geopandas as gpd
     import folium
@@ -1008,9 +1024,9 @@ def main() -> None:
     parser.add_argument("--visualize-only", action="store_true", help="최신 성공 분석 결과의 표·그래프·지도만 생성")
     parser.add_argument("--combine-travel-time", action="store_true", help="최신 교통량과 v05 비교일 기준 통행시간 결합")
     parser.add_argument("--validate-relationships", action="store_true", help="결합 결과의 극단값 민감도와 하위집단별 안정성 검증")
-    parser.add_argument("--data-root", type=Path, default=Path(r"D:\seoul-weather-traffic-data"))
+    parser.add_argument("--data-root", type=Path, default=DATA_ROOT)
     parser.add_argument("--travel-path", type=Path,
-                        default=Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v05.parquet"))
+                        default=_default_travel_path())
     parser.add_argument("--combine-news", action="store_true")
     parser.add_argument("--extract-road-control", action="store_true")
     parser.add_argument("--news-dir", type=Path)
