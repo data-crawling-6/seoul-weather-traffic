@@ -35,9 +35,14 @@ REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_
 
 
 def latest_input(root: Path = ROOT) -> Path:
+    """교통량·악천후일 결합 CSV. outputs/tables 에 없으면 Release(yang-seoyeon-traffic-volume-v1)에서 받은
+    data/raw/traffic/ 파일을 쓴다 (PR #23 에서 큰 CSV 를 저장소에서 빼고 Release 로 옮김)."""
     files = sorted((root / "outputs/tables").glob("yang_seoyeon_traffic_weather_days_joined_*_(성공)_v*.csv"))
     if not files:
-        raise FileNotFoundError("교통량·악천후일 결합 CSV가 없습니다.")
+        files = sorted((root / "data" / "raw" / "traffic").glob("yang_seoyeon_traffic_weather_days_joined_*_v*.csv"))
+    if not files:
+        raise FileNotFoundError("교통량·악천후일 결합 CSV가 없습니다. Release yang-seoyeon-traffic-volume-v1 의 CSV를 "
+                                "data/raw/traffic/ 에 받아 두세요.")
     return files[-1]
 
 
