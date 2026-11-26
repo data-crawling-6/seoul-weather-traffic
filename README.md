@@ -256,9 +256,9 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | --- | --- | --- | --- |
 | `00_collect/` | 수집 기록: 어떻게 받았나 | ~ 11/25 | `kmj_collect` · `ljh_collect` · `ysy_collect` |
 | `01_shared/` | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `kmj_topis_check` → `ljh_weather_events` → `ysy_travel_time` → `ysy_volume_road_mapping` → `kmj_vacation_peak` |
-| `02_analysis/` | 분석 · 모델 | 11/25 ~ 12/9 | `ljh_comparison` · `kmj_prediction` · `ljh_alert_survival` · `ysy_clustering` |
-| `03_case/` | 사례 검증 (함께) | 12/10 ~ | `all_case_1204` |
-| `04_summary/` | 제출용 안내 (함께) | 12/14 제출 정리 | `all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
+| `02_analysis/` | 분석 · 모델 | 11/26 ~ 12/2 | `ljh_comparison` · `kmj_prediction` · `ljh_alert_survival` · `ysy_clustering` |
+| `03_case/` | 사례 검증 (함께) | 12/3 ~ 12/9 | `all_case_1204` |
+| `04_summary/` | 제출용 안내 (함께) | 12/7 제출 정리 | `all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
 
 - 뒤 폴더는 앞 폴더의 결과를 읽는다 (`02_analysis`는 `01_shared`의 공통 표, `03_case`는 `02_analysis` 결과).
 - `01_shared` 안은 화살표 순서로 이어진다: TOPIS 원본 확인 → 악천후 사건 · 연구 기간 → 도로 통행시간 표 → 교통량 매핑 → 휴가 절정 주간. 다른 폴더 안은 순서 차이가 없다.

@@ -500,7 +500,7 @@ def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None
     proc = ROOT / "data/shared"
     cols = HOURLY_COLS + [c for c in hourly.columns if c.startswith("warn_")]
     for split in ("train", "eval"):
-        (proc / split).mkdir(parents=True, exist_ok=True)
+        (proc / SPLIT_DIR[split]).mkdir(parents=True, exist_ok=True)
         if warn_eps is not None:
             warn_eps[warn_eps["split"] == split].to_csv(proc / SPLIT_DIR[split] / f"weather_warnings_{SPLIT_DIR[split]}.csv",
                                                         index=False, encoding="utf-8-sig")
