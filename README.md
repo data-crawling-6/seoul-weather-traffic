@@ -63,10 +63,11 @@ seoul-weather-traffic/
 │   ├── 02_ljh_weather_events.ipynb
 │   ├── 03_ysy_travel_time.ipynb
 │   ├── 04_ysy_traffic_mapping.ipynb
+│   ├── 05_kmj_vacation_peak.ipynb
 │   ├── 10_ljh_comparison.ipynb
 │   ├── 11_kmj_prediction.ipynb
 │   ├── 12_ljh_alert_survival.ipynb
-│   ├── 13_C_clustering.ipynb
+│   ├── 13_ysy_clustering.ipynb
 │   └── 20_all_case_1204.ipynb
 │
 ├── data/
@@ -210,8 +211,8 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 번호 | 단계 | 언제 | 노트북 |
 | --- | --- | --- | --- |
 | 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_kmj` · `00_ljh_collect` · `00_ysy_collect` |
-| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` |
-| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_C_clustering` |
+| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` · `05_kmj_vacation_peak` |
+| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_ysy_clustering` |
 | 20–29 | 사례 검증 (함께) | 12/10 ~ | `20_all_case_1204` |
 | 30 | 제출용 안내 (함께) | 12/14 제출 정리 | `30_all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
 
