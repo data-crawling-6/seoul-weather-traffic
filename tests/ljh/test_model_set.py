@@ -59,11 +59,11 @@ class ModelSetTest(unittest.TestCase):
 
     def test_load_processed는_test면_eval_폴더를_안_읽는다(self):
         with project("model_sets:\n  train: [2023_summer]\n  dev: [2025_summer]\n  test: [2026_summer]\n") as root:
-            base = Path(root) / "data" / "processed"
-            (base / "train").mkdir(parents=True)
-            (base / "eval").mkdir()
-            pd.DataFrame({"season": ["2023_summer", "2025_summer"]}).to_csv(base / "train" / "t_train.csv", index=False)
-            pd.DataFrame({"season": ["2026_summer"]}).to_csv(base / "eval" / "t_eval.csv", index=False)
+            base = Path(root) / "data" / "shared"
+            (base / "train_dev").mkdir(parents=True)
+            (base / "holdout").mkdir()
+            pd.DataFrame({"season": ["2023_summer", "2025_summer"]}).to_csv(base / "train_dev" / "t_train_dev.csv", index=False)
+            pd.DataFrame({"season": ["2026_summer"]}).to_csv(base / "holdout" / "t_holdout.csv", index=False)
             self.assertEqual(sorted(load_processed("t", project_root=Path(root))["model_set"]), ["dev", "train"])
             self.assertEqual(sorted(load_processed("t", include_test=True, project_root=Path(root))["model_set"]),
                              ["dev", "test", "train"])

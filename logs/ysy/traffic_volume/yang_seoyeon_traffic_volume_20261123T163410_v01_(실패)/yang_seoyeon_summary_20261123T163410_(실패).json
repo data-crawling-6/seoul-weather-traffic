@@ -1,0 +1,21 @@
+{
+  "run_id": "20261123T163410",
+  "version": "v01",
+  "status": "실패",
+  "finished_at": "2026-11-23T16:36:26+09:00",
+  "counts": {
+    "downloaded": 0,
+    "skipped": 0,
+    "failed": 0,
+    "retries": 0
+  },
+  "rows": null,
+  "download": {},
+  "preprocess": {},
+  "error": {
+    "type": "InvalidSessionIdException",
+    "message": "Message: invalid session id; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidsessionidexception\nStacktrace:\n\tchromedriver!GetHandleVerifier [0x7ff70f0bd655+4c05]\n\tchromedriver!(No symbol) [0x7ff70efb4790]\n\tchromedriver!GetHandleVerifier [0x7ff70f3ba76d+301d1d]\n\tchromedriver!(No symbol) [0x7ff70ee3bef3]\n\tchromedriver!(No symbol) [0x7ff70ee4df92]\n\tchromedriver!(No symbol) [0x7ff70ee4bfa3]\n\tchromedriver!(No symbol) [0x7ff70ee4bb0c]\n\tchromedriver!(No symbol) [0x7ff70ee0d97b]\n\tchromedriver!(No symbol) [0x7ff70ee0db52]\n\tchromedriver!(No symbol) [0x7ff70ee0dd65]\n\tchromedriver!GetHandleVerifier [0x7ff70f557041+49e5f1]\n\tchromedriver!GetHandleVerifier [0x7ff70f575c76+4bd226]\n\tchromedriver!GetHandleVerifier [0x7ff70f56c340+4b38f0]\n\tchromedriver!GetHandleVerifier [0x7ff70f1ec9be+133f6e]\n\tchromedriver!(No symbol) [0x7ff70efc2fa5]\n\tchromedriver!GetHandleVerifier [0x7ff70f615463+55ca13]\n\tchromedriver!(No symbol) [0x7ff70ee0c9e4]\n\tchromedriver!GetHandleVerifier [0x7ff70f5c24ff+509aaf]\n\tKERNEL32!BaseThreadInitThunk [0x7ffd0546dda7+17]\n\tntdll!RtlUserThreadStart [0x7ffd05f9ee4c+2c]\n"
+  },
+  "run_dir": "D:\\seoul-weather-traffic-data\\traffic_volume\\runs\\yang_seoyeon\\yang_seoyeon_traffic_volume_20261123T163410_v01_(실패)",
+  "summary_path": "D:\\seoul-weather-traffic-data\\traffic_volume\\runs\\yang_seoyeon\\yang_seoyeon_traffic_volume_20261123T163410_v01_(실패)\\yang_seoyeon_summary_20261123T163410_(실패).json"
+}

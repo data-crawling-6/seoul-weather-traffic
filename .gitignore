@@ -5,9 +5,9 @@ api_keys.txt
 # 데이터 (원본은 팀 드라이브에 보관)
 data/raw/*
 !data/raw/.gitkeep
-data/interim/
+data/derived/
 # 입력용 평소값 링크 표는 커서 Release(prior-link-v1)에 둔다
-data/processed/*/prior_link_*.parquet
+data/shared/*/prior_link_*.parquet
 *.xlsx
 *.zip
 
@@ -19,3 +19,6 @@ __pycache__/
 # 기타
 .DS_Store
 chromedriver*
+
+# 기상청 API허브 하루 호출 수를 세는 상태 파일 (사람마다 따로 센다)
+logs/ljh/kma_apihub/kma_apihub_calls.json

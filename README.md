@@ -26,86 +26,133 @@
 seoul-weather-traffic/
 ├── README.md
 ├── requirements.txt        # 필요한 패키지
+├── pytest.ini              # 테스트 설정 (python -m pytest tests)
 ├── .gitignore
+├── .github/workflows/      # 자동 실행 (topis_forecast.yml: TOPIS 예보 수집)
 ├── api_keys.example.txt    # 키 이름만 적은 견본 (진짜 api_keys.txt는 올리지 않음)
 │
-├── config/                 # 공통 기준 (모두가 같은 값을 쓴다)
-│   ├── columns.md          # 공통 열 이름 정의 (C)
-│   ├── roads.csv           # 분석 도로 90개 목록 (C)
-│   └── periods.yaml        # 연구 기간 · 강도 기준 · 악천후일 목록 (B)
+├── config/                 # 팀 공통 규칙 · 기준표 (사람이 정하고 코드가 읽는다)
+│   ├── periods.yaml        # 연구 기간 · Train/Dev/Test · 출퇴근 시간 · 휴가철 · 날씨 · 정체 기준값
+│   ├── roads.csv           # 분석 도로 90개
+│   ├── road_aliases.csv    # 뉴스에서 쓰는 도로 별칭
+│   ├── topis_gaps.csv      # TOPIS 수집 시스템 공백 41시간
+│   └── columns.md          # 공통 열 이름 · 단위 설명서 (사람이 읽는 문서)
 │
-├── crawling/               # 동적 수집 · API 코드
-│   ├── topis_speed.py      # A: TOPIS 통행속도 (Selenium)
-│   ├── kma_warning.py      # B: 기상특보 (Selenium · 조회 → 페이지 넘김 → 상세)
-│   ├── kma_asos.py         # B: ASOS (공공데이터포털 API)
-│   ├── kma_apihub.py       # B: 과거 단기예보 · 구별 AWS (기상청 API허브)
-│   ├── hrfco_waterlevel.py # B: 한강 수위 (한강홍수통제소 API)
-│   ├── naver_news.py       # C: 뉴스 (Selenium)
-│   ├── traffic_volume.py   # C: TOPIS 월별 교통량 (Selenium 다운로드·전처리)
-│   └── link_coords.py          # C: 링크 좌표 API
+├── crawling/               # 수집 코드 (담당은 아래 「코드 담당표」)
+├── src/                    # 전처리 · 계산 · 분석 코드, 데이터 흐름 순서로 나눔 (담당은 아래 「코드 담당표」)
+│   ├── io_utils.py         # 공통 읽기 함수
+│   ├── clean/              # 1. 원본 정리 (날씨 · 예보 AWS · 특보)
+│   ├── join/               # 2. 자료끼리 합치기 (TOPIS + 날씨, 교통량 지점 ↔ 도로)
+│   ├── labels/             # 3. 정답 (평소값 · 정체 정답, 예측 입력에 쓰지 않음)
+│   ├── features/           # 4. 예측 입력 (입력용 평소값 · 입력 변수)
+│   └── analysis/           # 5. 분석 (교통량 변화 · 군집 · 지도 · 뉴스)
 │
-├── src/                    # 여러 노트북이 같이 쓰는 함수
-│   ├── io_utils.py         # 파일 읽기 (TOPIS CSV · 시스템 공백 목록 등)
-│   ├── traffic_merge.py       # C: 링크 기본표 · 도로 통행시간 표
-│   ├── traffic_mapping.py     # C: 교통량 지점·도로 매핑
-│   └── traffic_analysis.py    # C: 교통량·통행시간·군집 분석
-│   ├── weather.py          # B: 날씨 사건 · 연구 기간 · 악천후일
-│   ├── kma_warnings.py     # B: 특보 통보문 → 서울 특보 상태
-│   ├── baseline.py         # B: 도로 평소값 · 정체 기준 후보
-│   ├── link_baseline.py    # B: 구간(링크) 평소값 · 정체 길이 비율
-│   └── features.py         # A: 입력 변수 (아직 비어 있음)
+├── tests/                  # 코드 테스트, 담당자별 폴더 (kmj/ · ljh/ · ysy/)
 │
-├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
-│   ├── 00_kmj_collect.ipynb   # 수집 기록 (담당자별 1개)
-│   ├── 00_ljh_collect.ipynb
-│   ├── 00_ysy_collect.ipynb
-│   ├── 01_kmj_topis_check.ipynb
-│   ├── 02_ljh_weather_events.ipynb
-│   ├── 03_ysy_travel_time.ipynb
-│   ├── 04_ysy_traffic_mapping.ipynb
-│   ├── 05_kmj_vacation_peak.ipynb
-│   ├── 10_ljh_comparison.ipynb
-│   ├── 11_kmj_prediction.ipynb
-│   ├── 12_ljh_alert_survival.ipynb
-│   ├── 13_ysy_clustering.ipynb
-│   └── 20_all_case_1204.ipynb
+├── notebooks/              # 분석 (폴더 번호 = 단계, 이니셜 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
+│   ├── 00_collect/         # 수집 기록 (담당자별 1개)
+│   │   ├── kmj_collect.ipynb
+│   │   ├── ljh_collect.ipynb
+│   │   └── ysy_collect.ipynb
+│   ├── 01_shared/          # 공통 표 만들기
+│   │   ├── kmj_topis_check.ipynb
+│   │   ├── ljh_weather_events.ipynb
+│   │   ├── ysy_travel_time.ipynb
+│   │   ├── ysy_volume_road_mapping.ipynb
+│   │   └── kmj_vacation_peak.ipynb
+│   ├── 02_analysis/        # 분석 · 모델
+│   │   ├── ljh_comparison.ipynb
+│   │   ├── kmj_prediction.ipynb
+│   │   ├── ljh_alert_survival.ipynb
+│   │   └── ysy_clustering.ipynb
+│   └── 03_case/            # 사례 검증 (함께)
+│       └── all_case_1204.ipynb
 │
 ├── data/
-│   ├── raw/                # 원본 (깃에 올리지 않음, 팀 드라이브에 보관)
-│   │   ├── topis/          # A: 월별 xlsx · csv (릴리스 topis-data-v1)
-│   │   ├── traffic/        # 통행시간 · 링크 기본표 · 교통량 릴리스 파일 (ysy 릴리스)
+│   ├── raw/                # 원본 (깃에 올리지 않음). 팀 공유 드라이브에서 받아 여기에 푼다. 모든 코드는 이 아래만 읽는다
+│   │   ├── topis_speed/    # A: TOPIS 통행속도 월별 YYYY-MM.csv 50개 · topis_manifest.csv
+│   │   ├── topis_traffic_volume/ # C: TOPIS 교통량 원본 xlsx 26개 (YYYY-MM.xlsx)
+│   │   ├── link_coords/    # C: 링크 좌표 원본 (20261123T213044 최종본)
+│   │   ├── road_links/     # C: 서울특별시 교통소통 표준링크 매핑정보_20250306.xlsx (열린데이터광장, `ysy_volume_road_mapping` 노트북이 읽음)
+│   │   ├── naver_news/     # C: 뉴스 기사 원문 7개
 │   │   ├── asos/           # B: ASOS 서울(108) 월별 csv
 │   │   ├── kma_warning/    # B: 특보 목록 · 통보문 본문
 │   │   ├── kma_fcst/       # B: 과거 단기예보 격자
 │   │   ├── kma_aws/        # B: 구별 AWS 시간자료
-│   │   └── hrfco/          # B: 한강 수위 10분 자료
-│   ├── processed/          # 공통 표: 통행시간 · 날씨 · 교통량
-│   │   ├── train/          # Train + Dev (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
-│   │   └── eval/           # Test (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
+│   │   ├── hanriver_level/ # B: 한강 수위 10분 자료 (홍수통제소 HRFCO)
+│   │   └── seoul_road_heating/ # B: 자치구별 도로 열선 설치 현황
+│   ├── derived/            # 원본으로 만든 결과 (깃에 올리지 않음, 커서 팀 공유 드라이브로 나눔)
+│   │   ├── topis_weather/  # C: TOPIS + 날씨 결합표. 통행시간 v04 = 연구 기간용 (평소값 · 분석) · v05 = v04 + 10월 (교통량 비교용) · 링크 기본표 v02
+│   │   ├── topis_traffic_volume/ # C: 교통량 정리 parquet (train · eval) · 교통량 + 악천후일 결합 CSV
+│   │   ├── road_lines/     # C: 도로 선 geojson (링크 좌표로 만듦)
+│   │   ├── seoul_road_heating/ # B: 도로 열선 원본을 UTF-8로 바꾼 복사본 (원본은 CP949)
+│   │   └── naver_news/     # C: 뉴스 분류 결과 (기사 · 검수 · 사건 연결 · 통제 도로 후보)
+│   ├── shared/             # 팀 공통 작은 표 (깃에 올림): 날씨 · 평소값 · 정체 정답 · 입력 변수
+│   │   ├── train_dev/      # Train + Dev (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025). 둘은 model_set 열로 나눈다
+│   │   ├── holdout/        # Test 시즌 (겨울 2025~26 / 여름 2026, model_set = test) · 발표 직전까지 열지 않기
+│   │   ├── traffic_volume_direction_map.csv # 교통량 지점 방향 ↔ TOPIS 도로 방향
+│   │   └── waterlevel_stations.csv          # 한강 수위 관측소 목록
 │   └── sample/             # 작은 샘플 (코드 테스트용)
 │
 ├── outputs/
-│   ├── figures/            # 그래프
-│   ├── maps/               # Folium HTML
+│   ├── figures/            # 그래프 (ysy/: 서연 지도 · 군집 그림)
 │   └── tables/             # MAE 비교표, 경보 성능표 등
 │
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
-    ├── kmj/                # A 실행 기록 (topis_speed · topis_network · topis_manifest) · screenshots/ 화면 캡처
-    ├── ljh/                # B 실행 기록 (kma_* · hrfco_waterlevel · baseline · link_baseline · volume_direction) · screenshots/ 화면 캡처
-    └── ysy/                # C 개인 실행·오류·검증 기록
-        ├── travel_time/
-        ├── traffic_mapping/
+    ├── kmj/                # A 실행 기록. 코드 이름 폴더마다 (topis_speed/ · topis_forecast/ · prior_baseline/ · features/), 화면 캡처도 그 폴더에
+    ├── ljh/                # B 실행 기록. 코드 이름 폴더마다 (kma_apihub/ · kma_asos/ · kma_warning/ · hrfco_waterlevel/ · road_baseline/ · link_baseline/ · volume_direction/)
+    └── ysy/                # C 실행 기록. 코드 이름 폴더마다 (실행마다 시각 · 성공 여부가 붙은 파일)
+        ├── link_coords/
+        ├── naver_news/
+        ├── topis_weather_merge/
+        ├── traffic_analysis/
         ├── traffic_volume/
-        └── naver_news/
+        └── volume_road_mapping/
 ```
+
+
+### 코드 담당표
+
+폴더는 사람이 아니라 하는 일로 나누고, 담당은 이 표에 적는다. 이름순으로 보면 같은 작업끼리 모인다.
+
+**crawling/ (수집)**
+
+| 파일 | 담당 | 수집하는 것 | 저장 위치 |
+| --- | --- | --- | --- |
+| `topis_speed.py` | A 민주 | TOPIS 통행속도 (Selenium) | `data/raw/topis_speed/` |
+| `topis_forecast.py` | A 민주 | TOPIS 혼잡예보, 매일 06시 자동 (GitHub Actions) | `data-collect` 브랜치 |
+| `kma_asos.py` | B 정희 | 기상청 ASOS 서울 관측 (공공데이터포털 API) | `data/raw/asos/` |
+| `kma_apihub.py` | B 정희 | 과거 단기예보 · 구별 AWS (기상청 API허브) | `data/raw/kma_fcst/`, `kma_aws/` |
+| `kma_warning.py` | B 정희 | 기상특보 목록 · 통보문 (Selenium) | `data/raw/kma_warning/` |
+| `hrfco_waterlevel.py` | B 정희 | 한강 수위 (한강홍수통제소 API) | `data/raw/hanriver_level/` |
+| `traffic_volume.py` | C 서연 | TOPIS 월별 교통량 xlsx (Selenium) | `data/raw/topis_traffic_volume/` |
+| `link_coords.py` | C 서연 | 링크 좌표 (서울시 API) · 도로 선 만들기 | `data/raw/link_coords/`, `data/derived/road_lines/` |
+| `naver_news.py` | C 서연 | 네이버 뉴스 (Selenium) · 분류 | `data/raw/naver_news/`, `data/derived/naver_news/` |
+
+**src/ (전처리 · 계산 · 분석)**
+
+| 파일 | 담당 | 하는 일 |
+| --- | --- | --- |
+| `io_utils.py` | 공통 | 데이터 위치, TOPIS 읽기, Train · Dev · Test 붙이기(`add_model_set`), 공통 표 읽기(`load_processed`), 날씨 판정 붙이기 |
+| `clean/weather.py` | B 정희 | 시간별 날씨 표, 눈 · 비 사건, 연구 기간, 악천후일 · 비교일 90일 |
+| `clean/weather_seoul.py` | B 정희 | 예보 · AWS를 서울 전체 값(평균 · 최대 · 권역)으로 |
+| `clean/warnings_seoul.py` | B 정희 | 특보 통보문 → 서울 특보 상태 |
+| `join/volume_direction.py` | B 정희 | 교통량 지점에 TOPIS 상행 · 하행 붙이기 |
+| `join/topis_weather_merge.py` | C 서연 | TOPIS + 날씨 결합표 (도로 통행시간 v04 · v05, 링크 v02) |
+| `join/volume_road_mapping/` | C 서연 | 교통량 지점 ↔ TOPIS 도로 · 링크 연결. 단계별 모듈: `audit` ① 입력 점검 · `candidates` ② 후보 · `review` ③ 검토 · `official` ④ 공식 매핑 · `checks` ⑤ 사후 점검 · `history` 좌표 이력 · `common` 공통 · `candidate_diagnostics` 후보 진단. 실행: `python -m src.join.volume_road_mapping <명령>` |
+| `labels/road_baseline.py` | B 정희 | 도로 · 방향 평소 통행시간, 정체 기준 후보 비교 |
+| `labels/link_baseline.py` | B 정희 | 링크 평소값, 정체 길이 비율 → 정체 정답(`is_congested`) |
+| `features/prior_baseline.py` | A 민주 | 예측 입력용 평소값 (그날 이전 28일) |
+| `features/features.py` | A 민주 | 예측 모델 입력 변수 표 |
+| `analysis/traffic_analysis.py` | C 서연 | 교통량 변화 · 군집(K-means · DTW) · 지도 · 뉴스 연결 |
 
 ## 실행 순서
 
-0. **수집 기록** (`notebooks/00_X_collect`): 수집이 끝나면 담당자별로 핵심 코드 · 로그 · 화면 · 결과 · 실패 기록을 정리
+0. **수집 기록** (`notebooks/00_collect/`): 수집이 끝나면 담당자별로 핵심 코드 · 로그 · 화면 · 결과 · 실패 기록을 정리
 1. **수집** (`crawling/`): TOPIS 통행속도(A), 기상특보 · ASOS · 예보 · AWS · 한강 수위(B), 뉴스 · 교통량(TOPIS 월별 파일) · 링크 좌표(C)
-2. **공통 표 만들기** (`notebooks/01~04`): 악천후 사건 · 연구 기간(B) → 도로 통행시간 표(C) → 교통량 매핑(C)
-3. **분석 · 모델** (`notebooks/10~13`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
-4. **사례 검증** (`notebooks/20`): 2025-12-04 폭설 · 2026-07-14~15 집중호우 (세 명 함께)
+2. **공통 표 만들기** (`notebooks/01_shared/`): 악천후 사건 · 연구 기간(B) → 도로 통행시간 표(C) → 교통량 매핑(C)
+3. **분석 · 모델** (`notebooks/02_analysis/`): 비교 분석 · 경보 · 생존분석(B), 예측(A), 군집(C)
+4. **사례 검증** (`notebooks/03_case/`): 2025-12-04 폭설 · 2026-07-14~15 집중호우 (세 명 함께)
 
 ### C · TOPIS 월별 교통량 수집과 전처리
 
@@ -145,30 +192,27 @@ C:\Users\USER\.conda\envs\youth-isolation\python.exe crawling\traffic_volume.py 
 ```
 
 화면 표시가 필요 없는 재실행에만 `run --headless`를 선택할 수 있다.
-기본 데이터 루트는 `D:\seoul-weather-traffic-data`이며, 다른 위치가 필요하면
-명령마다 `--data-root D:\다른경로`를 붙이거나 현재 PowerShell 세션에만
-`SEOUL_TRAFFIC_DATA_ROOT`를 설정한다. 영구 환경 설정은 요구하지 않는다.
+데이터 위치는 저장소 `data/raw/`이다 (`src/io_utils.py`의 `data_root()`, 11/26부터 D 드라이브 · 환경변수 사용 안 함).
+다른 위치에서 시험할 때만 명령마다 `--data-root 경로`를 붙인다.
 
 생성 위치:
 
 ```text
-D:\seoul-weather-traffic-data\traffic_volume\
-├── raw\xlsx\
-│   └── yang_seoyeon_topis_traffic_volume_YYYY-MM.xlsx
-├── processed\
-│   ├── yang_seoyeon_traffic_volume_train_실행ID_v01_(성공).parquet
-│   └── yang_seoyeon_traffic_volume_eval_실행ID_v01_(성공).parquet
-└── runs\
-    └── yang_seoyeon\
-        ├── yang_seoyeon_traffic_volume_test_YYYY-MM_실행ID_v01_(성공)\
-        ├── yang_seoyeon_traffic_volume_실행ID_v01_(성공)\
-        ├── yang_seoyeon_traffic_volume_실행ID_v01_(실패)\
-        └── yang_seoyeon_traffic_volume_실행ID_v01_(중단)\
+data\raw\topis_traffic_volume\                  원본
+└── YYYY-MM.xlsx
+data\derived\topis_traffic_volume\              정리 결과
+├── traffic_volume_train_실행ID_v01_(성공).parquet
+└── traffic_volume_eval_실행ID_v01_(성공).parquet
+logs\ysy\traffic_volume\                  실행 기록 (깃에 올림)
+├── yang_seoyeon_traffic_volume_test_YYYY-MM_실행ID_v01_(성공)\
+├── yang_seoyeon_traffic_volume_실행ID_v01_(성공)\
+├── yang_seoyeon_traffic_volume_실행ID_v01_(실패)\
+└── yang_seoyeon_traffic_volume_실행ID_v01_(중단)\
 ```
 
-새 교통량 실행 기록은 `runs/yang_seoyeon/`에 저장한다. 이전에
-`runs/`에 직접 저장된 `yang_seoyeon_traffic_volume_*` 기록도
-`history` 명령과 05 노트북에서 계속 함께 조회한다.
+새 교통량 실행 기록은 `logs/ysy/traffic_volume/`에 저장한다. 예전 위치
+(`data/raw/traffic_volume/runs/`)에 남은 기록이 있으면 `history` 명령과
+`00_collect/ysy_collect` 노트북에서 계속 함께 조회한다.
 
 이미 크기가 0보다 큰 월별 파일이 있으면 덮어쓰지 않고 건너뛴다. 실패한
 월은 기본 3회까지만 재시도하고 JSONL 로그에 시각·월·시도 횟수·실패 원인을
@@ -176,7 +220,7 @@ D:\seoul-weather-traffic-data\traffic_volume\
 SHA-256도 기록한다. 실행 시작 시 폴더를 `(중단)`으로 만들고 정상 완료 시
 `(성공)`, 오류 종료 시 `(실패)`로 바꾸므로 강제 종료 기록도 보존된다.
 
-`notebooks/00_ysy_collect.ipynb`는 핵심 함수 코드, 모든 실행
+`notebooks/00_collect/ysy_collect.ipynb`는 핵심 함수 코드, 모든 실행
 이력, 오류·재시도 로그, 검증표와 결과 표를 읽어 보여준다.
 조회 셀만 실행하면 Selenium은 시작되지 않으며, 실제 수집 셀의
 `EXECUTE_ONE_MONTH_TEST = True` 또는 `EXECUTE_COLLECTION = True`를 직접
@@ -202,38 +246,39 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 
 ## 노트북 작성 방법
 
-### 노트북 이름 (번호 = 단계, 이니셜 = 담당)
+### 노트북 이름 (폴더 번호 = 단계, 이니셜 = 담당)
 
-`번호_이니셜_내용.ipynb` (예: `02_ljh_weather_events.ipynb`). 이니셜은 `ljh` 이정희(B 날씨와 경보) · `ysy` 양서연(C 교통량과 공간) · `kmj` 강민주(A 예측) · `all` 함께. `notebooks/` 바로 아래에 두고 하위 폴더는 만들지 않는다. 이름순으로 정렬하면 작업 순서가 된다.
+`notebooks/단계폴더/이니셜_내용.ipynb` (예: `notebooks/01_shared/ljh_weather_events.ipynb`). 이니셜은 `ljh` 이정희(B 날씨와 경보) · `ysy` 양서연(C 교통량과 공간) · `kmj` 강민주(A 예측) · `all` 함께. 단계 폴더 이름순으로 정렬하면 작업 순서가 된다. 노트북은 저장소 루트를 `README.md`와 `.git`이 있는 폴더로 찾으므로 폴더 깊이와 상관없이 실행된다.
 
 > 11/24 영문자(A · B · C)에서 이니셜로 바꾸는 중. 아직 영문자인 노트북은 담당자가 바꾼다.
 
-| 번호 | 단계 | 언제 | 노트북 |
+| 폴더 | 단계 | 언제 | 노트북 |
 | --- | --- | --- | --- |
-| 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_kmj` · `00_ljh_collect` · `00_ysy_collect` |
-| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` · `05_kmj_vacation_peak` |
-| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_ysy_clustering` |
-| 20–29 | 사례 검증 (함께) | 12/10 ~ | `20_all_case_1204` |
-| 30 | 제출용 안내 (함께) | 12/14 제출 정리 | `30_all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
+| `00_collect/` | 수집 기록: 어떻게 받았나 | ~ 11/25 | `kmj_collect` · `ljh_collect` · `ysy_collect` |
+| `01_shared/` | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `kmj_topis_check` → `ljh_weather_events` → `ysy_travel_time` → `ysy_volume_road_mapping` → `kmj_vacation_peak` |
+| `02_analysis/` | 분석 · 모델 | 11/26 ~ 12/2 | `ljh_comparison` · `kmj_prediction` · `ljh_alert_survival` · `ysy_clustering` |
+| `03_case/` | 사례 검증 (함께) | 12/3 ~ 12/9 | `all_case_1204` |
+| `04_summary/` | 제출용 안내 (함께) | 12/7 제출 정리 | `all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
 
-- 뒤 번호는 앞 번호의 결과를 읽는다 (10번대는 01–09의 공통 표, 20번대는 10번대 결과).
-- 같은 단계 안의 번호는 겹치지 않게 나눠 가진 것이라 순서 차이는 없다.
+- 뒤 폴더는 앞 폴더의 결과를 읽는다 (`02_analysis`는 `01_shared`의 공통 표, `03_case`는 `02_analysis` 결과).
+- `01_shared` 안은 화살표 순서로 이어진다: TOPIS 원본 확인 → 악천후 사건 · 연구 기간 → 도로 통행시간 표 → 교통량 매핑 → 휴가 절정 주간. 다른 폴더 안은 순서 차이가 없다.
+- 데이터를 받거나 만드는 셀은 처음 셀의 `RUN_BUILD = False`(기본)일 때 건너뛰고, 이미 만든 결과만 읽어서 보여 준다 (`ysy_travel_time` · `ysy_volume_road_mapping`). 다시 만들 때만 `True`로 바꾼다.
 
 ### .py와 노트북 나누기
 
 | 무엇 | 어디에 | 왜 |
 | --- | --- | --- |
 | 수집 본체 (오래 도는 것) | `crawling/*.py`, 터미널에서 실행 | 1시간씩 도는 수집이 노트북 커널과 함께 끊기지 않게, 이어받기 · 재시도 옵션을 쓰려고 |
-| 여러 명이 쓰는 전처리 · 계산 | `src/*.py` | 한 곳만 고치면 모두에게 반영되게 |
-| 수집 기록 · 확인 · 분석 · 모델 · 그래프 | `notebooks/*.ipynb` | 과정과 결과를 한눈에 보고 PPT 근거로 쓰려고 |
+| 여러 명이 쓰는 전처리 · 계산 | `src/<단계>/*.py` | 한 곳만 고치면 모두에게 반영되게 |
+| 수집 기록 · 확인 · 분석 · 모델 · 그래프 | `notebooks/<단계>/*.ipynb` | 과정과 결과를 한눈에 보고 PPT 근거로 쓰려고 |
 
 - 처음 해 보는 전처리는 노트북에서 먼저 짜도 된다. 다른 사람도 쓰게 되면 `src/`로 옮긴다.
 - **Train · Dev · Test는 폴더가 아니라 `model_set` 열로 고른다.** 규칙은 `config/periods.yaml`의 `model_sets` 한 곳. 읽을 때 `src.io_utils.load_processed("weather_hourly")`(Test 빼고) 또는 `add_model_set(df)`로 붙이고, 마지막 평가 때만 `include_test=True`로 연다.
-- `data/processed/` 공통 표는 **.py로만 만든다**. 노트북은 읽기만 하고, 노트북에서 만든 그래프 · 표는 `outputs/`에 저장한다.
+- `data/shared/` 공통 표는 **.py로만 만든다**. 노트북은 읽기만 하고, 노트북에서 만든 그래프 · 표는 `outputs/`에 저장한다.
 
-### 수집 기록 노트북 `00_이니셜_collect.ipynb` (담당자별 1개)
+### 수집 기록 노트북 `00_collect/이니셜_collect.ipynb` (담당자별 1개)
 
-노트북은 .py를 **실행하지 않고 읽기만** 한다 (다시 실행해도 데이터를 다시 받거나 덮어쓰지 않는다). 예시는 `notebooks/00_ljh_collect.ipynb`. 복사해서 이름과 자료만 바꿔 쓴다.
+노트북은 .py를 **실행하지 않고 읽기만** 한다 (다시 실행해도 데이터를 다시 받거나 덮어쓰지 않는다). 예시는 `notebooks/00_collect/ljh_collect.ipynb`. 복사해서 이름과 자료만 바꿔 쓴다.
 
 ```
 맨 위   자료 목록 표 (자료 · 방법 · 코드 파일)
@@ -241,7 +286,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 자료마다 (1, 2, 3 …)
   ① 출처 · 흐름 · 실행한 명령어 · 어려웠던 점 한두 줄
   ② 핵심 코드: 함수마다 '하는 일 · 동적 페이지라서 한 처리' 설명 표 + show_func로 원문 보여 주기
-  ③ 실행 화면: logs/이니셜/screenshots/ 전후 캡처 (Selenium 자료)
+  ③ 실행 화면: logs/이니셜/코드이름/ 전후 캡처 (Selenium 자료)
   ④ 실행 로그 요약: 기간 · 건수 · WARNING/ERROR 수
   ⑤ 결과 표: 행 수 · 기간 · 결측 · 앞 몇 줄
 마지막  실패 · 재시도 모아 보기: 로그의 WARNING/ERROR를 종류별로 세기 + 문제 → 원인 → 해결 → 결과 표
@@ -269,7 +314,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 ## 규칙
 
 - **인증키는 올리지 않는다.** `api_keys.txt`는 `.gitignore`에 들어 있다. 새로 받으면 `api_keys.example.txt`에 키 이름만 추가한다.
-- **원본 데이터는 올리지 않는다.** 깃허브는 100MB 넘는 파일을 거부한다. 원본은 팀 드라이브, 공통 표는 `data/processed/`에 CSV로 저장한다 (50MB가 넘으면 parquet).
+- **원본 데이터는 올리지 않는다.** 깃허브는 100MB 넘는 파일을 거부한다. 원본은 팀 드라이브, 공통 표는 `data/shared/`에 CSV로 저장한다 (50MB가 넘으면 parquet).
 - **노트북은 자기 것만 고친다.** 같이 쓰는 함수는 `src/`에 `.py`로 만든다.
 - **`config/`는 팀의 약속이다.** 바꾸면 모두에게 알린다.
 - **크롤링할 때마다 `logs/`에 기록한다.** 수집 시각, 받은 파일 수, 실패 · 재시도를 남긴다 (PPT 근거).

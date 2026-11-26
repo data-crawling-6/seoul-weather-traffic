@@ -1,0 +1,77 @@
+{
+  "run_id": "20261123T164351",
+  "version": "v01",
+  "status_at_start": "중단",
+  "started_at": "2026-11-23T16:43:51+09:00",
+  "entrypoint": "crawling/traffic_volume.py::run_pipeline",
+  "project_root": "C:\\Users\\USER\\seoul-weather-traffic",
+  "data_root": "D:\\seoul-weather-traffic-data",
+  "python_version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+  "python_executable": "C:\\Users\\USER\\.conda\\envs\\youth-isolation\\python.exe",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "settings": {
+    "headless": false,
+    "retries": 3,
+    "wait_seconds": 60,
+    "target_days": 90,
+    "target_months": [
+      "2022-12",
+      "2023-01",
+      "2023-06",
+      "2023-07",
+      "2023-08",
+      "2023-11",
+      "2023-12",
+      "2024-01",
+      "2024-02",
+      "2024-07",
+      "2024-11",
+      "2024-12",
+      "2025-02",
+      "2025-03",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09"
+    ],
+    "topis_end_hours": [
+      8,
+      9,
+      18,
+      19,
+      20
+    ]
+  },
+  "code_provenance": {
+    "git_available": true,
+    "git_commit": "85b44cbba524d62889bdb6a1d7a7ecc609f0432d",
+    "git_branch": "c-traffic",
+    "git_dirty": true,
+    "git_changed_files": [
+      "rawling/traffic_volume.py",
+      "notebooks/10_B_comparison.ipynb",
+      "notebooks/yang_seoyeon/yang_seoyeon_05_traffic_volume.ipynb",
+      "tests/yang_seoyeon/test_traffic_volume_finalize.py",
+      "data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v01.csv",
+      "data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v02.csv",
+      "data/sample/yang_seoyeon_topis_weather_link_sample_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_roads_candidate_review_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_stable_links_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_partial_missing_review_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v02.csv"
+    ],
+    "code_sha256": {
+      "crawling\\traffic_volume.py": "9b7c40c954c7a16712c19cbcad3a6b2e47197f6d968a46b477102cc1875f5c3a",
+      "notebooks\\yang_seoyeon\\yang_seoyeon_05_traffic_volume.ipynb": "43cf5ec09d8b76d4c82895142d8985dda487c60250d363199f4cf3ac172387c3"
+    }
+  }
+}

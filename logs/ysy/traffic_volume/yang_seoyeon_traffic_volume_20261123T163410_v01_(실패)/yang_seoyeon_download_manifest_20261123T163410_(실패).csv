@@ -1,0 +1,4 @@
+﻿at,run_id,month,status,path,bytes,attempt,screen_label
+2026-11-23T16:34:14+09:00,20261123T163410,2022-12,skipped_existing,D:\seoul-weather-traffic-data\traffic_volume\raw\xlsx\yang_seoyeon_topis_traffic_volume_2022-12.xlsx,1461934,,
+2026-11-23T16:34:16+09:00,20261123T163410,2023-01,downloaded,D:\seoul-weather-traffic-data\traffic_volume\raw\xlsx\yang_seoyeon_topis_traffic_volume_2023-01.xlsx,1458075,1.0,1월
+2026-11-23T16:35:21+09:00,20261123T163410,2023-06,downloaded,D:\seoul-weather-traffic-data\traffic_volume\raw\xlsx\yang_seoyeon_topis_traffic_volume_2023-06.xlsx,1434376,2.0,6월

@@ -38,7 +38,7 @@ class LinkCoordsCliTest(unittest.TestCase):
 
     def test_load_topis_link_ids_deduplicates_all_months(self) -> None:
         # [서연] 네트워크 없이 월별 링크 합집합과 중복 제거만 확인한다.
-        paths = [Path("topis_speed_2025-01.csv"), Path("topis_speed_2025-02.csv")]
+        paths = [Path("2025-01.csv"), Path("2025-02.csv")]
         frames = [
             pd.DataFrame({"링크아이디": pd.Series(["L2", "L1"], dtype="string")}),
             pd.DataFrame({"링크아이디": pd.Series(["L2", "L3"], dtype="string")}),
