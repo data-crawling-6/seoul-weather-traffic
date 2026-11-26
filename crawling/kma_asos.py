@@ -7,7 +7,7 @@ ASOS 서울(108) 시간자료 수집 (B 담당)
 - 이미 받은 달은 건너뛴다 (이어받기)
 - 실패하면 최대 3번 다시 시도한다 (재시도)
 - 받은 행 수가 그 달의 시간 수와 다르면 로그에 경고를 남긴다 (파일 검증)
-- 실행 기록은 logs/ljh/kma_asos.log 에 남긴다 (발표 증거용)
+- 실행 기록은 logs/ljh/kma_asos/kma_asos.log 에 남긴다 (발표 증거용)
 
 실행:  python crawling/kma_asos.py
        python crawling/kma_asos.py --start 2022-11 --end 2026-08
@@ -16,7 +16,7 @@ ASOS 서울(108) 시간자료 수집 (B 담당)
         (공공데이터포털의 '일반 인증키(Decoding)' 값을 쓴다. 이 파일은 깃에 올라가지 않는다.)
 
 API로 받기 어려우면 기상자료개방포털에서 받은 CSV를 data/raw/asos_manual/ 에 넣어도 된다.
-분석 코드(src/weather.py)가 두 형식을 모두 읽는다.
+분석 코드(src/clean/weather.py)가 두 형식을 모두 읽는다.
 """
 import argparse
 import calendar
@@ -30,7 +30,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw" / "asos"
-LOG_PATH = ROOT / "logs" / "ljh" / "kma_asos.log"
+LOG_PATH = ROOT / "logs" / "ljh" / "kma_asos" / "kma_asos.log"
 URL = "https://apis.data.go.kr/1360000/AsosHourlyInfoService/getWthrDataList"
 STATION = "108"  # 서울(종로구 송월동)
 

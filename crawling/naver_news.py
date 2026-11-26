@@ -20,7 +20,14 @@ from urllib.parse import urlencode, urlparse
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATA_ROOT = Path(r"D:\seoul-weather-traffic-data")
+import sys  # noqa: E402
+
+if str(ROOT) not in sys.path:  # python crawling/naver_news.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(ROOT))
+from src.io_utils import SPLIT_DIR, data_root as _data_root, derived_root as _derived_root  # noqa: E402
+
+# 원본 데이터 위치: 저장소 data/raw/ (io_utils.data_root)
+DEFAULT_DATA_ROOT = _data_root()
 SEARCH_URL = "https://search.naver.com/search.naver"
 DEFAULT_SNOW_QUERIES = ["서울 폭설 교통", "서울 눈 교통 마비", "서울 폭설 출근길 통제"]
 DEFAULT_RAIN_QUERIES = ["서울 폭우 교통", "서울 호우 도로 통제", "서울 침수 도로 통제"]
@@ -62,7 +69,7 @@ def load_event_days(root: Path = ROOT) -> pd.DataFrame:
     """[서연] B가 확정한 train/eval 목록에서 악천후일만 읽는다."""
     frames = []
     for split in ("train", "eval"):
-        path = root / f"data/processed/{split}/weather_days_{split}.csv"
+        path = root / "data" / "shared" / SPLIT_DIR[split] / f"weather_days_{SPLIT_DIR[split]}.csv"
         if not path.exists():
             raise FileNotFoundError(f"악천후일 목록이 없습니다: {path}")
         frame = pd.read_csv(path, encoding="utf-8-sig")
@@ -352,7 +359,7 @@ def run_collection(
     roads = load_road_aliases(root)
     mode = "test" if test_date else "collection"
     log_parent = root / "logs/ysy/naver_news"
-    raw_parent = data_root / "naver_news/raw"
+    raw_parent = data_root / "naver_news"  # 기사 원문: data/raw/naver_news/
     log_parent.mkdir(parents=True, exist_ok=True)
     raw_parent.mkdir(parents=True, exist_ok=True)
     stamp, run_dir = _unique_run_dir(log_parent, f"naver_news_{mode}")
@@ -429,7 +436,7 @@ def run_collection(
         if frame.empty:
             raise RuntimeError("수집된 뉴스 검색 결과가 0건입니다.")
         final_status = "부분성공" if failed_searches else "성공"
-        output_path = raw_parent / f"yang_seoyeon_naver_news_raw_{stamp}_v01_({final_status}).csv"
+        output_path = raw_parent / f"naver_news_raw_{stamp}_v01_({final_status}).csv"
         if output_path.exists():
             raise FileExistsError(f"기존 결과를 덮어쓰지 않습니다: {output_path}")
         frame["collected_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
@@ -547,7 +554,7 @@ def preprocess_news(raw_path: Path, output_dir: Path, log_dir: Path) -> dict:
     output_dir.mkdir(parents=True,exist_ok=True); log_dir.mkdir(parents=True,exist_ok=True)
     outputs={}
     for name,table in [('news_audit',df),('news_articles',articles),('news_event_links',links),('news_road_candidates',roads)]:
-        path=output_dir/f'yang_seoyeon_{name}_{stamp}_(성공)_v01.csv'
+        path=output_dir/f'{name}_{stamp}_(성공)_v01.csv'
         with path.open('x',encoding='utf-8-sig',newline='') as f: table.to_csv(f,index=False)
         outputs[name]=str(path)
     summary={'status':'성공','source':str(raw_path),'raw_rows':len(df),'raw_unique_urls':int(df.url.nunique()),'raw_road_mentioned_rows':int(df.mentioned_road_ids.str.strip().ne('').sum()),'articles':len(articles),'event_links':len(links),'road_candidates':len(roads),'date_status':df.date_status.value_counts().to_dict(),'relevance':df.relevance.value_counts().to_dict(),'road_case_status':roads.case_status.value_counts().to_dict(),'outputs':outputs,'limitations':'제목 및 검색 화면 메타데이터 기반 후보이며 기사 본문, 실제 사건일, 인과관계는 미검증'}
@@ -667,7 +674,7 @@ def preprocess_main():
     parser=argparse.ArgumentParser(description='[서연] 뉴스 원자료 전처리')
     parser.add_argument('mode',choices=['preprocess'])
     parser.add_argument('--input',type=Path,required=True)
-    parser.add_argument('--output-dir',type=Path,default=DEFAULT_DATA_ROOT/'naver_news'/'processed')
+    parser.add_argument('--output-dir',type=Path,default=_derived_root()/'naver_news')
     parser.add_argument('--log-dir',type=Path,default=ROOT/'logs'/'ysy'/'naver_news')
     args=parser.parse_args()
     print(json.dumps(preprocess_news(args.input,args.output_dir,args.log_dir),ensure_ascii=False,indent=2))
@@ -677,7 +684,7 @@ def analyze_existing_main() -> None:
     parser = argparse.ArgumentParser(description="[서연] 기존 뉴스 별칭 재매칭 및 검색어 후보 분석")
     parser.add_argument("mode", choices=["analyze-existing"])
     parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_DATA_ROOT / "naver_news" / "processed" / "ysy")
+    parser.add_argument("--output-dir", type=Path, default=_derived_root() / "naver_news")
     parser.add_argument("--log-dir", type=Path, default=ROOT / "logs" / "ysy" / "naver_news")
     parser.add_argument("--top-terms", type=int, default=100)
     args = parser.parse_args()

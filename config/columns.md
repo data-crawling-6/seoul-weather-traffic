@@ -59,7 +59,16 @@
 
 통행시간은 `distance_m / (speed_kmh × 1000 / 3600)`으로 계산한다. 링크 속도가 결측이거나 0 이하이면 해당 링크 통행시간을 임의 계산하지 않는다. 도로·방향·시간을 구성하는 링크가 하나라도 빠져 `observed_link_count < link_count`이면 관측 링크만 합산한 통행시간이 과소 추정되므로 `travel_time_seconds`와 `road_speed_kmh`를 모두 `NaN`으로 둔다. 거리 비례 보정은 누락 링크의 속도가 관측 링크와 같다는 가정을 만들기 때문에 사용하지 않는다.
 
-`yang_seoyeon_topis_weather_commute_sample_20261122_v04.csv`는 규칙 검토용 표본이다. 정상 관측 100행과 링크 결측으로 `travel_time_seconds`·`road_speed_kmh`를 의도적으로 `NaN` 처리한 사례 100행을 함께 담았다. 따라서 샘플의 결측 비율은 전체 자료의 결측 비율을 대표하지 않으며, 전체 v04 결측률은 실행 로그를 기준으로 확인한다.
+`data/sample/topis_weather_commute_sample_20261122_v04.csv`는 규칙 검토용 표본이다. 정상 관측 100행과 링크 결측으로 `travel_time_seconds`·`road_speed_kmh`를 의도적으로 `NaN` 처리한 사례 100행을 함께 담았다. 따라서 샘플의 결측 비율은 전체 자료의 결측 비율을 대표하지 않으며, 전체 v04 결측률은 실행 로그를 기준으로 확인한다.
+
+## 도로 통행시간 표 버전 (`data/derived/topis_weather/`)
+
+| 파일 | 행 수 | 내용 | 쓰는 곳 |
+| --- | --- | --- | --- |
+| `commute_20261122_v04.parquet` | 588,600 | 연구 기간(44개월, 10월 제외) 평일 출퇴근 | 평소 통행시간(`src/labels/road_baseline.py`) · 휴가철 분석(`notebooks/01_shared/kmj_vacation_peak`) 등 연구 기간 안의 계산 |
+| `commute_20261122_v05.parquet` | 657,000 | v04 전체 + 2022~2025년 10월 평일 출퇴근 68,400행 (기존 행은 v04와 같다) | 교통량과 통행시간 비교(`src/analysis/traffic_analysis.py`) |
+
+v05의 10월 행은 연구 기간 밖이고 10월 날씨 결측을 보간하지 않았다. 평소값 계산 입력으로는 v04를 쓴다.
 
 `missing_reason` 허용값:
 
@@ -92,7 +101,7 @@
 
 ## 입력용 평소값 열
 
-강민주가 2026-11-25 추가. `src/prior_baseline.py` -> `data/processed/{train,eval}/prior_{link,road}_{split}.parquet`. 규칙은 노션 '분석 설계 3.4'. 예측 입력과 A 예측 정답 y의 분모에 쓰고, 정답용 평소값(`baseline_link_tt_s` · `baseline_travel_time_s`)과 섞지 않는다.
+강민주가 2026-11-25 추가. `src/features/prior_baseline.py` -> `data/shared/{train_dev,holdout}/prior_{link,road}_{split}.parquet`. 규칙은 노션 '분석 설계 3.4'. 예측 입력과 A 예측 정답 y의 분모에 쓰고, 정답용 평소값(`baseline_link_tt_s` · `baseline_travel_time_s`)과 섞지 않는다.
 
 | 열 이름 | 자료형 | 단위/허용값 | 의미 |
 |---|---|---|---|
@@ -126,6 +135,6 @@
 
 - 연구기간은 겨울 11/27~3/10, 여름 5/9~9/23이며 평소값용으로 앞 4주를 포함한다.
 - 여름 평소값용 2023~2026년 4월 TOPIS를 포함한다.
-- 겨울 평소값 시작일 10/30~10/31의 TOPIS 원자료는 현재 Release에 없어 각 겨울 2일이 비어 있다.
+- 겨울 평소값 시작일 10/30~10/31의 TOPIS 원자료는 받은 원본에 없어 각 겨울 2일이 비어 있다.
 - 분석용 도로표는 한국 공휴일 185개 출퇴근 시간을 제외해 학습 2,460시간과 평가 810시간을 사용한다.
 - 여름 휴가 절정 주간은 날짜 정의가 미확정이므로 `is_summer_vacation_peak`를 `NA`로 두며 분석에 사용하지 않는다.

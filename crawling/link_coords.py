@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
@@ -27,7 +28,7 @@ VERTEX_SERVICE = "LinkVerInfo"
 VERTEX_COLUMNS = ["link_id", "vertex_order", "grs80tm_x", "grs80tm_y"]
 ROOT = Path(__file__).resolve().parents[1]
 KST = timezone(timedelta(hours=9))
-DEFAULT_DATA_ROOT = Path(r"D:\seoul-weather-traffic-data")
+DEFAULT_DATA_ROOT = ROOT / "data" / "raw"  # 원본 데이터 위치 (io_utils.data_root 와 같음)
 
 
 def _selenium() -> dict[str, Any]:
@@ -266,7 +267,8 @@ def vertices_to_lines(vertices: pd.DataFrame, *, source_epsg: int) -> Any:
 
 def load_topis_link_ids(csv_dir: Path) -> list[str]:
     """[서연] 보유한 TOPIS 월별 CSV 전체에서 고유 링크 ID를 읽는다."""
-    paths = sorted(Path(csv_dir).glob("topis_speed_*.csv"))
+    # YYYY-MM.csv, zip 안 이름 topis_speed_YYYY-MM.csv 둘 다
+    paths = sorted(p for p in Path(csv_dir).glob("*.csv") if re.fullmatch(r"(?:topis_speed_)?\d{4}-\d{2}\.csv", p.name))
     if not paths:
         raise FileNotFoundError(f"TOPIS 월별 CSV를 찾지 못했습니다: {csv_dir}")
     link_ids: set[str] = set()
@@ -291,10 +293,10 @@ def run_vertices(*, retries: int = 3, delay_seconds: float = 0.1) -> dict[str, o
 
     load_dotenv(ROOT / ".env")
     api_key = get_seoul_api_key()
-    data_root = Path(os.getenv("SEOUL_TRAFFIC_DATA_ROOT", str(DEFAULT_DATA_ROOT))).resolve()
-    csv_dir = data_root / "topis_speed" / "csv"
-    vertex_dir = data_root / "vertices"
-    run_root = data_root / "vertices" / "runs" / "yang_seoyeon"
+    data_root = DEFAULT_DATA_ROOT
+    csv_dir = data_root / "topis_speed"
+    vertex_dir = data_root / "link_coords"
+    run_root = ROOT / "logs" / "ysy" / "link_coords"  # 실행 기록은 저장소 logs/ysy/link_coords/ (원본과 분리)
     run_id = datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     pending_dir = run_root / f"vertex_{run_id}_v01_(중단)"
     pending_dir.mkdir(parents=True, exist_ok=False)
@@ -335,14 +337,14 @@ def run_vertices(*, retries: int = 3, delay_seconds: float = 0.1) -> dict[str, o
             if collected else pd.DataFrame(columns=VERTEX_COLUMNS)
         )
         status = "성공" if not remaining and not vertices.empty else "실패"
-        raw_path = vertex_dir / f"yang_seoyeon_link_vertices_raw_{run_id}_v01_({status}).csv"
+        raw_path = vertex_dir / f"link_vertices_raw_{run_id}_v01_({status}).csv"
         failure_path = pending_dir / f"yang_seoyeon_link_vertices_failures_{run_id}_({status}).csv"
         vertices.to_csv(raw_path, encoding="utf-8-sig", index=False)
         pd.DataFrame({"link_id": remaining}).to_csv(failure_path, encoding="utf-8-sig", index=False)
         summary: dict[str, object] = {
             "status": status,
             "run_id": run_id,
-            "source_csv_count": len(list(csv_dir.glob("topis_speed_*.csv"))),
+            "source_csv_count": sum(1 for p in csv_dir.glob("*.csv") if re.fullmatch(r"(?:topis_speed_)?\d{4}-\d{2}\.csv", p.name)),
             "requested_links": len(load_topis_link_ids(csv_dir)),
             "vertex_rows": len(vertices),
             "successful_links": int(vertices["link_id"].nunique()) if not vertices.empty else 0,
@@ -372,7 +374,7 @@ def run_vertices(*, retries: int = 3, delay_seconds: float = 0.1) -> dict[str, o
 
 def latest_valid_vertex_file(vertex_dir: Path) -> Path:
     """[서연] 좌표가 실제로 채워진 최신 성공 Vertex CSV를 찾는다."""
-    candidates = sorted(Path(vertex_dir).glob("yang_seoyeon_link_vertices_raw_*_(성공).csv"), reverse=True)
+    candidates = sorted(Path(vertex_dir).glob("link_vertices_raw_*_(성공).csv"), reverse=True)
     for path in candidates:
         sample = pd.read_csv(path, encoding="utf-8-sig", nrows=20)
         required = {"link_id", "vertex_order", "grs80tm_x", "grs80tm_y"}
@@ -383,8 +385,8 @@ def latest_valid_vertex_file(vertex_dir: Path) -> Path:
 
 def run_lines(*, source_epsg: int) -> dict[str, object]:
     """[서연] 최신 유효 Vertex CSV를 링크별 LineString GeoJSON으로 변환한다."""
-    data_root = Path(os.getenv("SEOUL_TRAFFIC_DATA_ROOT", str(DEFAULT_DATA_ROOT))).resolve()
-    vertex_dir = data_root / "vertices"
+    data_root = DEFAULT_DATA_ROOT
+    vertex_dir = data_root / "link_coords"
     source_path = latest_valid_vertex_file(vertex_dir)
     vertices = pd.read_csv(source_path, encoding="utf-8-sig", dtype={"link_id": "string"})
     if vertices[["vertex_order", "grs80tm_x", "grs80tm_y"]].isna().any(axis=1).any():
@@ -401,8 +403,10 @@ def run_lines(*, source_epsg: int) -> dict[str, object]:
             f"bounds={[min_lon, min_lat, max_lon, max_lat]}, source_epsg={source_epsg}"
         )
     run_id = datetime.now(KST).strftime("%Y%m%dT%H%M%S")
-    output_path = vertex_dir / f"yang_seoyeon_road_lines_{run_id}_v01_(성공).geojson"
-    summary_path = vertex_dir / f"yang_seoyeon_road_lines_summary_{run_id}_v01_(성공).json"
+    lines_dir = data_root.parent / "derived" / "road_lines"  # 도로 선은 좌표로 만든 결과라 data/derived/road_lines
+    lines_dir.mkdir(parents=True, exist_ok=True)
+    output_path = lines_dir / f"road_lines_{run_id}_v01_(성공).geojson"
+    summary_path = lines_dir / f"road_lines_summary_{run_id}_v01_(성공).json"
     if output_path.exists() or summary_path.exists():
         raise FileExistsError("기존 LineString 결과를 덮어쓰지 않습니다.")
     lines.to_file(output_path, driver="GeoJSON")

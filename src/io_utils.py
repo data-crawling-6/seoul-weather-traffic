@@ -1,6 +1,6 @@
 """팀 공통 읽기 함수 (TOPIS 파일 · 모델 세트 · 날씨 판정).
 
-저장소 내부 ``data/raw/topis/csv``와 외부 데이터 루트를 모두 지원한다.
+원본은 모두 저장소 ``data/raw/`` 아래에 둔다 (팀 공유 드라이브에서 받아 푼다). TOPIS 월 CSV는 ``data/raw/topis_speed``.
 2024-02 이전 ``08시``와 이후 ``~08시``는 ``~08시``로 통일한다.
 원본 CSV는 수정하지 않는다.
 """
@@ -15,12 +15,44 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TOPIS_CSV_DIR = ROOT / "data" / "raw" / "topis" / "csv"
+TOPIS_CSV_DIR = ROOT / "data" / "raw" / "topis_speed"
 HOUR_COLS = [f"~{hour:02d}시" for hour in range(1, 25)]
 
 
+def topis_csv_files(folder: Path) -> list[Path]:
+    """TOPIS 월 CSV 목록 (YYYY-MM.csv, zip 안 이름 topis_speed_YYYY-MM.csv 둘 다). 같은 달은 하나만, 달 순서로."""
+    import re
+    found: dict[str, Path] = {}
+    for path in sorted(Path(folder).glob("*.csv")):
+        m = re.fullmatch(r"(?:topis_speed_)?(\d{4}-\d{2})\.csv", path.name)
+        if m and m.group(1) not in found:
+            found[m.group(1)] = path
+    return [found[k] for k in sorted(found)]
+
+
 def data_root() -> Path:
-    return Path(os.getenv("SEOUL_TRAFFIC_DATA_ROOT", r"D:\seoul-weather-traffic-data")).resolve()
+    """원본 데이터 위치: 항상 저장소 data/raw/ (팀 공유 드라이브에서 받아 이 아래에 푼다).
+
+    data/raw/topis_speed · topis_traffic_volume · link_coords · naver_news · 날씨 원본 폴더
+    """
+    return ROOT / "data" / "raw"
+
+
+def derived_root() -> Path:
+    """원본으로 만든 큰 결과 위치: 저장소 data/derived/ (깃에 올리지 않음, 커서 팀 공유 드라이브로 나눔).
+
+    data/derived/topis_weather:  C TOPIS + 날씨 결합표 (통행시간 v04 · v05 · 링크 기본표 v02)
+    data/derived/topis_traffic_volume: C 교통량 정리 parquet · 교통량 + 악천후일 결합 CSV (원본 xlsx는 data/raw/topis_traffic_volume/)
+    data/derived/road_lines:     C 도로 선 geojson (원본 좌표는 data/raw/link_coords)
+    data/derived/naver_news:     C 뉴스 분류 결과 (원문은 data/raw/naver_news/)
+    작은 공통 표는 data/shared/ (깃에 올림)
+    """
+    return ROOT / "data" / "derived"
+
+
+def derived_of(raw_root: Path) -> Path:
+    """원본 폴더(…/data/raw) 옆의 결과 폴더(…/data/derived). --data-root 로 다른 위치를 줘도 같은 규칙."""
+    return Path(raw_root).parent / "derived"
 
 
 def _unify_hour_name(column: object) -> object:
@@ -39,9 +71,11 @@ def _resolve_topis_path(month_or_path: str | Path, root: Path | None) -> Path:
         raise ValueError("month는 YYYY-MM 형식이거나 CSV 파일 경로여야 합니다.")
     if root is not None:
         base = Path(root).resolve()
-        candidates = [base / "topis_speed" / "csv" / f"topis_speed_{month}.csv", base / f"topis_speed_{month}.csv"]
+        candidates = [base / "topis_speed" / f"{month}.csv", base / f"{month}.csv",
+                      base / "topis_speed" / f"topis_speed_{month}.csv"]
     else:
-        candidates = [TOPIS_CSV_DIR / f"topis_speed_{month}.csv", data_root() / "topis_speed" / "csv" / f"topis_speed_{month}.csv"]
+        # zip 안의 이름(topis_speed_YYYY-MM.csv)으로 풀어 둔 경우도 찾는다
+        candidates = [TOPIS_CSV_DIR / f"{month}.csv", TOPIS_CSV_DIR / f"topis_speed_{month}.csv"]
     for path in candidates:
         if path.is_file():
             return path
@@ -79,9 +113,11 @@ def read_topis_gaps(project_root: Path | None = None) -> pd.DataFrame:
 
 # ── 모델 세트 (Train · Dev · Test) ─────────────────────────────────
 # 규칙은 config/periods.yaml 의 model_sets 한 곳에만 둔다 (노션 분석 설계 7.2 · 7.3).
-# 폴더 data/processed/{train,eval} 과 split 열은 그대로 두고, 읽을 때 model_set 열을 붙인다.
+# 폴더 data/shared/{train_dev,holdout} (split 열 값은 train / eval 그대로), 읽을 때 model_set 열을 붙인다.
 # Test 시즌은 마지막 평가 전까지 열지 않도록 기본값으로 빼고, include_test=True 일 때만 남긴다.
 MODEL_SET_NAMES = ("train", "dev", "test")
+# split 열 값(train / eval) → data/shared 폴더 · 파일 이름. train_dev 폴더에 Train + Dev, test 폴더에 Test
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}
 
 
 def _season_key(value: object) -> str:
@@ -94,7 +130,7 @@ def _season_key(value: object) -> str:
 
 
 def _season_of_date(ts: pd.Timestamp) -> str:
-    """날짜 → 시즌 이름 (src/weather.py season_of 와 같은 규칙: 10~4월 겨울, 5~9월 여름)."""
+    """날짜 → 시즌 이름 (src/clean/weather.py season_of 와 같은 규칙: 10~4월 겨울, 5~9월 여름)."""
     if ts.month >= 10:
         return f"{ts.year}-{str(ts.year + 1)[2:]}_winter"
     if ts.month <= 4:
@@ -159,15 +195,15 @@ def load_processed(
     project_root: Path | None = None,
     **read_kwargs,
 ) -> pd.DataFrame:
-    """data/processed/{train,eval}/{name}_{split}.csv|parquet 을 읽어 model_set 열을 붙인다.
+    """data/shared/{train_dev,holdout}/{name}_{split}.csv|parquet 을 읽어 model_set 열을 붙인다.
 
-    include_test=False(기본)이면 eval/ 폴더(Test)는 아예 읽지 않는다.
+    include_test=False(기본)이면 holdout/ 폴더(Test 시즌)는 아예 읽지 않는다.
     예) load_processed("weather_hourly"), load_processed("road_congestion_length", include_test=True)
     """
-    base = Path(project_root or ROOT) / "data" / "processed"
+    base = Path(project_root or ROOT) / "data" / "shared"
     parts = []
     for split in ("train", "eval") if include_test else ("train",):
-        stem = base / split / f"{name}_{split}"
+        stem = base / SPLIT_DIR[split] / f"{name}_{SPLIT_DIR[split]}"
         if stem.with_suffix(".parquet").is_file():
             parts.append(pd.read_parquet(stem.with_suffix(".parquet"), **read_kwargs))
         elif stem.with_suffix(".csv").is_file():
@@ -184,9 +220,9 @@ WEATHER_LABEL_COLS = ("event_id", "event_intensity", "impact")
 
 
 def load_weather_labels(project_root: Path | None = None) -> pd.DataFrame:
-    """data/processed/{train,eval}/weather_hourly_*.csv 의 date · hour · 날씨 판정 열."""
+    """data/shared/{train_dev,holdout}/weather_hourly_*.csv 의 date · hour · 날씨 판정 열."""
     root = Path(project_root) if project_root is not None else ROOT
-    paths = [root / "data" / "processed" / s / f"weather_hourly_{s}.csv" for s in ("train", "eval")]
+    paths = [root / "data" / "shared" / SPLIT_DIR[s] / f"weather_hourly_{SPLIT_DIR[s]}.csv" for s in ("train", "eval")]
     w = pd.concat([pd.read_csv(p, encoding="utf-8-sig", usecols=["date", "hour", *WEATHER_LABEL_COLS])
                    for p in paths], ignore_index=True)
     w["date"] = pd.to_datetime(w["date"]).dt.normalize()
@@ -215,7 +251,7 @@ def attach_weather_labels(
 ) -> pd.DataFrame:
     """frame 의 event_id · event_intensity · impact 를 저장소 weather_hourly 값으로 바꾼다.
 
-    - date + hour 로 붙인다 (C traffic_merge.py 와 같은 키).
+    - date + hour 로 붙인다 (C topis_weather_merge.py 와 같은 키).
     - 원래 열이 있으면 바꾸기 전에 비교해, 값이 다른 행 수를 frame.attrs["weather_label_mismatch"] 에 남기고 경고한다.
     - 날씨 표에 없는 date · hour 가 있으면 맑음으로 잘못 바뀌지 않도록 오류를 낸다.
     - 큰 표를 복사하지 않도록 frame 을 직접 고치고 그대로 돌려준다.
@@ -239,3 +275,7 @@ def attach_weather_labels(
     if any(mismatch.values()):
         warnings.warn(f"C 표의 날씨 판정이 저장소 weather_hourly 와 다른 행을 바꿨습니다: {mismatch}", stacklevel=2)
     return frame
+
+
+# 폴더 이름을 data/shared 로 바꾼 뒤의 새 이름. load_processed 도 그대로 쓸 수 있다.
+load_shared = load_processed

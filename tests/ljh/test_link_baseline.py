@@ -1,4 +1,4 @@
-"""[정희] 정체 정답(is_congested) 규칙 테스트 — src/link_baseline.py
+"""[정희] 정체 정답(is_congested) 규칙 테스트 — src/labels/link_baseline.py
 
 11/23 팀원 리뷰로 정한 규칙을 지키는지 본다.
 - 링크 정체: 통행시간 ÷ 평소값 > 1.5 (1.5 딱 맞으면 정체 아님)
@@ -12,7 +12,7 @@ import unittest
 
 import pandas as pd
 
-from src.link_baseline import add_is_congested, road_congestion_length
+from src.labels.link_baseline import add_is_congested, road_congestion_length
 
 KEY = {"season": "2022-23_winter", "split": "train", "date": pd.Timestamp("2022-12-21"), "weekday": 2,
        "hour": 18, "road_id": "R001", "direction": "상행", "function_type": "도시고속도로", "weather_group": "맑음"}

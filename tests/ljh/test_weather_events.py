@@ -1,4 +1,4 @@
-"""[정희] 눈 · 비 사건 판정 테스트 — src/weather.py extract_events
+"""[정희] 눈 · 비 사건 판정 테스트 — src/clean/weather.py extract_events
 
 11/20 12/4 폭설이 21시에야 잡혔던 문제(눈 올 때 시간 강수량이 빈칸)가 다시 생기지 않는지 본다.
 - 강수량이 0이어도 현상번호 05(눈)나 적설 증가가 있으면 눈으로 잡는다
@@ -10,7 +10,7 @@ import unittest
 
 import pandas as pd
 
-from src import weather as W
+from src.clean import weather as W
 
 
 def hours(rows):

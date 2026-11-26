@@ -1,4 +1,4 @@
-"""[정희] 예보 · AWS 서울 표 테스트 — src/weather_seoul.py
+"""[정희] 예보 · AWS 서울 표 테스트 — src/clean/weather_seoul.py
 
 - AWS의 -99(결측)와 음수 강수는 빈값으로 바꾼 뒤 평균 · 최댓값을 낸다
 - 예보는 4개 권역을 서울 값으로 모으고, 권역별 값도 열로 남긴다
@@ -9,7 +9,7 @@ import unittest
 
 import pandas as pd
 
-from src.weather_seoul import aws_seoul, fcst_seoul
+from src.clean.weather_seoul import aws_seoul, fcst_seoul
 
 
 class WeatherSeoulTest(unittest.TestCase):

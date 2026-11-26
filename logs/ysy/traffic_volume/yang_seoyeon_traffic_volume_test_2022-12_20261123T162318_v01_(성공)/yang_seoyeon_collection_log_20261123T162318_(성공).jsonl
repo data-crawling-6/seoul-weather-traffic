@@ -1,0 +1,2 @@
+{"at": "2026-11-23T16:23:22+09:00", "run_id": "20261123T162318", "status": "browser_started", "browser_name": "chrome", "browser_version": "157.0.8103.80", "driver_version": "157.0.8103.78 (4b3d0dabb8250b6f152d2d85d79e7706e309d087-refs/branch-heads/8103@{#1573})", "headless": false}
+{"at": "2026-11-23T16:23:24+09:00", "run_id": "20261123T162318", "month": "2022-12", "status": "downloaded", "attempt": 1, "screen_label": "12월", "path": "D:\\seoul-weather-traffic-data\\traffic_volume\\raw\\xlsx\\yang_seoyeon_topis_traffic_volume_2022-12.xlsx", "bytes": 1461934}
