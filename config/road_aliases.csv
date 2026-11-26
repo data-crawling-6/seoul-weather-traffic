@@ -1,0 +1,5 @@
+road_id,alias,alias_source,review_status,notes
+R005,내부순환도로,team_suggestion,reviewed,기사에서 사용하는 변형 표기
+R006,동부간선,team_suggestion,reviewed,도로 접미어가 생략된 축약형
+R007,북부간선로,team_suggestion,reviewed,기사에서 사용하는 변형 표기
+R007,북부간선,team_suggestion,reviewed,도로 접미어가 생략된 축약형

@@ -1,0 +1,45 @@
+{
+  "coordinate_versions": 649,
+  "mapping_status_counts": {
+    "matched": 397,
+    "out_of_scope_not_in_90_roads": 252
+  },
+  "analysis_roads": 90,
+  "roads_with_spots": 52,
+  "roads_without_spots": 38,
+  "distinct_matched_spots": 84,
+  "spot_count_distribution": {
+    "1": 31,
+    "2": 13,
+    "3": 6,
+    "4": 1,
+    "5": 1
+  },
+  "validation_checks": {
+    "version_population_preserved": true,
+    "unique_versions": true,
+    "road_population_90": true,
+    "unique_road_ids": true,
+    "all_statuses_assigned": true,
+    "spot_counts_sum_consistent": true
+  },
+  "notice": "Coverage is structural (linked spots), not verified date/time observation coverage.",
+  "expected_reference_checks": {
+    "coordinate_versions": true,
+    "roads_with_spots": true,
+    "roads_without_spots": true,
+    "distinct_matched_spots": true,
+    "status_counts": true,
+    "spot_count_distribution": true
+  },
+  "source_files": {
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv"
+  },
+  "outputs": {
+    "mapping": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_name_mapping_20261124T013815_(성공)_v01.csv",
+    "coverage": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_coverage_20261124T013815_(성공)_v01.csv",
+    "validation": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_official_road_mapping_20261124T013815_(성공)_v01.json"
+  }
+}

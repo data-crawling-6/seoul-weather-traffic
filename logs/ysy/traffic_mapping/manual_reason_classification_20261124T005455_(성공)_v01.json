@@ -1,0 +1,46 @@
+{
+  "manual_versions": 465,
+  "previously_reviewed_versions": 7,
+  "unreviewed_versions": 458,
+  "triage_group_counts": {
+    "previously_pending_review": 1,
+    "previously_road_only_confirmed": 6,
+    "unreviewed_needs_rule_assessment": 458
+  },
+  "manual_reason_combinations": {
+    "coordinate_change_exceeds_auto_threshold": 29,
+    "coordinate_change_exceeds_auto_threshold;far_from_analysis_links;large_coordinate_change;multiple_nearby_roads;nearest_road_name_mismatch": 2,
+    "coordinate_change_exceeds_auto_threshold;far_from_analysis_links;large_coordinate_change;nearest_road_name_mismatch": 15,
+    "coordinate_change_exceeds_auto_threshold;far_from_analysis_links;multiple_nearby_roads;nearest_road_name_mismatch": 3,
+    "coordinate_change_exceeds_auto_threshold;far_from_analysis_links;nearest_road_name_mismatch": 6,
+    "coordinate_change_exceeds_auto_threshold;large_coordinate_change": 36,
+    "coordinate_change_exceeds_auto_threshold;large_coordinate_change;multiple_nearby_roads": 31,
+    "coordinate_change_exceeds_auto_threshold;large_coordinate_change;multiple_nearby_roads;nearest_road_name_mismatch": 21,
+    "coordinate_change_exceeds_auto_threshold;large_coordinate_change;nearest_road_name_mismatch": 8,
+    "coordinate_change_exceeds_auto_threshold;multiple_nearby_roads": 20,
+    "coordinate_change_exceeds_auto_threshold;nearest_road_name_mismatch": 7,
+    "far_from_analysis_links;multiple_nearby_roads": 1,
+    "far_from_analysis_links;multiple_nearby_roads;nearest_road_name_mismatch": 32,
+    "far_from_analysis_links;nearest_road_name_mismatch": 63,
+    "invalid_coordinate_in_spot_direction": 2,
+    "multiple_nearby_roads": 75,
+    "multiple_nearby_roads;nearest_road_name_mismatch": 80,
+    "nearest_road_name_mismatch": 34
+  },
+  "validation_checks": {
+    "unique_versions": true,
+    "all_manual": true,
+    "no_mapping_decisions_changed": true,
+    "counts_partition": true
+  },
+  "status": "success",
+  "source_final_review": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_final_review_20261123T232007_(성공)_v01.csv",
+  "source_alternative_review": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_alternative_link_review_20261123T234035_(성공)_v02.csv",
+  "source_hashes": {
+    "final_review": "99ec145f6daf1e69815f6118353ab8f7c87947b23e363693e045ee46ee64f6c4",
+    "alternative_review": "740084f8d6babfed897156856fdebfae8f5af6c4db7a8859554ab93f04efc703"
+  },
+  "output_csv": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_manual_reason_classification_20261124T005455_(성공)_v01.csv",
+  "output_json": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_manual_reason_classification_20261124T005455_(성공)_v01.json",
+  "notice": "Classification only. No new road/link confirmation or mapping status changes."
+}

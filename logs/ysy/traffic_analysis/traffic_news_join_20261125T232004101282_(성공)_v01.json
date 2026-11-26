@@ -1,0 +1,33 @@
+{
+  "status": "성공",
+  "inputs": {
+    "combined": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261124T124508_(성공)_v01.csv",
+    "summary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_cluster_summary_20261124T122846_(성공)_v01.csv",
+    "news": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_road_candidates_20261125T231844070821_(성공)_v01.csv",
+    "events": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_event_links_20261125T231844070821_(성공)_v01.csv"
+  },
+  "traffic_rows": 11700,
+  "news_candidates": 360,
+  "traffic_matched": 349,
+  "eligible_candidates": 59,
+  "eligible_unique_articles": 34,
+  "output_rows": {
+    "news_case_audit": 360,
+    "news_case_road_days": 16,
+    "news_case_hourly": 80,
+    "news_cluster_cases": 4,
+    "news_representative_cases": 5,
+    "news_date_support": 450
+  },
+  "limitations": "제목 기반 검토 후보만 연결; 사건일·시간·원인 미확인. 뉴스는 학습에 사용하지 않음. 도로·날짜별 중앙값은 관측 출퇴근 시간에 한정.",
+  "outputs": {
+    "news_case_audit": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_case_audit_20261125T232004101282_(성공)_v01.csv",
+    "news_case_road_days": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_case_road_days_20261125T232004101282_(성공)_v01.csv",
+    "news_case_hourly": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_case_hourly_20261125T232004101282_(성공)_v01.csv",
+    "news_cluster_cases": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_cluster_cases_20261125T232004101282_(성공)_v01.csv",
+    "news_representative_cases": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_representative_cases_20261125T232004101282_(성공)_v01.csv",
+    "news_date_support": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_date_support_20261125T232004101282_(성공)_v01.csv",
+    "plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\ysy\\news_cases_20261125T232004101282_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_news_join_20261125T232004101282_(성공)_v01.json"
+  }
+}

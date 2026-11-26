@@ -1,0 +1,1668 @@
+{
+  "status": "부분성공",
+  "mode": "collection",
+  "started_at": "2026-11-24T15:03:32+09:00",
+  "finished_at": "2026-11-24T16:42:17+09:00",
+  "event_days": 45,
+  "search_attempts": 94,
+  "failed_searches": [
+    {
+      "event_date": "2024-02-05",
+      "query": "서울 눈 교통 마비",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다."
+    },
+    {
+      "event_date": "2024-02-20",
+      "query": "서울 호우 도로 통제",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다."
+    }
+  ],
+  "rows": 1328,
+  "road_mentioned_rows": 633,
+  "headless": false,
+  "max_scrolls": 5,
+  "max_results_per_search": 30,
+  "retries": 2,
+  "resume_from": "D:\\seoul-weather-traffic-data\\naver_news\\raw\\yang_seoyeon_naver_news_raw_20261124T131637_v01_(부분성공).csv",
+  "resumed_searches": 36,
+  "git": {
+    "commit": "ac16f993770f097b81efef6fc00c31fb59e7494b",
+    "branch": "c-traffic",
+    "has_uncommitted_changes": true,
+    "status_files": [
+      "M README.md",
+      " M crawling/naver_news.py",
+      " M crawling/traffic_volume.py",
+      " D crawling/yang_seoyeon_link_coords.py",
+      " M notebooks/00_ysy_collect.ipynb",
+      " M notebooks/03_ysy_travel_time.ipynb",
+      " M notebooks/04_ysy_traffic_mapping.ipynb",
+      " M notebooks/10_B_comparison.ipynb",
+      " D src/yang_seoyeon_merge.py",
+      "?? crawling/link_coords.py",
+      "?? data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v01.csv",
+      "?? data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v02.csv",
+      "?? data/sample/yang_seoyeon_topis_weather_link_sample_20261122_v01.csv",
+      "?? \"logs/yang_seoyeon/naver_news/yang_seoyeon_naver_news_collection_20261124T131637_v01_(\\353\\266\\200\\353\\266\\204\\354\\204\\261\\352\\263\\265)/\"",
+      "?? \"logs/yang_seoyeon/naver_news/yang_seoyeon_naver_news_test_20261124T130430_v01_(\\354\\213\\244\\355\\214\\250)/\"",
+      "?? \"logs/yang_seoyeon/naver_news/yang_seoyeon_naver_news_test_20261124T130803_v01_(\\354\\204\\261\\352\\263\\265)/\"",
+      "?? \"logs/yang_seoyeon/naver_news/yang_seoyeon_naver_news_test_20261124T131246_v01_(\\354\\204\\261\\352\\263\\265)/\"",
+      "?? logs/yang_seoyeon/traffic_analysis/",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_all_manual_assessment_20261124T011332_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_all_manual_assessment_20261124T011700_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_alternative_review_20261123T234035_(\\354\\204\\261\\352\\263\\265).json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_baseline_feasibility_20261124T014349_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_coordinate_history_assessment_20261124T011935_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_date_audit_20261124T014543_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_f03_link_evidence_20261124T004018_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_full_road_evaluation_20261124T012525_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_manual_reason_classification_20261124T005455_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_mapping_input_audit_20261123T230532_(\\354\\204\\261\\352\\263\\265).json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_mapping_run_20261123T231148_(\\354\\204\\261\\352\\263\\265).json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_mapping_run_20261123T232007_(\\354\\204\\261\\352\\263\\265).json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_nearby_road_assessment_20261124T010322_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_nearby_road_assessment_20261124T011031_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_observation_join_20261124T014054_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_official_road_mapping_20261124T013815_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_road_review_validation_20261123T234035_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_traffic_matched_share_20261124_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"logs/yang_seoyeon/traffic_mapping/yang_seoyeon_traffic_weather_days_join_20261124T021832_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? outputs/figures/yang_seoyeon/",
+      "?? \"outputs/tables/yang_seoyeon_all_manual_assessment_20261124T011332_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_all_manual_assessment_20261124T011700_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_alternative_link_review_20261123T234035_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_alternative_link_review_20261123T234035_(\\354\\204\\261\\352\\263\\265)_v02.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_baseline_feasibility_20261124T014349_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_candidate_diagnostics_20261123T232744318619+0900_(\\354\\204\\261\\352\\263\\265).json\"",
+      "?? \"outputs/tables/yang_seoyeon_cluster_eval_unclassified_20261124T123948_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_cluster_eval_unclassified_20261124T124129_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_cluster_interpretation_20261124T123948_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"outputs/tables/yang_seoyeon_cluster_interpretation_20261124T124129_(\\354\\204\\261\\352\\263\\265)_v01.json\"",
+      "?? \"outputs/tables/yang_seoyeon_coordinate_history_assessment_20261124T011935_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_full_road_evaluation_20261124T012525_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_manual_reason_classification_20261124T005455_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_mapping_candidates_20261123T231148_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_mapping_candidates_20261123T232007_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? outputs/tables/yang_seoyeon_mapping_coordinate_review_20261123T230532_v01.csv",
+      "?? \"outputs/tables/yang_seoyeon_mapping_final_review_20261123T231148_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_mapping_final_review_20261123T232007_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_month_coverage_20261124T014543_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_nearby_road_assessment_20261124T010322_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_nearby_road_assessment_20261124T011031_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_observation_coverage_20261124T014054_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_official_traffic_observations_20261124T014054_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_cluster_features_20261124T031445_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_cluster_features_20261124T122648_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_cluster_features_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_cluster_representatives_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_cluster_summary_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_kmeans_clusters_20261124T031445_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_kmeans_clusters_20261124T122648_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_kmeans_clusters_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_kmeans_eval_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_name_mapping_20261124T013815_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? outputs/tables/yang_seoyeon_road_name_mismatch_pairs_20261123T142423601403+0000_v01.csv",
+      "?? outputs/tables/yang_seoyeon_road_name_mismatch_pairs_20261123T232744318619+0900_v01.csv",
+      "?? outputs/tables/yang_seoyeon_road_name_mismatch_review_20261123T142423601403+0000_v01.csv",
+      "?? outputs/tables/yang_seoyeon_road_name_mismatch_review_20261123T232744318619+0900_v01.csv",
+      "?? \"outputs/tables/yang_seoyeon_road_traffic_change_20261124T031445_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_traffic_change_20261124T122648_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_road_traffic_change_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? outputs/tables/yang_seoyeon_roads_candidate_review_20261122_v01.csv",
+      "?? \"outputs/tables/yang_seoyeon_sampled_date_audit_20261124T014543_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? outputs/tables/yang_seoyeon_stable_links_20261122_v01.csv",
+      "?? outputs/tables/yang_seoyeon_topis_partial_missing_review_20261122_v01.csv",
+      "?? outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v01.csv",
+      "?? outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v02.csv",
+      "?? \"outputs/tables/yang_seoyeon_traffic_coverage_20261124T013815_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? outputs/tables/yang_seoyeon_traffic_matched_share_20261124_v01.csv",
+      "?? \"outputs/tables/yang_seoyeon_traffic_pairs_20261124T031445_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_pairs_20261124T122648_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_pairs_20261124T122846_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_correlations_20261124T124508_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_direction_pairs_20261124T124508_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_invalid_20261124T124508_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_outliers_20261124T124831_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_outliers_20261124T124940_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_road_hour_20261124T124508_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_sensitivity_20261124T124831_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_travel_sensitivity_20261124T124940_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? \"outputs/tables/yang_seoyeon_traffic_weather_days_joined_20261124T021832_(\\354\\204\\261\\352\\263\\265)_v01.csv\"",
+      "?? src/traffic_analysis.py",
+      "?? src/traffic_mapping.py",
+      "?? src/traffic_mapping_before_logging.py",
+      "?? src/traffic_mapping_candidates.py",
+      "?? src/traffic_merge.py",
+      "?? tests/yang_seoyeon/test_link_coords_cli.py",
+      "?? tests/yang_seoyeon/test_traffic_mapping.py",
+      "?? tests/yang_seoyeon/test_traffic_mapping_before_logging.py"
+    ]
+  },
+  "output_path": "D:\\seoul-weather-traffic-data\\naver_news\\raw\\yang_seoyeon_naver_news_raw_20261124T150332_v01_(부분성공).csv",
+  "run_dir": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\naver_news\\naver_news_collection_20261124T150332_v01_(부분성공)",
+  "search_logs": [
+    {
+      "event_date": "2022-12-21",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2022-12-21",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-06-14",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-06-14",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-07-13",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-07-13",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-07-14",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-07-14",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-10",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-10",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-11",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-11",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-22",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-22",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-23",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-08-23",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-12-14",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-12-14",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-12-15",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2023-12-15",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-01-17",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-01-17",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-01-18",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-01-18",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-05",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-05",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-05",
+      "query": "서울 눈 교통 마비",
+      "attempt": 2,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-05",
+      "query": "서울 눈 교통 마비",
+      "attempt": 3,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-15",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-15",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-20",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-20",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-20",
+      "query": "서울 호우 도로 통제",
+      "attempt": 2,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-20",
+      "query": "서울 호우 도로 통제",
+      "attempt": 3,
+      "status": "실패",
+      "error_type": "RuntimeError",
+      "error": "뉴스 검색 결과가 제한 시간 안에 표시되지 않았습니다.",
+      "session_restarted": false
+    },
+    {
+      "event_date": "2024-02-21",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-21",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-22",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-22",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-23",
+      "query": "서울 폭설 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-02-23",
+      "query": "서울 눈 교통 마비",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-07-16",
+      "query": "서울 폭우 교통",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "event_date": "2024-07-16",
+      "query": "서울 호우 도로 통제",
+      "attempt": 0,
+      "status": "기존결과사용"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.07.16&de=2024.07.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 19,
+          "new_results": 19
+        },
+        {
+          "scroll": 1,
+          "unique_results": 31,
+          "new_results": 12
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-07-17",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.07.16&de=2024.07.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 34,
+          "new_results": 34
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-07-17",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.07.17&de=2024.07.19",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 17,
+          "new_results": 17
+        },
+        {
+          "scroll": 1,
+          "unique_results": 30,
+          "new_results": 13
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-07-18",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.07.17&de=2024.07.19",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 33,
+          "new_results": 33
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-07-18",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.11.26&de=2024.11.28",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 5,
+          "new_results": 5
+        },
+        {
+          "scroll": 1,
+          "unique_results": 5,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 5,
+          "new_results": 0
+        }
+      ],
+      "rows": 5,
+      "event_date": "2024-11-27",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.11.26&de=2024.11.28",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 26,
+          "new_results": 12
+        },
+        {
+          "scroll": 2,
+          "unique_results": 39,
+          "new_results": 13
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-11-27",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.11.27&de=2024.11.29",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 4,
+          "new_results": 4
+        },
+        {
+          "scroll": 1,
+          "unique_results": 4,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 4,
+          "new_results": 0
+        }
+      ],
+      "rows": 4,
+      "event_date": "2024-11-28",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2024.11.27&de=2024.11.29",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 26,
+          "new_results": 12
+        },
+        {
+          "scroll": 2,
+          "unique_results": 38,
+          "new_results": 12
+        }
+      ],
+      "rows": 30,
+      "event_date": "2024-11-28",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.03.03&de=2025.03.05",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 7,
+          "new_results": 7
+        },
+        {
+          "scroll": 1,
+          "unique_results": 7,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 7,
+          "new_results": 0
+        }
+      ],
+      "rows": 7,
+      "event_date": "2025-03-04",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.03.03&de=2025.03.05",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 3,
+          "new_results": 3
+        },
+        {
+          "scroll": 1,
+          "unique_results": 3,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 3,
+          "new_results": 0
+        }
+      ],
+      "rows": 3,
+      "event_date": "2025-03-04",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.15&de=2025.07.17",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 23,
+          "new_results": 23
+        },
+        {
+          "scroll": 1,
+          "unique_results": 23,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 23,
+          "new_results": 0
+        }
+      ],
+      "rows": 23,
+      "event_date": "2025-07-16",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.15&de=2025.07.17",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 30,
+          "new_results": 30
+        }
+      ],
+      "rows": 30,
+      "event_date": "2025-07-16",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.16&de=2025.07.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 20,
+          "new_results": 20
+        },
+        {
+          "scroll": 1,
+          "unique_results": 20,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 20,
+          "new_results": 0
+        }
+      ],
+      "rows": 20,
+      "event_date": "2025-07-17",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.16&de=2025.07.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 28,
+          "new_results": 28
+        },
+        {
+          "scroll": 1,
+          "unique_results": 28,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 28,
+          "new_results": 0
+        }
+      ],
+      "rows": 28,
+      "event_date": "2025-07-17",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.17&de=2025.07.19",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 15,
+          "new_results": 15
+        },
+        {
+          "scroll": 1,
+          "unique_results": 15,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 15,
+          "new_results": 0
+        }
+      ],
+      "rows": 15,
+      "event_date": "2025-07-18",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.07.17&de=2025.07.19",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 22,
+          "new_results": 22
+        },
+        {
+          "scroll": 1,
+          "unique_results": 22,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 22,
+          "new_results": 0
+        }
+      ],
+      "rows": 22,
+      "event_date": "2025-07-18",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.08.12&de=2025.08.14",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 16,
+          "new_results": 16
+        },
+        {
+          "scroll": 1,
+          "unique_results": 16,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 16,
+          "new_results": 0
+        }
+      ],
+      "rows": 16,
+      "event_date": "2025-08-13",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.08.12&de=2025.08.14",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 24,
+          "new_results": 24
+        },
+        {
+          "scroll": 1,
+          "unique_results": 24,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 24,
+          "new_results": 0
+        }
+      ],
+      "rows": 24,
+      "event_date": "2025-08-13",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.08.13&de=2025.08.15",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 14,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 14,
+          "new_results": 0
+        }
+      ],
+      "rows": 14,
+      "event_date": "2025-08-14",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.08.13&de=2025.08.15",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 25,
+          "new_results": 25
+        },
+        {
+          "scroll": 1,
+          "unique_results": 25,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 25,
+          "new_results": 0
+        }
+      ],
+      "rows": 25,
+      "event_date": "2025-08-14",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.09.16&de=2025.09.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 32,
+          "new_results": 32
+        }
+      ],
+      "rows": 30,
+      "event_date": "2025-09-17",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.09.16&de=2025.09.18",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 12,
+          "new_results": 12
+        },
+        {
+          "scroll": 1,
+          "unique_results": 12,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 12,
+          "new_results": 0
+        }
+      ],
+      "rows": 12,
+      "event_date": "2025-09-17",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.12.03&de=2025.12.05",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 1,
+          "new_results": 1
+        },
+        {
+          "scroll": 1,
+          "unique_results": 1,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 1,
+          "new_results": 0
+        }
+      ],
+      "rows": 1,
+      "event_date": "2025-12-04",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.12.03&de=2025.12.05",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 21,
+          "new_results": 21
+        },
+        {
+          "scroll": 1,
+          "unique_results": 21,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 21,
+          "new_results": 0
+        }
+      ],
+      "rows": 21,
+      "event_date": "2025-12-04",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.12.04&de=2025.12.06",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 14,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 14,
+          "new_results": 0
+        }
+      ],
+      "rows": 14,
+      "event_date": "2025-12-05",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2025.12.04&de=2025.12.06",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 7,
+          "new_results": 7
+        },
+        {
+          "scroll": 1,
+          "unique_results": 7,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 7,
+          "new_results": 0
+        }
+      ],
+      "rows": 7,
+      "event_date": "2025-12-05",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.11&de=2026.01.13",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 3,
+          "new_results": 3
+        },
+        {
+          "scroll": 1,
+          "unique_results": 3,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 3,
+          "new_results": 0
+        }
+      ],
+      "rows": 3,
+      "event_date": "2026-01-12",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.11&de=2026.01.13",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 1,
+          "new_results": 1
+        },
+        {
+          "scroll": 1,
+          "unique_results": 1,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 1,
+          "new_results": 0
+        }
+      ],
+      "rows": 1,
+      "event_date": "2026-01-12",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.12&de=2026.01.14",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 4,
+          "new_results": 4
+        },
+        {
+          "scroll": 1,
+          "unique_results": 4,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 4,
+          "new_results": 0
+        }
+      ],
+      "rows": 4,
+      "event_date": "2026-01-13",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.12&de=2026.01.14",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 2,
+          "new_results": 2
+        },
+        {
+          "scroll": 1,
+          "unique_results": 2,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 2,
+          "new_results": 0
+        }
+      ],
+      "rows": 2,
+      "event_date": "2026-01-13",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.18&de=2026.01.20",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 2,
+          "new_results": 2
+        },
+        {
+          "scroll": 1,
+          "unique_results": 2,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 2,
+          "new_results": 0
+        }
+      ],
+      "rows": 2,
+      "event_date": "2026-01-19",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.18&de=2026.01.20",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 1,
+          "new_results": 1
+        },
+        {
+          "scroll": 1,
+          "unique_results": 1,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 1,
+          "new_results": 0
+        }
+      ],
+      "rows": 1,
+      "event_date": "2026-01-19",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.22&de=2026.01.24",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 3,
+          "new_results": 3
+        },
+        {
+          "scroll": 1,
+          "unique_results": 3,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 3,
+          "new_results": 0
+        }
+      ],
+      "rows": 3,
+      "event_date": "2026-01-23",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.01.22&de=2026.01.24",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 3,
+          "new_results": 3
+        },
+        {
+          "scroll": 1,
+          "unique_results": 3,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 3,
+          "new_results": 0
+        }
+      ],
+      "rows": 3,
+      "event_date": "2026-01-23",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%84%A4+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.02.01&de=2026.02.03",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 6,
+          "new_results": 6
+        },
+        {
+          "scroll": 1,
+          "unique_results": 6,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 6,
+          "new_results": 0
+        }
+      ],
+      "rows": 6,
+      "event_date": "2026-02-02",
+      "query": "서울 폭설 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%EB%88%88+%EA%B5%90%ED%86%B5+%EB%A7%88%EB%B9%84&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.02.01&de=2026.02.03",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 11,
+          "new_results": 11
+        },
+        {
+          "scroll": 1,
+          "unique_results": 11,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 11,
+          "new_results": 0
+        }
+      ],
+      "rows": 11,
+      "event_date": "2026-02-02",
+      "query": "서울 눈 교통 마비",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.05.19&de=2026.05.21",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 15,
+          "new_results": 15
+        },
+        {
+          "scroll": 1,
+          "unique_results": 15,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 15,
+          "new_results": 0
+        }
+      ],
+      "rows": 15,
+      "event_date": "2026-05-20",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.05.19&de=2026.05.21",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 14,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 14,
+          "new_results": 0
+        }
+      ],
+      "rows": 14,
+      "event_date": "2026-05-20",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.07&de=2026.07.09",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 20,
+          "new_results": 20
+        },
+        {
+          "scroll": 1,
+          "unique_results": 20,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 20,
+          "new_results": 0
+        }
+      ],
+      "rows": 20,
+      "event_date": "2026-07-08",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.07&de=2026.07.09",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 20,
+          "new_results": 20
+        },
+        {
+          "scroll": 1,
+          "unique_results": 20,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 20,
+          "new_results": 0
+        }
+      ],
+      "rows": 20,
+      "event_date": "2026-07-08",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.08&de=2026.07.10",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 20,
+          "new_results": 20
+        },
+        {
+          "scroll": 1,
+          "unique_results": 20,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 20,
+          "new_results": 0
+        }
+      ],
+      "rows": 20,
+      "event_date": "2026-07-09",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.08&de=2026.07.10",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 14,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 14,
+          "new_results": 0
+        }
+      ],
+      "rows": 14,
+      "event_date": "2026-07-09",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.13&de=2026.07.15",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 13,
+          "new_results": 13
+        },
+        {
+          "scroll": 1,
+          "unique_results": 13,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 13,
+          "new_results": 0
+        }
+      ],
+      "rows": 13,
+      "event_date": "2026-07-14",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.13&de=2026.07.15",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 14,
+          "new_results": 14
+        },
+        {
+          "scroll": 1,
+          "unique_results": 14,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 14,
+          "new_results": 0
+        }
+      ],
+      "rows": 14,
+      "event_date": "2026-07-14",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.14&de=2026.07.16",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 13,
+          "new_results": 13
+        },
+        {
+          "scroll": 1,
+          "unique_results": 13,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 13,
+          "new_results": 0
+        }
+      ],
+      "rows": 13,
+      "event_date": "2026-07-15",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.14&de=2026.07.16",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 17,
+          "new_results": 17
+        },
+        {
+          "scroll": 1,
+          "unique_results": 17,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 17,
+          "new_results": 0
+        }
+      ],
+      "rows": 17,
+      "event_date": "2026-07-15",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.20&de=2026.07.22",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 18,
+          "new_results": 18
+        },
+        {
+          "scroll": 1,
+          "unique_results": 18,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 18,
+          "new_results": 0
+        }
+      ],
+      "rows": 18,
+      "event_date": "2026-07-21",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.07.20&de=2026.07.22",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 25,
+          "new_results": 25
+        },
+        {
+          "scroll": 1,
+          "unique_results": 25,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 25,
+          "new_results": 0
+        }
+      ],
+      "rows": 25,
+      "event_date": "2026-07-21",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.08.30&de=2026.09.01",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 12,
+          "new_results": 12
+        },
+        {
+          "scroll": 1,
+          "unique_results": 12,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 12,
+          "new_results": 0
+        }
+      ],
+      "rows": 12,
+      "event_date": "2026-08-31",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.08.30&de=2026.09.01",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 12,
+          "new_results": 12
+        },
+        {
+          "scroll": 1,
+          "unique_results": 12,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 12,
+          "new_results": 0
+        }
+      ],
+      "rows": 12,
+      "event_date": "2026-08-31",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%8F%AD%EC%9A%B0+%EA%B5%90%ED%86%B5&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.08.31&de=2026.09.02",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 12,
+          "new_results": 12
+        },
+        {
+          "scroll": 1,
+          "unique_results": 12,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 12,
+          "new_results": 0
+        }
+      ],
+      "rows": 12,
+      "event_date": "2026-09-01",
+      "query": "서울 폭우 교통",
+      "attempt": 1,
+      "status": "성공"
+    },
+    {
+      "search_url": "https://search.naver.com/search.naver?where=news&query=%EC%84%9C%EC%9A%B8+%ED%98%B8%EC%9A%B0+%EB%8F%84%EB%A1%9C+%ED%86%B5%EC%A0%9C&sm=tab_opt&sort=0&photo=0&field=0&pd=3&ds=2026.08.31&de=2026.09.02",
+      "scrolls": [
+        {
+          "scroll": 0,
+          "unique_results": 11,
+          "new_results": 11
+        },
+        {
+          "scroll": 1,
+          "unique_results": 11,
+          "new_results": 0
+        },
+        {
+          "scroll": 2,
+          "unique_results": 11,
+          "new_results": 0
+        }
+      ],
+      "rows": 11,
+      "event_date": "2026-09-01",
+      "query": "서울 호우 도로 통제",
+      "attempt": 1,
+      "status": "성공"
+    }
+  ],
+  "error": null
+}

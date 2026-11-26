@@ -1,0 +1,38 @@
+{
+  "source_rows": 125100,
+  "matched_rows": 75600,
+  "sampled_dates": 90,
+  "year_day_counts": {
+    "2022": 1,
+    "2023": 19,
+    "2024": 26,
+    "2025": 18,
+    "2026": 26
+  },
+  "weekday_day_counts": {
+    "0": 10,
+    "1": 16,
+    "2": 26,
+    "3": 24,
+    "4": 14
+  },
+  "gaps_over_30_days": 10,
+  "maximum_gap_days": 154,
+  "potential_weather_or_comparison_columns": [],
+  "weather_day_labels_verified": false,
+  "notes": [
+    "Date coverage does not establish whether days are adverse-weather or controls.",
+    "Do not compute normal-weather baselines without verified weather labels.",
+    "Do not pool distant years without checking comparability."
+  ],
+  "inputs": {
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv"
+  },
+  "outputs": {
+    "dates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_sampled_date_audit_20261124T014543_(성공)_v01.csv",
+    "months": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_month_coverage_20261124T014543_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_date_audit_20261124T014543_(성공)_v01.json"
+  }
+}

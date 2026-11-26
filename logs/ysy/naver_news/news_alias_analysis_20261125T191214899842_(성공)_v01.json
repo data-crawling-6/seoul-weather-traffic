@@ -1,0 +1,15 @@
+{
+  "status": "성공",
+  "source": "D:\\seoul-weather-traffic-data\\naver_news\\raw\\yang_seoyeon_naver_news_raw_20261124T164842_v01_(부분성공).csv",
+  "source_rows": 1328,
+  "unique_articles": 930,
+  "alias_rows": 94,
+  "rematched_rows": 157,
+  "new_alias_match_review_needed": 31,
+  "term_candidates": 100,
+  "outputs": {
+    "alias_rematch": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\ysy\\news_alias_rematch_20261125T191214899842_(성공)_v01.csv",
+    "term_candidates": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\ysy\\news_term_candidates_20261125T191214899842_(성공)_v01.csv"
+  },
+  "limitations": "제목 문자열 기반 후보. 기사 본문·도로 사건 관계 미확정, 검색어는 사람 검토 후 선택"
+}

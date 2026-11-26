@@ -1,0 +1,24 @@
+{
+  "status": "성공",
+  "inputs": {
+    "clusters": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_clusters_20261125T011120796227_(성공)_v01.csv",
+    "geometry": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson",
+    "mapping": "D:\\seoul-weather-traffic-data\\processed\\yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
+  },
+  "roads": 52,
+  "mapped_roads": 52,
+  "mapped_links": 1246,
+  "unmapped_roads": [],
+  "transition_counts": {
+    "Unchanged": 47,
+    "Unclassified": 4,
+    "Changed": 1
+  },
+  "limitations": "군집 번호는 방법 간 직접 대응하지 않음. 지도는 공식 매핑 링크에 한정; 공간 통계 검정 아님.",
+  "outputs": {
+    "html": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_dtw_map_20261125T011744801805_(성공)_v01.html",
+    "png": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_dtw_map_20261125T011744801805_(성공)_v01.png",
+    "coverage": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_dtw_map_coverage_20261125T011744801805_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_dtw_map_20261125T011744801805_(성공)_v01.json"
+  }
+}
