@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
+import math
 import re
 import subprocess
 import time
@@ -20,8 +22,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATA_ROOT = Path(r"D:\seoul-weather-traffic-data")
 SEARCH_URL = "https://search.naver.com/search.naver"
-DEFAULT_SNOW_QUERIES = ["서울 폭설 교통", "서울 눈 교통 마비"]
-DEFAULT_RAIN_QUERIES = ["서울 폭우 교통", "서울 호우 도로 통제"]
+DEFAULT_SNOW_QUERIES = ["서울 폭설 교통", "서울 눈 교통 마비", "서울 폭설 출근길 통제"]
+DEFAULT_RAIN_QUERIES = ["서울 폭우 교통", "서울 호우 도로 통제", "서울 침수 도로 통제"]
 BLOCK_PATTERNS = ("captcha", "비정상적인 접근", "자동입력 방지", "접근이 제한")
 TITLE_BOILERPLATE = {"새 창 열림", "네이버뉴스", "기사원문", "언론사 선정"}
 SESSION_END_ERRORS = {"InvalidSessionIdException", "NoSuchWindowException"}
@@ -85,6 +87,48 @@ def load_roads(root: Path = ROOT) -> pd.DataFrame:
     if missing:
         raise ValueError(f"roads.csv 필수 열 누락: {sorted(missing)}")
     return roads[["road_id", "road_name"]].dropna().drop_duplicates()
+
+
+def _match_key(value: object) -> str:
+    """[서연] 공백·구두점을 제거한 보수적 문자열 매칭 키를 만든다."""
+    return re.sub(r"[^0-9A-Za-z가-힣]", "", str(value)).casefold()
+
+
+def load_road_aliases(root: Path = ROOT) -> pd.DataFrame:
+    """[서연] 정식 도로명과 검토된 별칭을 합쳐 중복·충돌을 검증한다."""
+    roads = load_roads(root)
+    aliases = roads.assign(alias=roads["road_name"], alias_source="official", review_status="reviewed")
+    path = root / "config/road_aliases.csv"
+    if path.exists():
+        extra = pd.read_csv(path, encoding="utf-8-sig", dtype="string", keep_default_na=False)
+        required = {"road_id", "alias", "review_status"}
+        if required - set(extra):
+            raise ValueError(f"road_aliases.csv 필수 열 누락: {sorted(required-set(extra))}")
+        extra = extra.loc[extra["review_status"].eq("reviewed"), ["road_id", "alias", "review_status"]].copy()
+        unknown = sorted(set(extra["road_id"]) - set(roads["road_id"]))
+        if unknown:
+            raise ValueError(f"road_aliases.csv의 미등록 road_id: {unknown}")
+        extra = extra.merge(roads, on="road_id", how="left", validate="many_to_one")
+        extra["alias_source"] = "curated_alias"
+        aliases = pd.concat([aliases, extra[aliases.columns]], ignore_index=True)
+    aliases["alias"] = aliases["alias"].astype(str).str.strip()
+    aliases["alias_key"] = aliases["alias"].map(_match_key)
+    aliases = aliases.loc[aliases["alias_key"].str.len().ge(2)].drop_duplicates(["road_id", "alias_key"])
+    conflicts = aliases.groupby("alias_key")["road_id"].nunique()
+    if conflicts.gt(1).any():
+        bad = sorted(conflicts[conflicts.gt(1)].index)
+        raise ValueError(f"여러 도로에 중복된 별칭: {bad}")
+    return aliases.sort_values(["road_id", "alias_source", "alias"]).reset_index(drop=True)
+
+
+def match_road_aliases(text: object, aliases: pd.DataFrame) -> pd.DataFrame:
+    """[서연] 문자열에 포함된 별칭을 도로별로 한 번만 반환한다."""
+    key = _match_key(text)
+    hits = aliases.loc[aliases["alias_key"].map(lambda alias: alias in key)].copy()
+    if hits.empty:
+        return hits
+    hits["alias_length"] = hits["alias_key"].str.len()
+    return hits.sort_values(["road_id", "alias_length"], ascending=[True, False]).drop_duplicates("road_id")
 
 
 def queries_for_day(row: pd.Series) -> list[str]:
@@ -198,9 +242,7 @@ def collect_visible_results(driver, query: str, event: pd.Series, roads: pd.Data
             host = urlparse(url).netloc.lower()
             if "news.naver.com" not in host and date_match is None:
                 continue
-            road_hits = roads.loc[
-                roads["road_name"].map(lambda name: str(name).replace(" ", "") in (title + " " + container_text).replace(" ", ""))
-            ]
+            road_hits = match_road_aliases(title + " " + container_text, roads)
             records.append({
                 "event_date": event["date"].strftime("%Y-%m-%d"),
                 "split": event["split"],
@@ -211,6 +253,7 @@ def collect_visible_results(driver, query: str, event: pd.Series, roads: pd.Data
                 "published_text": date_match.group(0) if date_match else "",
                 "mentioned_road_ids": "|".join(road_hits["road_id"].astype(str)),
                 "mentioned_road_names": "|".join(road_hits["road_name"].astype(str)),
+                "matched_road_aliases": "|".join(road_hits["alias"].astype(str)),
                 "collection_method": "selenium_dynamic_scroll",
             })
         except StaleElementReferenceException:
@@ -306,7 +349,7 @@ def run_collection(
         days = days.loc[days["date"].eq(target)].copy()
         if days.empty:
             raise ValueError(f"악천후일 목록에 없는 테스트 날짜입니다: {test_date}")
-    roads = load_roads(root)
+    roads = load_road_aliases(root)
     mode = "test" if test_date else "collection"
     log_parent = root / "logs/ysy/naver_news"
     raw_parent = data_root / "naver_news/raw"
@@ -513,6 +556,113 @@ def preprocess_news(raw_path: Path, output_dir: Path, log_dir: Path) -> dict:
     return summary
 
 
+def analyze_existing_news(
+    raw_path: Path,
+    output_dir: Path,
+    log_dir: Path,
+    root: Path = ROOT,
+    top_terms: int = 100,
+) -> dict:
+    """[서연] 기존 뉴스 제목에 별칭을 재적용하고 검색어 후보 근거를 만든다.
+
+    기사 본문을 요청하거나 Selenium을 실행하지 않는다. 단어 후보는 사람이 검토할
+    자료일 뿐 추가 검색어로 자동 확정하지 않는다.
+    """
+    df = pd.read_csv(raw_path, encoding="utf-8-sig", dtype="string", keep_default_na=False)
+    required = {"event_date", "split", "title", "url", "mentioned_road_ids"}
+    if required - set(df):
+        raise ValueError(f"기존 뉴스 필수 열 누락: {sorted(required-set(df))}")
+    aliases = load_road_aliases(root)
+    rows: list[dict] = []
+    for raw_row, row in enumerate(df.itertuples(index=False), start=1):
+        existing_ids = {value for value in str(row.mentioned_road_ids).split("|") if value}
+        for hit in match_road_aliases(row.title, aliases).itertuples(index=False):
+            rows.append({
+                "raw_row": raw_row,
+                "event_date": row.event_date,
+                "split": row.split,
+                "title": row.title,
+                "url": row.url,
+                "road_id": hit.road_id,
+                "road_name": hit.road_name,
+                "matched_alias": hit.alias,
+                "alias_source": hit.alias_source,
+                "already_matched_in_raw": hit.road_id in existing_ids,
+                "match_status": "existing_match" if hit.road_id in existing_ids else "new_alias_match_review_needed",
+            })
+    rematch = pd.DataFrame(rows, columns=[
+        "raw_row", "event_date", "split", "title", "url", "road_id", "road_name",
+        "matched_alias", "alias_source", "already_matched_in_raw", "match_status",
+    ]).drop_duplicates(["event_date", "url", "road_id"])
+
+    stopwords = {
+        "서울", "서울시", "교통", "도로", "기자", "관련", "대한", "이번", "오늘",
+        "내일", "오전", "오후", "지역", "가운데", "통해", "위해", "부터", "까지",
+    }
+    titles = df[["url", "title"]].drop_duplicates("url")["title"].astype(str).tolist()
+    documents: list[list[str]] = []
+    for title in titles:
+        tokens = [token for token in re.findall(r"[가-힣A-Za-z0-9]+", title.casefold())
+                  if len(token) >= 2 and token not in stopwords and not token.isdigit()]
+        documents.append(tokens)
+    doc_freq: Counter[str] = Counter()
+    total_freq: Counter[str] = Counter()
+    tfidf_sum: Counter[str] = Counter()
+    n_docs = len(documents)
+    for tokens in documents:
+        counts = Counter(tokens)
+        total_freq.update(counts)
+        doc_freq.update(counts.keys())
+    for tokens in documents:
+        counts = Counter(tokens)
+        total = sum(counts.values()) or 1
+        for term, count in counts.items():
+            idf = math.log((1 + n_docs) / (1 + doc_freq[term])) + 1
+            tfidf_sum[term] += (count / total) * idf
+    terms = pd.DataFrame([
+        {
+            "term": term,
+            "document_frequency": doc_freq[term],
+            "total_frequency": total_freq[term],
+            "mean_tfidf": tfidf_sum[term] / n_docs if n_docs else 0,
+            "selection_status": "manual_review_needed",
+            "review_notes": "",
+        }
+        for term in total_freq
+    ])
+    if not terms.empty:
+        terms = terms.sort_values(
+            ["document_frequency", "mean_tfidf", "term"], ascending=[False, False, True]
+        ).head(top_terms).reset_index(drop=True)
+
+    stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    rematch_path = output_dir / f"news_alias_rematch_{stamp}_(성공)_v01.csv"
+    terms_path = output_dir / f"news_term_candidates_{stamp}_(성공)_v01.csv"
+    with rematch_path.open("x", encoding="utf-8-sig", newline="") as file:
+        rematch.to_csv(file, index=False)
+    with terms_path.open("x", encoding="utf-8-sig", newline="") as file:
+        terms.to_csv(file, index=False)
+    summary = {
+        "status": "성공",
+        "source": str(raw_path),
+        "source_rows": int(len(df)),
+        "unique_articles": int(len(titles)),
+        "alias_rows": int(len(aliases)),
+        "rematched_rows": int(len(rematch)),
+        "new_alias_match_review_needed": int(rematch["match_status"].eq("new_alias_match_review_needed").sum()),
+        "term_candidates": int(len(terms)),
+        "outputs": {"alias_rematch": str(rematch_path), "term_candidates": str(terms_path)},
+        "limitations": "제목 문자열 기반 후보. 기사 본문·도로 사건 관계 미확정, 검색어는 사람 검토 후 선택",
+    }
+    log_path = log_dir / f"news_alias_analysis_{stamp}_(성공)_v01.json"
+    with log_path.open("x", encoding="utf-8") as file:
+        json.dump(summary, file, ensure_ascii=False, indent=2)
+    summary["log"] = str(log_path)
+    return summary
+
+
 def preprocess_main():
     parser=argparse.ArgumentParser(description='[서연] 뉴스 원자료 전처리')
     parser.add_argument('mode',choices=['preprocess'])
@@ -523,10 +673,25 @@ def preprocess_main():
     print(json.dumps(preprocess_news(args.input,args.output_dir,args.log_dir),ensure_ascii=False,indent=2))
 
 
+def analyze_existing_main() -> None:
+    parser = argparse.ArgumentParser(description="[서연] 기존 뉴스 별칭 재매칭 및 검색어 후보 분석")
+    parser.add_argument("mode", choices=["analyze-existing"])
+    parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_DATA_ROOT / "naver_news" / "processed" / "ysy")
+    parser.add_argument("--log-dir", type=Path, default=ROOT / "logs" / "ysy" / "naver_news")
+    parser.add_argument("--top-terms", type=int, default=100)
+    args = parser.parse_args()
+    result = analyze_existing_news(args.input, args.output_dir, args.log_dir, top_terms=args.top_terms)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
 def main() -> None:
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "preprocess":
         preprocess_main()
+        return
+    if len(sys.argv) > 1 and sys.argv[1] == "analyze-existing":
+        analyze_existing_main()
         return
     parser = argparse.ArgumentParser(description="[서연] 네이버 뉴스 Selenium 동적 수집")
     parser.add_argument("mode", choices=["test", "collect"])

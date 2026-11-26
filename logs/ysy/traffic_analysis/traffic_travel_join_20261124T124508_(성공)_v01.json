@@ -1,0 +1,21 @@
+{
+  "status": "성공",
+  "source_analysis_log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_analysis\\yang_seoyeon_traffic_analysis_20261124T122846_(성공)_v01.json",
+  "traffic_road_hours": 11700,
+  "direction_pairs": 23400,
+  "combined_road_hours": 11700,
+  "valid_travel_direction_pairs": 23275,
+  "invalid_travel_direction_pairs": 125,
+  "severe_structural_unmatched": 0,
+  "comparison_structural_unmatched": 0,
+  "combined_valid_rows": 10262,
+  "direction_rule": "TOPIS 방향별 변화를 계산한 뒤 도로·시간 중앙값으로 집계; 교통량 유입·유출과 임의 대응하지 않음",
+  "outputs": {
+    "direction_pairs": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_direction_pairs_20261124T124508_(성공)_v01.csv",
+    "combined": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261124T124508_(성공)_v01.csv",
+    "correlations": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_correlations_20261124T124508_(성공)_v01.csv",
+    "invalid_rows": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_invalid_20261124T124508_(성공)_v01.csv",
+    "scatter": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\yang_seoyeon\\yang_seoyeon_traffic_travel_scatter_20261124T124508_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_analysis\\yang_seoyeon_traffic_travel_join_20261124T124508_(성공)_v01.json"
+  }
+}

@@ -1,0 +1,279 @@
+﻿spot_id,io_type,row_count,valid_coordinate_count,invalid_coordinate_rows,zero_coordinate_rows,coordinate_changed,max_coordinate_distance_m,coordinate_versions,review_status
+A-01,유입,450,2,130,130,True,38.623,"[{""latitude"": 37.568588, ""longitude"": 126.948436}, {""latitude"": 37.56880847, ""longitude"": 126.94877425}]",manual_review_needed
+A-01,유출,450,2,0,0,True,38.623,"[{""latitude"": 37.568588, ""longitude"": 126.948436}, {""latitude"": 37.56880847, ""longitude"": 126.94877425}]",manual_review_needed
+A-02,유입,450,2,0,0,True,35.086,"[{""latitude"": 37.572298, ""longitude"": 126.962853}, {""latitude"": 37.57230748, ""longitude"": 126.96324999}]",manual_review_needed
+A-02,유출,450,2,0,0,True,28.789,"[{""latitude"": 37.572298, ""longitude"": 126.962853}, {""latitude"": 37.57255738, ""longitude"": 126.96285084}]",manual_review_needed
+A-03,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.588831, ""longitude"": 126.968548}]",single_valid_coordinate
+A-03,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.588831, ""longitude"": 126.968548}]",single_valid_coordinate
+A-04,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.596359, ""longitude"": 126.984209}]",single_valid_coordinate
+A-04,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.596359, ""longitude"": 126.984209}]",single_valid_coordinate
+A-05,유입,450,2,0,0,True,49.05,"[{""latitude"": 37.576, ""longitude"": 126.984342}, {""latitude"": 37.57631938, ""longitude"": 126.9847258}]",manual_review_needed
+A-05,유출,450,2,0,0,True,32.846,"[{""latitude"": 37.576, ""longitude"": 126.984342}, {""latitude"": 37.57579, ""longitude"": 126.98408}]",manual_review_needed
+A-06,유입,450,2,0,0,True,33.901,"[{""latitude"": 37.582526, ""longitude"": 126.998011}, {""latitude"": 37.5823097, ""longitude"": 126.99774}]",manual_review_needed
+A-06,유출,450,2,0,0,True,26.4,"[{""latitude"": 37.582526, ""longitude"": 126.998011}, {""latitude"": 37.58230746, ""longitude"": 126.998129}]",manual_review_needed
+A-07,유입,450,2,0,0,True,2.75,"[{""latitude"": 37.578188, ""longitude"": 127.002053}, {""latitude"": 37.578197, ""longitude"": 127.002024}]",manual_review_needed
+A-07,유출,450,3,0,0,True,115.543,"[{""latitude"": 37.578188, ""longitude"": 127.002053}, {""latitude"": 37.578197, ""longitude"": 127.002024}, {""latitude"": 37.579197, ""longitude"": 127.002375}]",manual_review_needed
+A-08,유입,450,2,0,0,True,37.61,"[{""latitude"": 37.573262, ""longitude"": 127.017112}, {""latitude"": 37.5734518, ""longitude"": 127.0167593}]",manual_review_needed
+A-08,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.573262, ""longitude"": 127.017112}]",single_valid_coordinate
+A-09,유입,450,2,0,0,True,94.827,"[{""latitude"": 37.565712, ""longitude"": 127.020912}, {""latitude"": 37.56577931, ""longitude"": 127.019842}]",manual_review_needed
+A-09,유출,450,2,0,0,True,19.336,"[{""latitude"": 37.565712, ""longitude"": 127.020912}, {""latitude"": 37.5655854377, ""longitude"": 127.0207616}]",manual_review_needed
+A-10,유입,450,2,0,0,True,28.731,"[{""latitude"": 37.558563, ""longitude"": 127.007101}, {""latitude"": 37.5587935, ""longitude"": 127.007249}]",manual_review_needed
+A-10,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.558563, ""longitude"": 127.007101}]",single_valid_coordinate
+A-11,유입,450,2,0,0,True,42.051,"[{""latitude"": 37.556889, ""longitude"": 127.004655}, {""latitude"": 37.55707, ""longitude"": 127.0050731}]",manual_review_needed
+A-11,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.556889, ""longitude"": 127.004655}]",single_valid_coordinate
+A-12,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.557432, ""longitude"": 126.976486}]",single_valid_coordinate
+A-12,유출,450,2,0,0,True,48.358,"[{""latitude"": 37.557432, ""longitude"": 126.976486}, {""latitude"": 37.557429, ""longitude"": 126.97593871}]",manual_review_needed
+A-13,유입,450,2,0,0,True,152.572,"[{""latitude"": 37.558061, ""longitude"": 126.973439}, {""latitude"": 37.55912, ""longitude"": 126.97454}]",manual_review_needed
+A-13,유출,450,2,0,0,True,61.526,"[{""latitude"": 37.558061, ""longitude"": 126.973439}, {""latitude"": 37.55772, ""longitude"": 126.97289}]",manual_review_needed
+A-14,유입,450,2,0,0,True,15.441,"[{""latitude"": 37.569776, ""longitude"": 126.971354}, {""latitude"": 37.569654, ""longitude"": 126.971438}]",manual_review_needed
+A-14,유출,450,3,0,0,True,161.29,"[{""latitude"": 37.569776, ""longitude"": 126.971354}, {""latitude"": 37.569654, ""longitude"": 126.971438}, {""latitude"": 37.568971, ""longitude"": 126.969834}]",manual_review_needed
+A-15,유입,450,2,0,0,True,36.983,"[{""latitude"": 37.570216, ""longitude"": 126.990832}, {""latitude"": 37.570533, ""longitude"": 126.990961}]",manual_review_needed
+A-15,유출,450,2,0,0,True,36.983,"[{""latitude"": 37.570216, ""longitude"": 126.990832}, {""latitude"": 37.570533, ""longitude"": 126.990961}]",manual_review_needed
+A-16,유입,450,2,0,0,True,33.187,"[{""latitude"": 37.562819, ""longitude"": 126.972716}, {""latitude"": 37.562719, ""longitude"": 126.97307}]",manual_review_needed
+A-16,유출,450,2,0,0,True,5.517,"[{""latitude"": 37.562819, ""longitude"": 126.972716}, {""latitude"": 37.562841, ""longitude"": 126.97266}]",manual_review_needed
+A-17,유입,450,2,0,0,True,25.487,"[{""latitude"": 37.567496, ""longitude"": 126.977208}, {""latitude"": 37.567342, ""longitude"": 126.976994}]",manual_review_needed
+A-17,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.567496, ""longitude"": 126.977208}]",single_valid_coordinate
+A-18,유입,450,2,0,0,True,30.355,"[{""latitude"": 37.566114, ""longitude"": 126.989326}, {""latitude"": 37.56632, ""longitude"": 126.9891}]",manual_review_needed
+A-18,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.566114, ""longitude"": 126.989326}]",single_valid_coordinate
+A-19,유입,450,2,0,0,True,9.946,"[{""latitude"": 37.559593, ""longitude"": 126.972518}, {""latitude"": 37.559579, ""longitude"": 126.97240681}]",manual_review_needed
+A-19,유출,450,2,0,0,True,9.946,"[{""latitude"": 37.559593, ""longitude"": 126.972518}, {""latitude"": 37.559579, ""longitude"": 126.97240681}]",manual_review_needed
+A-20,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.542406, ""longitude"": 127.001356}]",single_valid_coordinate
+A-20,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.542406, ""longitude"": 127.001356}]",single_valid_coordinate
+A-21,유입,450,2,0,0,True,1222.533,"[{""latitude"": 37.544301, ""longitude"": 126.989767}, {""latitude"": 37.555316, ""longitude"": 126.989767}]",manual_review_needed
+A-21,유출,450,2,0,0,True,1222.533,"[{""latitude"": 37.544301, ""longitude"": 126.989767}, {""latitude"": 37.555316, ""longitude"": 126.989767}]",manual_review_needed
+A-22,유입,450,2,0,0,True,31.854,"[{""latitude"": 37.544496, ""longitude"": 126.98835}, {""latitude"": 37.544783, ""longitude"": 126.98835}]",manual_review_needed
+A-22,유출,450,2,0,0,True,31.854,"[{""latitude"": 37.544496, ""longitude"": 126.98835}, {""latitude"": 37.544783, ""longitude"": 126.98835}]",manual_review_needed
+A-23,유입,450,2,0,0,True,16.205,"[{""latitude"": 37.557044, ""longitude"": 126.976362}, {""latitude"": 37.55719, ""longitude"": 126.97636}]",manual_review_needed
+A-23,유출,450,2,0,0,True,16.205,"[{""latitude"": 37.557044, ""longitude"": 126.976362}, {""latitude"": 37.55719, ""longitude"": 126.97636}]",manual_review_needed
+A-24,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.554896, ""longitude"": 126.983521}]",single_valid_coordinate
+A-24,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.554896, ""longitude"": 126.983521}]",single_valid_coordinate
+B-01,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.691792, ""longitude"": 127.045087}]",single_valid_coordinate
+B-01,유출,450,2,0,0,True,48.075,"[{""latitude"": 37.691792, ""longitude"": 127.045087}, {""latitude"": 37.6922, ""longitude"": 127.04527}]",manual_review_needed
+B-02,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.688571, ""longitude"": 127.055376}]",single_valid_coordinate
+B-02,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.688571, ""longitude"": 127.055376}]",single_valid_coordinate
+B-03,유입,450,2,0,0,True,100.718,"[{""latitude"": 37.550897, ""longitude"": 127.108955}, {""latitude"": 37.5501, ""longitude"": 127.10841}]",manual_review_needed
+B-03,유출,450,2,0,0,True,19.329,"[{""latitude"": 37.550897, ""longitude"": 127.108955}, {""latitude"": 37.5508213, ""longitude"": 127.109152}]",manual_review_needed
+B-04,유입,450,2,0,0,True,130.592,"[{""latitude"": 37.601476, ""longitude"": 127.115674}, {""latitude"": 37.6016776, ""longitude"": 127.114217}]",manual_review_needed
+B-04,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.601476, ""longitude"": 127.115674}]",single_valid_coordinate
+B-05,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.619942, ""longitude"": 127.105325}]",single_valid_coordinate
+B-05,유출,450,2,0,0,True,19.674,"[{""latitude"": 37.619942, ""longitude"": 127.105325}, {""latitude"": 37.61978, ""longitude"": 127.10541546}]",manual_review_needed
+B-06,유입,450,2,0,0,True,20.249,"[{""latitude"": 37.630725, ""longitude"": 127.098984}, {""latitude"": 37.630879, ""longitude"": 127.099107}]",manual_review_needed
+B-06,유출,450,2,0,0,True,33.668,"[{""latitude"": 37.630725, ""longitude"": 127.098984}, {""latitude"": 37.630658, ""longitude"": 127.099356}]",manual_review_needed
+B-07,유입,450,2,0,0,True,35.741,"[{""latitude"": 37.613824, ""longitude"": 127.1087}, {""latitude"": 37.614, ""longitude"": 127.108361}]",manual_review_needed
+B-07,유출,450,2,0,0,True,699.148,"[{""latitude"": 37.613824, ""longitude"": 127.1087}, {""latitude"": 37.610668, ""longitude"": 127.115553}]",manual_review_needed
+B-08,유입,450,2,0,0,True,16.512,"[{""latitude"": 37.516777, ""longitude"": 127.146728}, {""latitude"": 37.516835, ""longitude"": 127.1469}]",manual_review_needed
+B-08,유출,450,3,0,0,True,79.401,"[{""latitude"": 37.516777, ""longitude"": 127.146728}, {""latitude"": 37.516835, ""longitude"": 127.1469}, {""latitude"": 37.516343, ""longitude"": 127.147442}]",manual_review_needed
+B-09,유입,450,2,0,0,True,88.316,"[{""latitude"": 37.547459, ""longitude"": 127.175222}, {""latitude"": 37.548060274, ""longitude"": 127.1758766}]",manual_review_needed
+B-09,유출,450,2,0,0,True,18.568,"[{""latitude"": 37.547459, ""longitude"": 127.175222}, {""latitude"": 37.5473043, ""longitude"": 127.175302}]",manual_review_needed
+B-10,유입,450,2,0,0,True,1489.703,"[{""latitude"": 37.569891, ""longitude"": 127.157292}, {""latitude"": 37.567082, ""longitude"": 127.140803}]",manual_review_needed
+B-10,유출,450,2,0,0,True,1519.359,"[{""latitude"": 37.569891, ""longitude"": 127.157292}, {""latitude"": 37.566756, ""longitude"": 127.140551}]",manual_review_needed
+B-11,유입,450,2,0,0,True,9.508,"[{""latitude"": 37.465083, ""longitude"": 127.038643}, {""latitude"": 37.465164, ""longitude"": 127.038678}]",manual_review_needed
+B-11,유출,450,2,0,0,True,354.226,"[{""latitude"": 37.465083, ""longitude"": 127.038643}, {""latitude"": 37.46234, ""longitude"": 127.04069}]",manual_review_needed
+B-12,유입,450,2,0,0,True,70.93,"[{""latitude"": 37.468797, ""longitude"": 127.126419}, {""latitude"": 37.4681616, ""longitude"": 127.126505}]",manual_review_needed
+B-12,유출,450,2,0,0,True,70.93,"[{""latitude"": 37.468797, ""longitude"": 127.126419}, {""latitude"": 37.4681616, ""longitude"": 127.126505}]",manual_review_needed
+B-13,유입,450,2,0,0,True,100.431,"[{""latitude"": 37.462416, ""longitude"": 127.107883}, {""latitude"": 37.46326, ""longitude"": 127.1082924}]",manual_review_needed
+B-13,유출,450,2,0,0,True,14.595,"[{""latitude"": 37.462416, ""longitude"": 127.107883}, {""latitude"": 37.4625308, ""longitude"": 127.10780254}]",manual_review_needed
+B-14,유입,450,2,0,0,True,15.942,"[{""latitude"": 37.471129, ""longitude"": 127.123078}, {""latitude"": 37.4710326, ""longitude"": 127.1232116}]",manual_review_needed
+B-14,유출,450,2,0,0,True,51.531,"[{""latitude"": 37.471129, ""longitude"": 127.123078}, {""latitude"": 37.4706655, ""longitude"": 127.1231121}]",manual_review_needed
+B-15,유입,450,2,0,0,True,13.108,"[{""latitude"": 37.463288, ""longitude"": 126.988151}, {""latitude"": 37.4632732, ""longitude"": 126.988298}]",manual_review_needed
+B-15,유출,450,2,0,0,True,120.685,"[{""latitude"": 37.463288, ""longitude"": 126.988151}, {""latitude"": 37.46226849, ""longitude"": 126.9876766}]",manual_review_needed
+B-16,유입,450,2,0,0,True,23.634,"[{""latitude"": 37.460089, ""longitude"": 127.030175}, {""latitude"": 37.45987759, ""longitude"": 127.030207}]",manual_review_needed
+B-16,유출,450,2,0,0,True,105.882,"[{""latitude"": 37.460089, ""longitude"": 127.030175}, {""latitude"": 37.46022193, ""longitude"": 127.0313601}]",manual_review_needed
+B-17,유입,450,2,0,0,True,42.959,"[{""latitude"": 37.483905, ""longitude"": 127.011416}, {""latitude"": 37.483722, ""longitude"": 127.011844}]",manual_review_needed
+B-17,유출,450,2,0,0,True,47.966,"[{""latitude"": 37.483905, ""longitude"": 127.011416}, {""latitude"": 37.483481, ""longitude"": 127.011521}]",manual_review_needed
+B-18,유입,450,2,0,0,True,43.283,"[{""latitude"": 37.437013, ""longitude"": 126.902811}, {""latitude"": 37.4371836, ""longitude"": 126.9032508}]",manual_review_needed
+B-18,유출,450,2,0,0,True,31.625,"[{""latitude"": 37.437013, ""longitude"": 126.902811}, {""latitude"": 37.4367282, ""longitude"": 126.902799449}]",manual_review_needed
+B-19,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.482431, ""longitude"": 126.841891}]",single_valid_coordinate
+B-19,유출,450,2,0,0,True,11.175,"[{""latitude"": 37.482431, ""longitude"": 126.841891}, {""latitude"": 37.482393, ""longitude"": 126.841774}]",manual_review_needed
+B-20,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.482607, ""longitude"": 126.843109}]",single_valid_coordinate
+B-20,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.482607, ""longitude"": 126.843109}]",single_valid_coordinate
+B-21,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.486181, ""longitude"": 126.8565}]",single_valid_coordinate
+B-21,유출,450,2,0,0,True,236.611,"[{""latitude"": 37.486181, ""longitude"": 126.8565}, {""latitude"": 37.48539414, ""longitude"": 126.85401358}]",manual_review_needed
+B-22,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.485044, ""longitude"": 126.873297}]",single_valid_coordinate
+B-22,유출,450,2,0,0,True,184.084,"[{""latitude"": 37.485044, ""longitude"": 126.873297}, {""latitude"": 37.4850936, ""longitude"": 126.871216545}]",manual_review_needed
+B-23,유입,450,3,0,0,True,1273.643,"[{""latitude"": 37.474933, ""longitude"": 126.878154}, {""latitude"": 37.465453, ""longitude"": 126.886149}, {""latitude"": 37.475098, ""longitude"": 126.8783475}]",manual_review_needed
+B-23,유출,450,3,0,0,True,1273.643,"[{""latitude"": 37.474933, ""longitude"": 126.878154}, {""latitude"": 37.465453, ""longitude"": 126.886149}, {""latitude"": 37.475098, ""longitude"": 126.8783475}]",manual_review_needed
+B-24,유입,450,3,0,0,True,56.833,"[{""latitude"": 37.465046, ""longitude"": 126.884245}, {""latitude"": 37.46517227, ""longitude"": 126.8842472}, {""latitude"": 37.46510531, ""longitude"": 126.8848831}]",manual_review_needed
+B-24,유출,450,3,0,0,True,14.016,"[{""latitude"": 37.465046, ""longitude"": 126.884245}, {""latitude"": 37.46517227, ""longitude"": 126.8842472}, {""latitude"": 37.465165346, ""longitude"": 126.884284}]",manual_review_needed
+B-25,유입,450,2,0,0,True,8.205,"[{""latitude"": 37.4514, ""longitude"": 126.891627}, {""latitude"": 37.4513465, ""longitude"": 126.891691}]",manual_review_needed
+B-25,유출,450,2,0,0,True,19.95,"[{""latitude"": 37.4514, ""longitude"": 126.891627}, {""latitude"": 37.45157846, ""longitude"": 126.8916}]",manual_review_needed
+B-26,유입,450,2,0,0,True,16.446,"[{""latitude"": 37.542779, ""longitude"": 126.809411}, {""latitude"": 37.54287496, ""longitude"": 126.8095528}]",manual_review_needed
+B-26,유출,450,2,0,0,True,16.446,"[{""latitude"": 37.542779, ""longitude"": 126.809411}, {""latitude"": 37.54287496, ""longitude"": 126.8095528}]",manual_review_needed
+B-27,유입,450,2,0,0,True,13.986,"[{""latitude"": 37.539227, ""longitude"": 126.823123}, {""latitude"": 37.539348315, ""longitude"": 126.8230802}]",manual_review_needed
+B-27,유출,450,2,0,0,True,13.986,"[{""latitude"": 37.539227, ""longitude"": 126.823123}, {""latitude"": 37.539348315, ""longitude"": 126.8230802}]",manual_review_needed
+B-28,유입,450,2,0,0,True,6.973,"[{""latitude"": 37.524875, ""longitude"": 126.831933}, {""latitude"": 37.5248528, ""longitude"": 126.8318592}]",manual_review_needed
+B-28,유출,450,2,0,0,True,6.973,"[{""latitude"": 37.524875, ""longitude"": 126.831933}, {""latitude"": 37.5248528, ""longitude"": 126.8318592}]",manual_review_needed
+B-29,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.488614, ""longitude"": 126.822789}]",single_valid_coordinate
+B-29,유출,450,2,0,0,True,36.477,"[{""latitude"": 37.488614, ""longitude"": 126.822789}, {""latitude"": 37.48838446, ""longitude"": 126.8224938}]",manual_review_needed
+B-30,유입,450,3,0,0,True,28.752,"[{""latitude"": 37.506104, ""longitude"": 126.824602}, {""latitude"": 37.50606755, ""longitude"": 126.8245782}, {""latitude"": 37.5060626, ""longitude"": 126.824281}]",manual_review_needed
+B-30,유출,450,3,0,0,True,25.318,"[{""latitude"": 37.506104, ""longitude"": 126.824602}, {""latitude"": 37.50606755, ""longitude"": 126.8245782}, {""latitude"": 37.506295, ""longitude"": 126.8246}]",manual_review_needed
+B-31,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.585313, ""longitude"": 126.795571}]",single_valid_coordinate
+B-31,유출,450,2,0,0,True,60.428,"[{""latitude"": 37.585313, ""longitude"": 126.795571}, {""latitude"": 37.58549, ""longitude"": 126.794924}]",manual_review_needed
+B-32,유입,450,2,0,0,True,16.62,"[{""latitude"": 37.587814, ""longitude"": 126.812795}, {""latitude"": 37.587761, ""longitude"": 126.812971}]",manual_review_needed
+B-32,유출,450,2,0,0,True,16.62,"[{""latitude"": 37.587814, ""longitude"": 126.812795}, {""latitude"": 37.587761, ""longitude"": 126.812971}]",manual_review_needed
+B-33,유입,450,2,0,0,True,14.507,"[{""latitude"": 37.644685, ""longitude"": 126.91127}, {""latitude"": 37.6447125, ""longitude"": 126.9111093}]",manual_review_needed
+B-33,유출,450,2,0,0,True,24.949,"[{""latitude"": 37.644685, ""longitude"": 126.91127}, {""latitude"": 37.644857, ""longitude"": 126.911452}]",manual_review_needed
+B-34,유입,450,2,0,0,True,9.874,"[{""latitude"": 37.617883, ""longitude"": 126.90626}, {""latitude"": 37.61779406, ""longitude"": 126.906262418}]",manual_review_needed
+B-34,유출,450,2,0,0,True,20.825,"[{""latitude"": 37.617883, ""longitude"": 126.90626}, {""latitude"": 37.6179744, ""longitude"": 126.906466}]",manual_review_needed
+B-35,유입,450,2,0,0,True,29.209,"[{""latitude"": 37.587472, ""longitude"": 126.886414}, {""latitude"": 37.58732117, ""longitude"": 126.886685}]",manual_review_needed
+B-35,유출,450,2,0,0,True,39.059,"[{""latitude"": 37.587472, ""longitude"": 126.886414}, {""latitude"": 37.5877064, ""longitude"": 126.88674386}]",manual_review_needed
+B-36,유입,450,2,0,0,True,21.163,"[{""latitude"": 37.570903, ""longitude"": 126.872321}, {""latitude"": 37.57089, ""longitude"": 126.87256}]",manual_review_needed
+B-36,유출,450,2,0,0,True,22.881,"[{""latitude"": 37.570903, ""longitude"": 126.872321}, {""latitude"": 37.570903, ""longitude"": 126.87258}]",manual_review_needed
+B-37,유입,450,2,0,0,True,14.217,"[{""latitude"": 37.558389, ""longitude"": 127.114274}, {""latitude"": 37.5582745, ""longitude"": 127.11420187}]",manual_review_needed
+B-37,유출,450,2,0,0,True,51.333,"[{""latitude"": 37.558389, ""longitude"": 127.114274}, {""latitude"": 37.558659, ""longitude"": 127.1147457}]",manual_review_needed
+B-38,유입,450,2,0,0,True,41.625,"[{""latitude"": 37.683253, ""longitude"": 127.052529}, {""latitude"": 37.6836206, ""longitude"": 127.0526225}]",manual_review_needed
+B-38,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.683253, ""longitude"": 127.052529}]",single_valid_coordinate
+C-01,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.598121, ""longitude"": 126.809931}]",single_valid_coordinate
+C-01,유출,450,2,0,0,True,43.369,"[{""latitude"": 37.598121, ""longitude"": 126.809931}, {""latitude"": 37.59779, ""longitude"": 126.80967}]",manual_review_needed
+C-02,유입,450,2,0,0,True,14.377,"[{""latitude"": 37.556598, ""longitude"": 126.885535}, {""latitude"": 37.55647, ""longitude"": 126.88551}]",manual_review_needed
+C-02,유출,450,3,0,0,True,375.692,"[{""latitude"": 37.556598, ""longitude"": 126.885535}, {""latitude"": 37.55347, ""longitude"": 126.88391}, {""latitude"": 37.55647, ""longitude"": 126.88551}]",manual_review_needed
+C-03,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.571567, ""longitude"": 126.862726}]",single_valid_coordinate
+C-03,유출,450,2,0,0,True,445.955,"[{""latitude"": 37.571567, ""longitude"": 126.862726}, {""latitude"": 37.56817, ""longitude"": 126.86003}]",manual_review_needed
+C-04,유입,450,2,0,0,True,547.858,"[{""latitude"": 37.55268, ""longitude"": 126.891564}, {""latitude"": 37.548204, ""longitude"": 126.88895}]",manual_review_needed
+C-04,유출,450,2,0,0,True,549.452,"[{""latitude"": 37.55268, ""longitude"": 126.891564}, {""latitude"": 37.54829, ""longitude"": 126.88869}]",manual_review_needed
+C-05,유입,450,2,0,0,True,28.413,"[{""latitude"": 37.542913, ""longitude"": 126.903766}, {""latitude"": 37.5427886, ""longitude"": 126.903485}]",manual_review_needed
+C-05,유출,450,2,0,0,True,28.413,"[{""latitude"": 37.542913, ""longitude"": 126.903766}, {""latitude"": 37.5427886, ""longitude"": 126.903485}]",manual_review_needed
+C-06,유입,450,2,0,0,True,20.581,"[{""latitude"": 37.537537, ""longitude"": 126.925341}, {""latitude"": 37.537362, ""longitude"": 126.925264}]",manual_review_needed
+C-06,유출,450,2,0,0,True,20.581,"[{""latitude"": 37.537537, ""longitude"": 126.925341}, {""latitude"": 37.537362, ""longitude"": 126.925264}]",manual_review_needed
+C-07,유입,450,2,0,0,True,6.766,"[{""latitude"": 37.533628, ""longitude"": 126.936512}, {""latitude"": 37.5336, ""longitude"": 126.93658}]",manual_review_needed
+C-07,유출,450,2,0,0,True,2.542,"[{""latitude"": 37.533628, ""longitude"": 126.936512}, {""latitude"": 37.53365, ""longitude"": 126.93652}]",manual_review_needed
+C-08,유입,450,2,0,0,True,498.091,"[{""latitude"": 37.526745, ""longitude"": 126.945137}, {""latitude"": 37.52423666, ""longitude"": 126.94046451}]",manual_review_needed
+C-08,유출,450,2,0,0,True,514.917,"[{""latitude"": 37.526745, ""longitude"": 126.945137}, {""latitude"": 37.524288, ""longitude"": 126.940195798}]",manual_review_needed
+C-09,유입,450,2,0,0,True,17.02,"[{""latitude"": 37.51816, ""longitude"": 126.959472}, {""latitude"": 37.51811, ""longitude"": 126.95929}]",manual_review_needed
+C-09,유출,450,2,0,0,True,21.913,"[{""latitude"": 37.51816, ""longitude"": 126.959472}, {""latitude"": 37.51813, ""longitude"": 126.959227}]",manual_review_needed
+C-10,유입,450,2,0,0,True,19.09,"[{""latitude"": 37.509936, ""longitude"": 126.981814}, {""latitude"": 37.509764, ""longitude"": 126.9818128}]",manual_review_needed
+C-10,유출,450,2,0,0,True,43.588,"[{""latitude"": 37.509936, ""longitude"": 126.981814}, {""latitude"": 37.509782335, ""longitude"": 126.9813603}]",manual_review_needed
+C-11,유입,450,2,0,0,True,20.717,"[{""latitude"": 37.514431, ""longitude"": 126.996663}, {""latitude"": 37.514617646, ""longitude"": 126.996666}]",manual_review_needed
+C-11,유출,450,2,0,0,True,37.98,"[{""latitude"": 37.514431, ""longitude"": 126.996663}, {""latitude"": 37.51466719, ""longitude"": 126.996352146}]",manual_review_needed
+C-12,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.50826, ""longitude"": 126.999744}]",single_valid_coordinate
+C-12,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.50826, ""longitude"": 126.999744}]",single_valid_coordinate
+C-13,유입,450,2,0,0,True,20.118,"[{""latitude"": 37.526946, ""longitude"": 127.01319}, {""latitude"": 37.5271138581986, ""longitude"": 127.0132759}]",manual_review_needed
+C-13,유출,450,2,0,0,True,31.464,"[{""latitude"": 37.526946, ""longitude"": 127.01319}, {""latitude"": 37.52689316, ""longitude"": 127.01284028}]",manual_review_needed
+C-14,유입,450,2,0,0,True,13.546,"[{""latitude"": 37.538207, ""longitude"": 127.019882}, {""latitude"": 37.538136658, ""longitude"": 127.02000725}]",manual_review_needed
+C-14,유출,450,2,0,0,True,32.007,"[{""latitude"": 37.538207, ""longitude"": 127.019882}, {""latitude"": 37.537997, ""longitude"": 127.0196338}]",manual_review_needed
+C-15,유입,450,2,0,0,True,15.346,"[{""latitude"": 37.536768, ""longitude"": 127.034972}, {""latitude"": 37.53685, ""longitude"": 127.0351118}]",manual_review_needed
+C-15,유출,450,2,0,0,True,23.948,"[{""latitude"": 37.536768, ""longitude"": 127.034972}, {""latitude"": 37.53690337, ""longitude"": 127.034761}]",manual_review_needed
+C-16,유입,450,2,0,0,True,16.775,"[{""latitude"": 37.530295, ""longitude"": 127.057339}, {""latitude"": 37.530414, ""longitude"": 127.057456}]",manual_review_needed
+C-16,유출,450,2,0,0,True,22.426,"[{""latitude"": 37.530295, ""longitude"": 127.057339}, {""latitude"": 37.53047274, ""longitude"": 127.05721833}]",manual_review_needed
+C-17,유입,450,3,0,0,True,342.367,"[{""latitude"": 37.525513, ""longitude"": 127.064067}, {""latitude"": 37.5283962, ""longitude"": 127.065444}, {""latitude"": 37.52554522, ""longitude"": 127.0641267}]",manual_review_needed
+C-17,유출,450,3,0,0,True,447.659,"[{""latitude"": 37.525513, ""longitude"": 127.064067}, {""latitude"": 37.5293647, ""longitude"": 127.06557}, {""latitude"": 37.5256377, ""longitude"": 127.06382699}]",manual_review_needed
+C-18,유입,450,2,0,0,True,29.567,"[{""latitude"": 37.523821, ""longitude"": 127.092036}, {""latitude"": 37.5240874, ""longitude"": 127.09203645}]",manual_review_needed
+C-18,유출,450,2,0,0,True,28.351,"[{""latitude"": 37.523821, ""longitude"": 127.092036}, {""latitude"": 37.5239412, ""longitude"": 127.091753}]",manual_review_needed
+C-19,유입,450,2,0,0,True,13.113,"[{""latitude"": 37.533789, ""longitude"": 127.10412}, {""latitude"": 37.53387, ""longitude"": 127.104228}]",manual_review_needed
+C-19,유출,450,2,0,0,True,12.303,"[{""latitude"": 37.533789, ""longitude"": 127.10412}, {""latitude"": 37.5337182, ""longitude"": 127.1040129}]",manual_review_needed
+C-20,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.542673, ""longitude"": 127.112883}]",single_valid_coordinate
+C-20,유출,450,2,0,0,True,11.132,"[{""latitude"": 37.542673, ""longitude"": 127.112883}, {""latitude"": 37.5426255, ""longitude"": 127.11277206}]",manual_review_needed
+C-21,유입,450,2,0,0,True,4.029,"[{""latitude"": 37.54412, ""longitude"": 127.115274}, {""latitude"": 37.544153, ""longitude"": 127.115255}]",manual_review_needed
+C-21,유출,450,2,0,0,True,4.029,"[{""latitude"": 37.54412, ""longitude"": 127.115274}, {""latitude"": 37.544153, ""longitude"": 127.115255}]",manual_review_needed
+D-01,유입,450,3,0,0,True,25.907,"[{""latitude"": 37.608686, ""longitude"": 126.955198}, {""latitude"": 37.608739, ""longitude"": 126.955024}, {""latitude"": 37.6086868, ""longitude"": 126.955309981}]",manual_review_needed
+D-01,유출,450,3,0,0,True,20.828,"[{""latitude"": 37.608686, ""longitude"": 126.955198}, {""latitude"": 37.608739, ""longitude"": 126.955024}, {""latitude"": 37.6087228, ""longitude"": 126.955259}]",manual_review_needed
+D-02,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.611547, ""longitude"": 126.979308}]",single_valid_coordinate
+D-02,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.611547, ""longitude"": 126.979308}]",single_valid_coordinate
+D-03,유입,450,3,0,0,True,24.887,"[{""latitude"": 37.551919, ""longitude"": 127.012977}, {""latitude"": 37.551833, ""longitude"": 127.013139}, {""latitude"": 37.55178, ""longitude"": 127.013198}]",manual_review_needed
+D-03,유출,450,3,0,0,True,22.32,"[{""latitude"": 37.551919, ""longitude"": 127.012977}, {""latitude"": 37.551833, ""longitude"": 127.013139}, {""latitude"": 37.551743, ""longitude"": 127.0130992}]",manual_review_needed
+D-04,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.527197, ""longitude"": 127.004697}]",single_valid_coordinate
+D-04,유출,450,2,0,0,True,21.02,"[{""latitude"": 37.527197, ""longitude"": 127.004697}, {""latitude"": 37.5270649, ""longitude"": 127.0048674}]",manual_review_needed
+D-05,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.560716, ""longitude"": 127.068571}]",single_valid_coordinate
+D-05,유출,450,2,0,0,True,12.035,"[{""latitude"": 37.560716, ""longitude"": 127.068571}, {""latitude"": 37.560821, ""longitude"": 127.068537}]",manual_review_needed
+D-06,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.542006, ""longitude"": 127.020674}]",single_valid_coordinate
+D-06,유출,450,2,0,0,True,16.907,"[{""latitude"": 37.542006, ""longitude"": 127.020674}, {""latitude"": 37.54189, ""longitude"": 127.02055}]",manual_review_needed
+D-07,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.553809, ""longitude"": 127.070504}]",single_valid_coordinate
+D-07,유출,450,2,0,0,True,58.802,"[{""latitude"": 37.553809, ""longitude"": 127.070504}, {""latitude"": 37.55328342, ""longitude"": 127.0704201}]",manual_review_needed
+D-08,유입,450,2,0,0,True,37.354,"[{""latitude"": 37.603932, ""longitude"": 127.044044}, {""latitude"": 37.604216, ""longitude"": 127.044271}]",manual_review_needed
+D-08,유출,450,2,0,0,True,36.838,"[{""latitude"": 37.603932, ""longitude"": 127.044044}, {""latitude"": 37.604083, ""longitude"": 127.0444155}]",manual_review_needed
+D-09,유입,450,2,0,0,True,60.822,"[{""latitude"": 37.599755, ""longitude"": 127.021693}, {""latitude"": 37.59921, ""longitude"": 127.021765}]",manual_review_needed
+D-09,유출,450,2,0,0,True,60.822,"[{""latitude"": 37.599755, ""longitude"": 127.021693}, {""latitude"": 37.59921, ""longitude"": 127.021765}]",manual_review_needed
+D-10,유입,450,2,0,0,True,184.519,"[{""latitude"": 37.619936, ""longitude"": 127.08295}, {""latitude"": 37.61950415, ""longitude"": 127.08093168}]",manual_review_needed
+D-10,유출,450,2,0,0,True,184.417,"[{""latitude"": 37.619936, ""longitude"": 127.08295}, {""latitude"": 37.619265, ""longitude"": 127.081039}]",manual_review_needed
+D-11,유입,450,2,0,0,True,37.857,"[{""latitude"": 37.645707, ""longitude"": 127.033171}, {""latitude"": 37.64567622, ""longitude"": 127.03274379}]",manual_review_needed
+D-11,유출,450,2,0,0,True,4.853,"[{""latitude"": 37.645707, ""longitude"": 127.033171}, {""latitude"": 37.64568512609, ""longitude"": 127.03312338}]",manual_review_needed
+D-12,유입,450,2,0,0,True,16.761,"[{""latitude"": 37.631579, ""longitude"": 127.063432}, {""latitude"": 37.631482, ""longitude"": 127.06357753}]",manual_review_needed
+D-12,유출,450,2,0,0,True,128.079,"[{""latitude"": 37.631579, ""longitude"": 127.063432}, {""latitude"": 37.6327049, ""longitude"": 127.0631139}]",manual_review_needed
+D-13,유입,450,2,0,0,True,10.794,"[{""latitude"": 37.652409, ""longitude"": 127.061032}, {""latitude"": 37.652465, ""longitude"": 127.060932}]",manual_review_needed
+D-13,유출,450,3,0,0,True,60.623,"[{""latitude"": 37.652409, ""longitude"": 127.061032}, {""latitude"": 37.652465, ""longitude"": 127.060932}, {""latitude"": 37.65294485, ""longitude"": 127.0611651}]",manual_review_needed
+D-14,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.579684, ""longitude"": 126.905124}]",single_valid_coordinate
+D-14,유출,450,2,0,0,True,46.897,"[{""latitude"": 37.579684, ""longitude"": 126.905124}, {""latitude"": 37.579889, ""longitude"": 126.905588244593}]",manual_review_needed
+D-15,유입,450,2,0,0,True,149.506,"[{""latitude"": 37.594931, ""longitude"": 126.940246}, {""latitude"": 37.59600493, ""longitude"": 126.93922407869}]",manual_review_needed
+D-15,유출,450,2,0,0,True,113.162,"[{""latitude"": 37.594931, ""longitude"": 126.940246}, {""latitude"": 37.5958723, ""longitude"": 126.9397536}]",manual_review_needed
+D-16,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.563506, ""longitude"": 126.9301}]",single_valid_coordinate
+D-16,유출,450,2,0,0,True,39.539,"[{""latitude"": 37.563506, ""longitude"": 126.9301}, {""latitude"": 37.5635531, ""longitude"": 126.9305436}]",manual_review_needed
+D-17,유입,450,2,0,0,True,18.351,"[{""latitude"": 37.566264, ""longitude"": 126.930537}, {""latitude"": 37.56610289, ""longitude"": 126.9304903}]",manual_review_needed
+D-17,유출,450,2,0,0,True,16.522,"[{""latitude"": 37.566264, ""longitude"": 126.930537}, {""latitude"": 37.566283, ""longitude"": 126.93035152}]",manual_review_needed
+D-18,유입,450,2,0,0,True,22.072,"[{""latitude"": 37.540163, ""longitude"": 126.825453}, {""latitude"": 37.5399712, ""longitude"": 126.825387}]",manual_review_needed
+D-18,유출,450,2,0,0,True,26.097,"[{""latitude"": 37.540163, ""longitude"": 126.825453}, {""latitude"": 37.540397, ""longitude"": 126.825482}]",manual_review_needed
+D-19,유입,450,3,0,0,True,153.848,"[{""latitude"": 37.524081, ""longitude"": 126.835862}, {""latitude"": 37.522794, ""longitude"": 126.836346}, {""latitude"": 37.522771, ""longitude"": 126.836431}]",manual_review_needed
+D-19,유출,450,3,0,0,True,149.111,"[{""latitude"": 37.524081, ""longitude"": 126.835862}, {""latitude"": 37.522794, ""longitude"": 126.836346}, {""latitude"": 37.52317456, ""longitude"": 126.83659}]",manual_review_needed
+D-20,유입,450,2,0,0,True,9.496,"[{""latitude"": 37.534375, ""longitude"": 126.845094}, {""latitude"": 37.53446, ""longitude"": 126.8451063}]",manual_review_needed
+D-20,유출,450,2,0,0,True,4.864,"[{""latitude"": 37.534375, ""longitude"": 126.845094}, {""latitude"": 37.5343765, ""longitude"": 126.845149}]",manual_review_needed
+D-21,유입,450,2,0,0,True,68.007,"[{""latitude"": 37.559251, ""longitude"": 126.831069}, {""latitude"": 37.5590163, ""longitude"": 126.83178}]",manual_review_needed
+D-21,유출,450,2,0,0,True,25.644,"[{""latitude"": 37.559251, ""longitude"": 126.831069}, {""latitude"": 37.559482, ""longitude"": 126.831063}]",manual_review_needed
+D-22,유입,450,2,0,0,True,51.975,"[{""latitude"": 37.498246, ""longitude"": 126.851219}, {""latitude"": 37.497978, ""longitude"": 126.851701}]",manual_review_needed
+D-22,유출,450,3,0,0,True,76.896,"[{""latitude"": 37.498246, ""longitude"": 126.851219}, {""latitude"": 37.497978, ""longitude"": 126.851701}, {""latitude"": 37.4983777, ""longitude"": 126.8509907}]",manual_review_needed
+D-23,유입,450,2,0,0,True,28.182,"[{""latitude"": 37.50644, ""longitude"": 126.884382}, {""latitude"": 37.50625857, ""longitude"": 126.884605}]",manual_review_needed
+D-23,유출,450,2,0,0,True,14.152,"[{""latitude"": 37.50644, ""longitude"": 126.884382}, {""latitude"": 37.5065558, ""longitude"": 126.884449}]",manual_review_needed
+D-24,유입,450,2,0,0,True,58.973,"[{""latitude"": 37.477189, ""longitude"": 126.898532}, {""latitude"": 37.477532, ""longitude"": 126.8990412}]",manual_review_needed
+D-24,유출,450,2,0,0,True,8.254,"[{""latitude"": 37.477189, ""longitude"": 126.898532}, {""latitude"": 37.477263, ""longitude"": 126.8985413}]",manual_review_needed
+D-25,유입,450,2,0,0,True,19.176,"[{""latitude"": 37.523175, ""longitude"": 126.883725}, {""latitude"": 37.523104416, ""longitude"": 126.883923}]",manual_review_needed
+D-25,유출,450,2,0,0,True,23.923,"[{""latitude"": 37.523175, ""longitude"": 126.883725}, {""latitude"": 37.52335, ""longitude"": 126.883883}]",manual_review_needed
+D-26,유입,450,3,0,0,True,115.707,"[{""latitude"": 37.486787, ""longitude"": 126.904415}, {""latitude"": 37.48741, ""longitude"": 126.905464}, {""latitude"": 37.4874055, ""longitude"": 126.90545}]",manual_review_needed
+D-26,유출,450,2,0,0,True,115.707,"[{""latitude"": 37.486787, ""longitude"": 126.904415}, {""latitude"": 37.48741, ""longitude"": 126.905464}]",manual_review_needed
+D-27,유입,450,2,0,0,True,221.819,"[{""latitude"": 37.526003, ""longitude"": 126.910953}, {""latitude"": 37.526653, ""longitude"": 126.913326}]",manual_review_needed
+D-27,유출,450,2,0,0,True,221.819,"[{""latitude"": 37.526003, ""longitude"": 126.910953}, {""latitude"": 37.526653, ""longitude"": 126.913326}]",manual_review_needed
+D-28,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.52019, ""longitude"": 126.914903}]",single_valid_coordinate
+D-28,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.52019, ""longitude"": 126.914903}]",single_valid_coordinate
+D-29,유입,450,2,0,0,True,1.618,"[{""latitude"": 37.516852, ""longitude"": 126.928374}, {""latitude"": 37.51683745, ""longitude"": 126.9283752}]",manual_review_needed
+D-29,유출,450,2,0,0,True,254.528,"[{""latitude"": 37.516852, ""longitude"": 126.928374}, {""latitude"": 37.514868, ""longitude"": 126.92693}]",manual_review_needed
+D-30,유입,450,2,0,0,True,14.82,"[{""latitude"": 37.511204, ""longitude"": 126.953469}, {""latitude"": 37.511158, ""longitude"": 126.95362636}]",manual_review_needed
+D-30,유출,450,2,0,0,True,32.141,"[{""latitude"": 37.511204, ""longitude"": 126.953469}, {""latitude"": 37.5109459, ""longitude"": 126.95330413}]",manual_review_needed
+D-31,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.494352, ""longitude"": 126.982914}]",single_valid_coordinate
+D-31,유출,450,2,0,0,True,115.203,"[{""latitude"": 37.494352, ""longitude"": 126.982914}, {""latitude"": 37.4933639, ""longitude"": 126.982515}]",manual_review_needed
+D-32,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.479046, ""longitude"": 126.924252}]",single_valid_coordinate
+D-32,유출,450,2,0,0,True,62.44,"[{""latitude"": 37.479046, ""longitude"": 126.924252}, {""latitude"": 37.47892, ""longitude"": 126.92494}]",manual_review_needed
+D-33,유입,450,2,0,0,True,27.266,"[{""latitude"": 37.477711, ""longitude"": 126.962242}, {""latitude"": 37.47746764, ""longitude"": 126.96219984}]",manual_review_needed
+D-33,유출,450,2,0,0,True,68.787,"[{""latitude"": 37.477711, ""longitude"": 126.962242}, {""latitude"": 37.47802156, ""longitude"": 126.961569}]",manual_review_needed
+D-34,유입,450,2,0,0,True,38.576,"[{""latitude"": 37.476405, ""longitude"": 127.00445}, {""latitude"": 37.476221, ""longitude"": 127.00482}]",manual_review_needed
+D-34,유출,450,2,0,0,True,38.576,"[{""latitude"": 37.476405, ""longitude"": 127.00445}, {""latitude"": 37.476221, ""longitude"": 127.00482}]",manual_review_needed
+D-35,유입,450,2,0,0,True,11.543,"[{""latitude"": 37.49059, ""longitude"": 127.03116}, {""latitude"": 37.490694, ""longitude"": 127.03116}]",manual_review_needed
+D-35,유출,450,2,0,0,True,204.586,"[{""latitude"": 37.49059, ""longitude"": 127.03116}, {""latitude"": 37.49229365, ""longitude"": 127.03027663}]",manual_review_needed
+D-36,유입,450,2,0,0,True,170.303,"[{""latitude"": 37.503742, ""longitude"": 127.007779}, {""latitude"": 37.503231, ""longitude"": 127.0059629}]",manual_review_needed
+D-36,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.503742, ""longitude"": 127.007779}]",single_valid_coordinate
+D-37,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.49624, ""longitude"": 127.005554}]",single_valid_coordinate
+D-37,유출,450,2,0,0,True,27.483,"[{""latitude"": 37.49624, ""longitude"": 127.005554}, {""latitude"": 37.4963497, ""longitude"": 127.005275374}]",manual_review_needed
+D-38,유입,450,2,0,0,True,93.906,"[{""latitude"": 37.492009, ""longitude"": 127.047969}, {""latitude"": 37.4928105, ""longitude"": 127.0476288}]",manual_review_needed
+D-38,유출,450,2,0,0,True,42.485,"[{""latitude"": 37.492009, ""longitude"": 127.047969}, {""latitude"": 37.4922744, ""longitude"": 127.0476228}]",manual_review_needed
+D-39,유입,450,2,0,0,True,23.797,"[{""latitude"": 37.495912, ""longitude"": 127.090903}, {""latitude"": 37.4961, ""longitude"": 127.0910324}]",manual_review_needed
+D-39,유출,450,2,0,0,True,40.94,"[{""latitude"": 37.495912, ""longitude"": 127.090903}, {""latitude"": 37.4957019, ""longitude"": 127.091283527}]",manual_review_needed
+D-40,유입,450,2,0,0,True,13.438,"[{""latitude"": 37.465092, ""longitude"": 127.105635}, {""latitude"": 37.4651636, ""longitude"": 127.1057575}]",manual_review_needed
+D-40,유출,450,2,0,0,True,33.013,"[{""latitude"": 37.465092, ""longitude"": 127.105635}, {""latitude"": 37.4648057, ""longitude"": 127.1055338}]",manual_review_needed
+D-41,유입,450,2,0,0,True,13.001,"[{""latitude"": 37.529712, ""longitude"": 126.909281}, {""latitude"": 37.5296543, ""longitude"": 126.909153}]",manual_review_needed
+D-41,유출,450,2,0,0,True,7.25,"[{""latitude"": 37.529712, ""longitude"": 126.909281}, {""latitude"": 37.5297017, ""longitude"": 126.909362}]",manual_review_needed
+D-42,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.505483, ""longitude"": 127.052134}]",single_valid_coordinate
+D-42,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.505483, ""longitude"": 127.052134}]",single_valid_coordinate
+D-43,유입,450,2,0,0,True,7.098,"[{""latitude"": 37.514859, ""longitude"": 127.020098}, {""latitude"": 37.5148007, ""longitude"": 127.020131}]",manual_review_needed
+D-43,유출,450,2,0,0,True,65.851,"[{""latitude"": 37.514859, ""longitude"": 127.020098}, {""latitude"": 37.5142939, ""longitude"": 127.019871}]",manual_review_needed
+D-44,유입,450,2,0,0,True,36.473,"[{""latitude"": 37.510639, ""longitude"": 127.078559}, {""latitude"": 37.5109266, ""longitude"": 127.0787586}]",manual_review_needed
+D-44,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.510639, ""longitude"": 127.078559}]",single_valid_coordinate
+D-45,유입,450,2,0,0,True,85.813,"[{""latitude"": 37.500537, ""longitude"": 127.111445}, {""latitude"": 37.5000312, ""longitude"": 127.112179}]",manual_review_needed
+D-45,유출,450,2,0,0,True,89.354,"[{""latitude"": 37.500537, ""longitude"": 127.111445}, {""latitude"": 37.49978, ""longitude"": 127.111789}]",manual_review_needed
+D-46,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.520965, ""longitude"": 126.881826}]",single_valid_coordinate
+D-46,유출,450,2,0,0,True,877.047,"[{""latitude"": 37.520965, ""longitude"": 126.881826}, {""latitude"": 37.5277, ""longitude"": 126.8870157}]",manual_review_needed
+F-01,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.506002, ""longitude"": 126.97375}]",single_valid_coordinate
+F-01,유출,450,2,0,0,True,52.067,"[{""latitude"": 37.506002, ""longitude"": 126.97375}, {""latitude"": 37.5062488, ""longitude"": 126.9732492}]",manual_review_needed
+F-02,유입,450,2,0,0,True,13.349,"[{""latitude"": 37.517004, ""longitude"": 126.973968}, {""latitude"": 37.517004, ""longitude"": 126.974119}]",manual_review_needed
+F-02,유출,450,2,0,0,True,276.402,"[{""latitude"": 37.517004, ""longitude"": 126.973968}, {""latitude"": 37.51639, ""longitude"": 126.976998}]",manual_review_needed
+F-03,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.608679, ""longitude"": 126.998878}]",single_valid_coordinate
+F-03,유출,450,2,0,0,True,4182.539,"[{""latitude"": 37.608679, ""longitude"": 126.998878}, {""latitude"": 37.596363, ""longitude"": 126.95411397}]",manual_review_needed
+F-04,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.608556, ""longitude"": 127.052577}]",single_valid_coordinate
+F-04,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.608556, ""longitude"": 127.052577}]",single_valid_coordinate
+F-05,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.568685, ""longitude"": 127.076023}]",single_valid_coordinate
+F-05,유출,450,2,0,0,True,167.368,"[{""latitude"": 37.568685, ""longitude"": 127.076023}, {""latitude"": 37.5683749, ""longitude"": 127.077877}]",manual_review_needed
+F-06,유입,450,2,0,0,True,8.187,"[{""latitude"": 37.493135, ""longitude"": 127.022533}, {""latitude"": 37.49320766, ""longitude"": 127.022517}]",manual_review_needed
+F-06,유출,450,2,0,0,True,368.132,"[{""latitude"": 37.493135, ""longitude"": 127.022533}, {""latitude"": 37.48989, ""longitude"": 127.023395}]",manual_review_needed
+F-07,유입,450,2,0,0,True,5.619,"[{""latitude"": 37.497648, ""longitude"": 127.087195}, {""latitude"": 37.497698421, ""longitude"": 127.0872007}]",manual_review_needed
+F-07,유출,450,2,0,0,True,68.52,"[{""latitude"": 37.497648, ""longitude"": 127.087195}, {""latitude"": 37.497701, ""longitude"": 127.086423}]",manual_review_needed
+F-08,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.449096, ""longitude"": 126.926169}]",single_valid_coordinate
+F-08,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.449096, ""longitude"": 126.926169}]",single_valid_coordinate
+F-09,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.468942, ""longitude"": 126.883673}]",single_valid_coordinate
+F-09,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.468942, ""longitude"": 126.883673}]",single_valid_coordinate
+F-10,유입,450,1,0,0,False,0.0,"[{""latitude"": 37.529318, ""longitude"": 126.862277}]",single_valid_coordinate
+F-10,유출,450,1,0,0,False,0.0,"[{""latitude"": 37.529318, ""longitude"": 126.862277}]",single_valid_coordinate

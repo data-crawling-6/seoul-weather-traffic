@@ -1,0 +1,18 @@
+{
+  "status": "성공",
+  "source": "D:\\seoul-weather-traffic-data\\naver_news\\processed\\yang_seoyeon_news_road_candidates_20261125T231844070821_(성공)_v01.csv",
+  "input_rows": 360,
+  "candidate_rows": 260,
+  "control_keyword_rows": 244,
+  "hazard_only_rows": 16,
+  "priority_control_rows": 136,
+  "priority_unique_articles": 84,
+  "priority_road_days": 19,
+  "confirmed_controls": 0,
+  "outputs": {
+    "detail": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_control_candidates_20261125T232401166355_(성공)_v01.csv",
+    "summary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_control_summary_20261125T232401166355_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_road_control_20261125T232401166355_(성공)_v01.json"
+  },
+  "limitations": "제목의 통제 표현과 도로명이 함께 등장한 검토 후보. 해당 도로의 실제 통제, 해제 여부, 사건일 및 원인은 미검증. 위험 표현만 있는 행은 통제 요약에서 제외."
+}

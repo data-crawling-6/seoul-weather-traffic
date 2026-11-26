@@ -1,0 +1,29 @@
+{
+  "target_versions": 179,
+  "history_evidence_counts": {
+    "road_candidate_inconsistent_or_missing": 3,
+    "same_road_candidate_across_versions": 115,
+    "target_road_ambiguous": 61
+  },
+  "validation_checks": {
+    "target_population_matches": true,
+    "unique_target_versions": true,
+    "status_partition": true,
+    "no_mapping_changes": true,
+    "no_unverified_geometry_or_direction_claims": true
+  },
+  "status": "success",
+  "source_files": {
+    "classification": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_manual_reason_classification_20261124T005455_(성공)_v01.csv",
+    "candidates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_mapping_candidates_20261123T232007_(성공)_v01.csv",
+    "bulk_assessment": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_all_manual_assessment_20261124T011700_(성공)_v01.csv"
+  },
+  "source_hashes": {
+    "classification": "4ed3cada8eb8d0eb8f09e5700a2736767555fef9190bf3331819ecc34788b0d0",
+    "candidates": "5eda95d59ffd55fa71e3dd076bda3cfac8022e0e7eed5aea454e45c14c89c683",
+    "bulk_assessment": "efa5e7745137bd5de35e2d219f138415a8cc0b37d24d68825205d1f4e41afb3c"
+  },
+  "output_csv": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_coordinate_history_assessment_20261124T011935_(성공)_v01.csv",
+  "output_json": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_coordinate_history_assessment_20261124T011935_(성공)_v01.json",
+  "notice": "Read-only candidate history; classification may omit auto-confirmed peer versions."
+}

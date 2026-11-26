@@ -219,16 +219,16 @@ def visualize_latest(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weathe
 
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     suffix = f"{stamp}_(성공)_v01"
-    figure_dir = root / "outputs/figures/yang_seoyeon"
+    figure_dir = root / "outputs/figures/ysy"
     table_dir = root / "outputs/tables"
     log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     paths = {
-        "train_eval_plot": figure_dir / f"yang_seoyeon_cluster_train_eval_{suffix}.png",
-        "commute_plot": figure_dir / f"yang_seoyeon_cluster_commute_{suffix}.png",
-        "weather_plot": figure_dir / f"yang_seoyeon_cluster_weather_{suffix}.png",
-        "map_png": figure_dir / f"yang_seoyeon_cluster_map_{suffix}.png",
-        "map_html": figure_dir / f"yang_seoyeon_cluster_map_{suffix}.html",
+        "train_eval_plot": figure_dir / f"cluster_train_eval_{suffix}.png",
+        "commute_plot": figure_dir / f"cluster_commute_{suffix}.png",
+        "weather_plot": figure_dir / f"cluster_weather_{suffix}.png",
+        "map_png": figure_dir / f"cluster_map_{suffix}.png",
+        "map_html": figure_dir / f"cluster_map_{suffix}.html",
         "eval_unclustered": table_dir / f"yang_seoyeon_cluster_eval_unclassified_{suffix}.csv",
         "interpretation": table_dir / f"yang_seoyeon_cluster_interpretation_{suffix}.json",
         "visualization_log": log_dir / f"traffic_visualization_{suffix}.json",
@@ -330,9 +330,9 @@ def visualize_latest(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weathe
 
 def combine_travel_time(
     root: Path = ROOT,
-    travel_path: Path = Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v04.parquet"),
+    travel_path: Path = Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v05.parquet"),
 ) -> dict:
-    """[서연] 최신 교통량 변화와 v04 통행시간 변화를 도로·시간 단위로 결합한다."""
+    """[서연] 최신 교통량 변화와 v05 통행시간 변화를 도로·시간 단위로 결합한다."""
     try:
         import matplotlib.pyplot as plt
     except ImportError as exc:
@@ -349,7 +349,7 @@ def combine_travel_time(
     if missing:
         raise ValueError(f"교통량 도로·시간 결과 필수 열 누락: {sorted(missing)}")
     if not travel_path.exists():
-        raise FileNotFoundError(f"통행시간 v04가 없습니다: {travel_path}")
+        raise FileNotFoundError(f"통행시간 v05가 없습니다: {travel_path}")
 
     travel_columns = ["date", "hour", "road_id", "direction", "travel_time_seconds",
                       "road_speed_kmh", "link_count", "observed_link_count"]
@@ -359,7 +359,7 @@ def combine_travel_time(
     road_hours["matched_date"] = pd.to_datetime(road_hours["matched_date"], errors="raise").dt.strftime("%Y-%m-%d")
     travel["road_id"] = travel["road_id"].astype("string")
     if travel.duplicated(["date", "hour", "road_id", "direction"]).any():
-        raise ValueError("통행시간 v04의 날짜·시간·도로·방향 키가 중복됩니다.")
+        raise ValueError("통행시간 v05의 날짜·시간·도로·방향 키가 중복됩니다.")
     if road_hours.duplicated(["split", "severe_date", "road_id", "hour"]).any():
         raise ValueError("교통량 도로·시간 결과 키가 중복됩니다.")
 
@@ -453,7 +453,7 @@ def combine_travel_time(
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     suffix = f"{stamp}_(성공)_v01"
     table_dir = root / "outputs/tables"
-    figure_dir = root / "outputs/figures/yang_seoyeon"
+    figure_dir = root / "outputs/figures/ysy"
     log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -463,7 +463,7 @@ def combine_travel_time(
         "combined": table_dir / f"yang_seoyeon_traffic_travel_road_hour_{suffix}.csv",
         "correlations": table_dir / f"yang_seoyeon_traffic_travel_correlations_{suffix}.csv",
         "invalid_rows": table_dir / f"yang_seoyeon_traffic_travel_invalid_{suffix}.csv",
-        "scatter": figure_dir / f"yang_seoyeon_traffic_travel_scatter_{suffix}.png",
+        "scatter": figure_dir / f"traffic_travel_scatter_{suffix}.png",
         "log": log_dir / f"traffic_travel_join_{suffix}.json",
     }
     if any(path.exists() for path in paths.values()):
@@ -584,14 +584,14 @@ def validate_relationships(root: Path = ROOT) -> dict:
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     suffix = f"{stamp}_(성공)_v01"
     table_dir = root / "outputs/tables"
-    figure_dir = root / "outputs/figures/yang_seoyeon"
+    figure_dir = root / "outputs/figures/ysy"
     log_dir = root / "logs/ysy/traffic_analysis"
     figure_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "outliers": table_dir / f"yang_seoyeon_traffic_travel_outliers_{suffix}.csv",
         "sensitivity": table_dir / f"yang_seoyeon_traffic_travel_sensitivity_{suffix}.csv",
-        "plot": figure_dir / f"yang_seoyeon_traffic_travel_sensitivity_{suffix}.png",
+        "plot": figure_dir / f"traffic_travel_sensitivity_{suffix}.png",
         "log": log_dir / f"traffic_travel_sensitivity_{suffix}.json",
     }
     if any(path.exists() for path in paths.values()):
@@ -754,12 +754,12 @@ def combine_news(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weather-tr
     date_support["support_scope"] = "날짜별 검색 후보; 서울·사건일·도로 미확인"
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f")
     suffix = f"{stamp}_(성공)_v01"
-    fig_dir = root / "outputs/figures/yang_seoyeon"
+    fig_dir = root / "outputs/figures/ysy"
     log_dir = root / "logs/ysy/traffic_analysis"
     for folder in [table_dir, fig_dir, log_dir]: folder.mkdir(parents=True, exist_ok=True)
     frames = {"news_case_audit":cases,"news_case_road_days":selected,"news_case_hourly":hourly,"news_cluster_cases":cluster_cases,"news_representative_cases":representatives,"news_date_support":date_support}
     paths = {k:table_dir / f"yang_seoyeon_{k}_{suffix}.csv" for k in frames}
-    paths.update(plot=fig_dir / f"yang_seoyeon_news_cases_{suffix}.png", log=log_dir / f"traffic_news_join_{suffix}.json")
+    paths.update(plot=fig_dir / f"news_cases_{suffix}.png", log=log_dir / f"traffic_news_join_{suffix}.json")
     if any(p.exists() for p in paths.values()): raise FileExistsError("출력 경로 중복")
     plt.rcParams["font.family"] = "Malgun Gothic"
     plt.rcParams["axes.unicode_minus"] = False
@@ -776,25 +776,259 @@ def combine_news(root: Path = ROOT, data_root: Path = Path(r"D:\seoul-weather-tr
     return report
 
 
+def analyze_dtw(root: Path = ROOT, combined_path: Path | None = None) -> dict:
+    """[서연] 출퇴근 구간별 대표 패턴의 DTW 및 고정 시간 거리 비교."""
+    from sklearn.cluster import AgglomerativeClustering
+    from sklearn.metrics import adjusted_rand_score
+    from scipy.stats import spearmanr
+    import matplotlib.pyplot as plt
+    import platform
+    table = root / "outputs/tables"
+    if combined_path is None:
+        files = sorted(table.glob("yang_seoyeon_traffic_travel_road_hour_*_(성공)_v*.csv"))
+        if not files:
+            raise FileNotFoundError("교통량·통행시간 결합 CSV 없음")
+        combined_path = files[-1]
+    d = pd.read_csv(combined_path, encoding="utf-8-sig", dtype={"road_id":"string"})
+    cols = ["volume_change_pct_median", "travel_time_change_pct_median"]
+    keys = ["split", "road_id", "severe_date", "hour"]
+    required = set(keys + cols + ["road_name", "cluster", "commute_period"])
+    if required - set(d):
+        raise ValueError(f"필수 열 누락: {required - set(d)}")
+    if d[keys].isna().any().any() or d.duplicated(keys).any():
+        raise ValueError("관측 키 결측 또는 중복")
+    d["severe_date"] = pd.to_datetime(d["severe_date"], errors="raise").dt.strftime("%Y-%m-%d")
+    if d.duplicated(keys).any():
+        raise ValueError("날짜 정규화 후 관측 키 중복")
+    hours = [8,9,18,19,20]
+    if not d.hour.isin(hours).all() or set(d.split) != {"train","eval"}:
+        raise ValueError("예상하지 않은 시간대 또는 split")
+    if not d.commute_period.eq(d.hour.map({8:"morning",9:"morning",18:"evening",19:"evening",20:"evening"})).all():
+        raise ValueError("출퇴근 시간대 불일치")
+    if set(d.loc[d.split.eq("train"),"severe_date"]) & set(d.loc[d.split.eq("eval"),"severe_date"]):
+        raise ValueError("train/eval 날짜 중복")
+    for c in cols:
+        d[c] = pd.to_numeric(d[c], errors="coerce").replace([np.inf,-np.inf],np.nan)
+    # 동일 날짜·시간에 두 변수 모두 유효한 관측만 사용한다.
+    d.loc[~d[cols].notna().all(axis=1),cols] = np.nan
+    meta = d.groupby(["split","road_id"], observed=True).agg(road_name=("road_name","first"), kmeans_cluster=("cluster","first"))
+    for c in ["road_name","cluster"]:
+        if d.groupby(["split","road_id"])[c].nunique(dropna=False).gt(1).any():
+            raise ValueError(f"도로별 {c} 불일치")
+    profiles = d.groupby(["split","road_id","hour"])[cols].agg(["median","count"])
+    records=[]; arrays={"train":[],"eval":[]}; ids={"train":[],"eval":[]}
+    for (split,rid), row in meta.iterrows():
+        p=profiles.loc[split,rid].reindex(hours)
+        values=p.loc[:,[(c,"median") for c in cols]].to_numpy(float)
+        counts=p[(cols[0],"count")].fillna(0).to_numpy(int)
+        valid=bool(np.isfinite(values).all() and (counts>=3).all())
+        for i,h in enumerate(hours):
+            records.append(dict(split=split,road_id=rid,road_name=row.road_name,hour=h,valid_days=int(counts[i]),volume_median=values[i,0],travel_median=values[i,1],eligible=valid))
+        if valid:
+            ids[split].append(rid); arrays[split].append(values)
+    if len(ids["train"])<4:
+        raise ValueError("완전한 train 패턴 4개 미만")
+    train=np.asarray(arrays["train"]); evaluation=np.asarray(arrays["eval"]).reshape(-1,5,2)
+    scaler=StandardScaler().fit(train.reshape(-1,2))
+    train=scaler.transform(train.reshape(-1,2)).reshape(-1,5,2)
+    evaluation=scaler.transform(evaluation.reshape(-1,2)).reshape(-1,5,2) if len(evaluation) else evaluation
+    def distance(a,b,warp):
+        total=0.
+        for lo,hi in [(0,2),(2,5)]:
+            x,y=a[lo:hi],b[lo:hi]; n=len(x)
+            cost=np.full((n+1,n+1),np.inf); cost[0,0]=0
+            for i in range(1,n+1):
+                for j in range(max(1,i-warp),min(n,i+warp)+1):
+                    cost[i,j]=np.sum((x[i-1]-y[j-1])**2)+min(cost[i-1,j],cost[i,j-1],cost[i-1,j-1])
+            total+=cost[n,n]
+        return float(np.sqrt(total))
+    def matrix(a,b,w):
+        return np.array([[distance(x,y,w) for y in b] for x in a]).reshape(len(a),len(b))
+    scores=[]; assignments=meta.reset_index(); matrices={}; labels_by={}; medoids_by={}
+    for method,w in [("euclidean",0),("dtw",1)]:
+        D=matrix(train,train,w); matrices[method]=D
+        candidates=[]
+        for k in range(2,min(6,len(train)-1)+1):
+            try: model=AgglomerativeClustering(n_clusters=k,metric="precomputed",linkage="average")
+            except TypeError: model=AgglomerativeClustering(n_clusters=k,affinity="precomputed",linkage="average")
+            labels=model.fit_predict(D); score=float(silhouette_score(D,labels,metric="precomputed"))
+            scores.append(dict(method=method,k=k,silhouette=score)); candidates.append((score,k,labels))
+        _,k,labels=max(candidates,key=lambda v:(v[0],-v[1])); labels_by[method]=labels
+        medoids=[int(ix[np.argmin(D[np.ix_(ix,ix)].sum(axis=1))]) for c in range(k) for ix in [np.flatnonzero(labels==c)]]
+        medoids_by[method]=[str(ids["train"][i]) for i in medoids]
+        E=matrix(evaluation,train[medoids],w)
+        pred=E.argmin(axis=1) if len(evaluation) else []
+        mapping={(s,r):int(l) for s,ls in [("train",labels),("eval",pred)] for r,l in zip(ids[s],ls)}
+        assignments[method+"_cluster"]=[mapping.get((s,r),np.nan) for s,r in zip(assignments.split,assignments.road_id)]
+    upper=np.triu_indices(len(train),1); eu=matrices["euclidean"][upper]; dt=matrices["dtw"][upper]
+    if not np.all(dt<=eu+1e-9): raise AssertionError("DTW 거리 검증 실패")
+    stamp=datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f")+"_(성공)_v01"
+    figdir=root/"outputs/figures/ysy"; logdir=root/"logs/ysy/traffic_analysis"
+    for folder in [table,figdir,logdir]: folder.mkdir(parents=True,exist_ok=True)
+    frames={"dtw_profiles":pd.DataFrame(records),"dtw_clusters":assignments,"dtw_scores":pd.DataFrame(scores)}
+    for method,D in matrices.items(): frames["dtw_distance_"+method]=pd.DataFrame(D,index=ids["train"],columns=ids["train"]).rename_axis("road_id").reset_index()
+    paths={k:table/f"yang_seoyeon_{k}_{stamp}.csv" for k in frames}
+    paths.update(plot=figdir/f"dtw_patterns_{stamp}.png",log=logdir/f"traffic_dtw_{stamp}.json")
+    if any(p.exists() for p in paths.values()): raise FileExistsError("출력 경로 중복")
+    plt.rcParams["font.family"]="Malgun Gothic" if platform.system()=="Windows" else "DejaVu Sans"
+    plt.rcParams["axes.unicode_minus"] = False
+    fig,axes=plt.subplots(2,2,figsize=(10,7))
+    raw=np.asarray(arrays["train"])
+    for c,rid in enumerate(medoids_by["dtw"]):
+        a=raw[ids["train"].index(rid)]
+        for j in range(2):
+            for q,(lo,hi) in enumerate([(0,2),(2,5)]):
+                axes[j,q].plot(hours[lo:hi],a[lo:hi,j],marker="o",label=f"Cluster {c}")
+    for j in range(2):
+        for q,(lo,hi) in enumerate([(0,2),(2,5)]):
+            ax=axes[j,q]; ax.set_xticks(hours[lo:hi]); ax.axhline(0,color="gray",lw=.7); ax.set_ylabel(["Volume change (%)","Travel time change (%)"][j]); ax.set_title(["Morning","Evening"][q]); ax.legend()
+    fig.tight_layout(); fig.savefig(paths["plot"],dpi=180); plt.close(fig)
+    for k,f in frames.items(): f.to_csv(paths[k],index=False,encoding="utf-8-sig")
+    agreement={}
+    for s,g in assignments.groupby("split"):
+        v=g.dropna(subset=["dtw_cluster","kmeans_cluster"])
+        agreement[s]={"comparable":len(v),"ari":float(adjusted_rand_score(v.kmeans_cluster,v.dtw_cluster)) if len(v)>1 else None}
+    rho=float(spearmanr(eu,dt).statistic) if np.std(eu)>0 and np.std(dt)>0 else None
+    report={"status":"성공","input":str(combined_path),"input_rows":len(d),"eligible_roads":{s:len(v) for s,v in ids.items()},"excluded_roads":{s:int((assignments.split.eq(s)&assignments.dtw_cluster.isna()).sum()) for s in ids},"min_paired_days_per_hour":3,"train_scaler_mean":scaler.mean_.tolist(),"train_scaler_scale":scaler.scale_.tolist(),"medoids":medoids_by,"scores":scores,"distance_rank_correlation":rho,"warping_reduced_pairs":int((dt<eu-1e-9).sum()),"road_pairs":len(eu),"dtw_euclidean_ari":float(adjusted_rand_score(labels_by["dtw"],labels_by["euclidean"])),"kmeans_comparison":agreement,"limitations":"대표 시간대 중앙값 패턴; 출근 2점은 DTW와 고정 거리 동일, 퇴근 3점만 최대 1슬롯 정렬 허용. 날짜 연속 시계열이나 실제 지연 시간 추정 아님. train 평균/표준편차 및 군집만 학습, eval 최근접 train medoid 배정. 최소 3일 기준은 탐색적 설정.","outputs":{k:str(p) for k,p in paths.items()}}
+    paths["log"].write_text(json.dumps(report,ensure_ascii=False,indent=2,allow_nan=False),encoding="utf-8")
+    return report
+
+
+def visualize_dtw_map(root: Path = ROOT, data_root: Path = Path(r'D:\seoul-weather-traffic-data')) -> dict:
+    """[서연] 기존 DTW 군집 결과와 공식 링크 매핑을 지도에 표시한다."""
+    import geopandas as gpd
+    import folium
+    import matplotlib.pyplot as plt
+    def latest(folder, pattern):
+        files = sorted(folder.glob(pattern))
+        if not files:
+            raise FileNotFoundError(f'입력 없음: {folder / pattern}')
+        return files[-1]
+    source = latest(root / 'outputs/tables', 'yang_seoyeon_dtw_clusters_*_(성공)_v*.csv')
+    geo = latest(data_root / 'vertices', 'yang_seoyeon_road_lines_*_(성공).geojson')
+    mapping = latest(data_root / 'processed', 'yang_seoyeon_topis_weather_link_hourly_*_v02.parquet')
+    d = pd.read_csv(source, dtype={'road_id': 'string'})
+    if d.duplicated(['split','road_id']).any():
+        raise ValueError('DTW 도로 키 중복')
+    train = d.loc[d.split.eq('train'), ['road_id','road_name','kmeans_cluster','dtw_cluster']].rename(columns={'dtw_cluster':'dtw_train'})
+    ev = d.loc[d.split.eq('eval'), ['road_id','dtw_cluster']].rename(columns={'dtw_cluster':'dtw_eval'})
+    roads = train.merge(ev,on='road_id',how='outer',validate='one_to_one')
+    roads['transition'] = np.select([roads.dtw_train.isna() | roads.dtw_eval.isna(), roads.dtw_train.eq(roads.dtw_eval)], ['Unclassified','Unchanged'], default='Changed')
+    links = gpd.read_file(geo)
+    if links.crs is None: raise ValueError('GeoJSON CRS 누락')
+    m = pd.read_parquet(mapping,columns=['link_id','road_id']).drop_duplicates()
+    for f in [links,m]: f['link_id'] = f.link_id.astype(str)
+    m['road_id'] = m.road_id.astype('string')
+    if m.link_id.duplicated().any(): raise ValueError('링크-도로 매핑 중복')
+    mapped = links[['link_id','geometry']].merge(m,on='link_id',validate='one_to_one').merge(roads,on='road_id',validate='many_to_one')
+    mapped = gpd.GeoDataFrame(mapped,geometry='geometry',crs=links.crs).to_crs(4326)
+    mapped = mapped.loc[mapped.geometry.notna() & ~mapped.geometry.is_empty].copy()
+    if mapped.empty: raise ValueError('지도에 표시할 도로 없음')
+    roads['mapped_links'] = roads.road_id.map(mapped.groupby('road_id').size()).fillna(0).astype(int)
+    stamp = datetime.now().astimezone().strftime('%Y%m%dT%H%M%S%f') + '_(성공)_v01'
+    figdir=root/'outputs/figures/ysy'; table=root/'outputs/tables'; logdir=root/'logs/ysy/traffic_analysis'
+    for p in [figdir,table,logdir]: p.mkdir(parents=True,exist_ok=True)
+    paths={'html':figdir/f'dtw_map_{stamp}.html','png':figdir/f'dtw_map_{stamp}.png','coverage':table/f'yang_seoyeon_dtw_map_coverage_{stamp}.csv','log':logdir/f'traffic_dtw_map_{stamp}.json'}
+    if any(p.exists() for p in paths.values()): raise FileExistsError('출력 경로 중복')
+    colors=['#2563eb','#ea580c','#16a34a','#9333ea','#0891b2','#be123c']
+    def cluster_label(v): return 'Unclassified' if pd.isna(v) else f'Cluster {int(v)}'
+    for c in ['kmeans_cluster','dtw_train','dtw_eval']: mapped[c+'_label']=mapped[c].map(cluster_label)
+    def color(v):
+        if v.startswith('Cluster '): return colors[int(v.split()[-1])%len(colors)]
+        return {'Changed':'#dc2626','Unchanged':'#16a34a','Unclassified':'#9ca3af'}.get(v,'#9ca3af')
+    layers=[('kmeans_cluster_label','K-means train'),('dtw_train_label','DTW train'),('dtw_eval_label','DTW eval'),('transition','DTW train/eval transition')]
+    bounds=mapped.total_bounds
+    fmap=folium.Map(location=[(bounds[1]+bounds[3])/2,(bounds[0]+bounds[2])/2],zoom_start=11)
+    fields=['road_id','road_name','kmeans_cluster_label','dtw_train_label','dtw_eval_label','transition']
+    fig,axes=plt.subplots(2,2,figsize=(13,12))
+    for i,((col,title),ax) in enumerate(zip(layers,axes.flat)):
+        layer=folium.FeatureGroup(name=title,show=i==1)
+        for label,part in mapped.groupby(col):
+            part.plot(ax=ax,color=color(label),linewidth=1.5,label=label)
+            folium.GeoJson(part[fields+['geometry']],style_function=lambda f,c=color(label): {'color':c,'weight':4,'opacity':.85},tooltip=folium.GeoJsonTooltip(fields=fields)).add_to(layer)
+        layer.add_to(fmap); ax.set_title(title); ax.set_axis_off(); ax.legend(loc='lower left',fontsize=8)
+    folium.LayerControl(collapsed=False).add_to(fmap)
+    fmap.fit_bounds([[bounds[1],bounds[0]],[bounds[3],bounds[2]]]); fmap.save(str(paths['html']))
+    fig.tight_layout(); fig.savefig(paths['png'],dpi=180); plt.close(fig)
+    roads.to_csv(paths['coverage'],index=False,encoding='utf-8-sig')
+    report={'status':'성공','inputs':{'clusters':str(source),'geometry':str(geo),'mapping':str(mapping)},'roads':len(roads),'mapped_roads':int(roads.mapped_links.gt(0).sum()),'mapped_links':len(mapped),'unmapped_roads':roads.loc[roads.mapped_links.eq(0),'road_id'].tolist(),'transition_counts':roads.transition.value_counts().to_dict(),'limitations':'군집 번호는 방법 간 직접 대응하지 않음. 지도는 공식 매핑 링크에 한정; 공간 통계 검정 아님.','outputs':{k:str(v) for k,v in paths.items()}}
+    paths['log'].write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+    return report
+
+
+def extract_road_control(root: Path, data_root: Path, news_dir: Path | None = None) -> dict:
+    """[서연] 제목 기반 통제 및 위험 후보 추출. 실제 통제 여부는 수동 검증한다."""
+    folder = news_dir or data_root / "naver_news/processed"
+    files = sorted(folder.glob("yang_seoyeon_news_road_candidates_*_(성공)_v*.csv"))
+    if not files:
+        raise FileNotFoundError(folder)
+    source = files[-1]
+    data = pd.read_csv(source, encoding="utf-8-sig", dtype={"road_id": "string"})
+    keys = ["split", "event_date", "road_id", "article_id"]
+    required = keys + ["road_name", "title", "url", "date_status", "road_evidence", "case_status"]
+    if set(required) - set(data.columns):
+        raise ValueError(f"필수 열 누락: {set(required) - set(data.columns)}")
+    title = data["title"].fillna("")
+    control = title.str.contains(r"통제|통행\s*(?:제한|금지|차단)|도로\s*(?:폐쇄|차단)|차량\s*진입\s*금지", regex=True)
+    hazard = title.str.contains(r"침수|결빙|블랙아이스", regex=True)
+    out = data.loc[control | hazard].copy()
+    out["control_keyword"] = control.loc[out.index]
+    out["hazard_keyword"] = hazard.loc[out.index]
+    out["candidate_type"] = np.where(out["control_keyword"], "통제 표현", "위험 표현만")
+    out["verification_status"] = "미검증"
+    out["verified_event_date"] = ""
+    out["verified_control_status"] = ""
+    out["verification_note"] = ""
+    out = out.drop_duplicates(keys)
+    stamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
+    tables = root / "outputs/tables"
+    logs = root / "logs/ysy/traffic_analysis"
+    tables.mkdir(parents=True, exist_ok=True)
+    logs.mkdir(parents=True, exist_ok=True)
+    detail = tables / f"yang_seoyeon_road_control_candidates_{stamp}_(성공)_v01.csv"
+    summary = tables / f"yang_seoyeon_road_control_summary_{stamp}_(성공)_v01.csv"
+    log = logs / f"traffic_road_control_{stamp}_(성공)_v01.json"
+    if any(p.exists() for p in (detail, summary, log)):
+        raise FileExistsError("통제 도로 출력 경로 중복")
+    out.to_csv(detail, index=False, encoding="utf-8-sig")
+    direct = out.loc[out["control_keyword"] & out["date_status"].eq("in_window") & out["road_evidence"].eq("title")]
+    grouped = direct.groupby(["split", "event_date", "road_id", "road_name"], dropna=False).agg(candidate_articles=("article_id", "nunique")).reset_index()
+    grouped["verification_status"] = "미검증"
+    grouped.to_csv(summary, index=False, encoding="utf-8-sig")
+    log = logs / f"traffic_road_control_{stamp}_(성공)_v01.json"
+    result = {"status": "성공", "source": str(source), "input_rows": len(data), "candidate_rows": len(out), "control_keyword_rows": int(out["control_keyword"].sum()), "hazard_only_rows": int((~out["control_keyword"]).sum()), "priority_control_rows": len(direct), "priority_unique_articles": int(direct["article_id"].nunique()), "priority_road_days": len(grouped), "confirmed_controls": 0, "outputs": {"detail": str(detail), "summary": str(summary), "log": str(log)}, "limitations": "제목의 통제 표현과 도로명이 함께 등장한 검토 후보. 해당 도로의 실제 통제, 해제 여부, 사건일 및 원인은 미검증. 위험 표현만 있는 행은 통제 요약에서 제외."}
+    log.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="[서연] 교통량 변화·도로 집계·K-means")
     parser.add_argument("--input", type=Path)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--visualize-only", action="store_true", help="최신 성공 분석 결과의 표·그래프·지도만 생성")
-    parser.add_argument("--combine-travel-time", action="store_true", help="최신 교통량 변화와 통행시간 v04 결합")
+    parser.add_argument("--combine-travel-time", action="store_true", help="최신 교통량과 v05 비교일 기준 통행시간 결합")
     parser.add_argument("--validate-relationships", action="store_true", help="결합 결과의 극단값 민감도와 하위집단별 안정성 검증")
     parser.add_argument("--data-root", type=Path, default=Path(r"D:\seoul-weather-traffic-data"))
     parser.add_argument("--travel-path", type=Path,
-                        default=Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v04.parquet"))
+                        default=Path(r"D:\seoul-weather-traffic-data\processed\yang_seoyeon_topis_weather_commute_20261122_v05.parquet"))
     parser.add_argument("--combine-news", action="store_true")
+    parser.add_argument("--extract-road-control", action="store_true")
     parser.add_argument("--news-dir", type=Path)
     parser.add_argument("--combined-path", type=Path)
     parser.add_argument("--summary-path", type=Path)
+    parser.add_argument("--analyze-dtw", action="store_true")
+    parser.add_argument("--visualize-dtw-map", action="store_true")
     args = parser.parse_args()
-    selected_modes = sum([args.visualize_only, args.combine_travel_time, args.validate_relationships, args.combine_news])
+    selected_modes = sum([args.extract_road_control, args.visualize_only, args.combine_travel_time, args.validate_relationships, args.combine_news, args.analyze_dtw, args.visualize_dtw_map])
     if selected_modes > 1:
         parser.error("실행 모드 옵션은 한 번에 하나만 사용할 수 있습니다.")
-    if args.combine_news:
+    if args.visualize_dtw_map:
+        result = visualize_dtw_map(args.root, args.data_root)
+    elif args.analyze_dtw:
+        result = analyze_dtw(args.root, args.combined_path)
+    elif args.extract_road_control:
+        result = extract_road_control(args.root, args.data_root, args.news_dir)
+    elif args.combine_news:
         result = combine_news(args.root, args.data_root, args.news_dir, args.combined_path, args.summary_path)
     elif args.visualize_only:
         result = visualize_latest(args.root, args.data_root)

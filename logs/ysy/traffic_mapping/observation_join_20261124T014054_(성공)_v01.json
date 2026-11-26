@@ -1,0 +1,31 @@
+{
+  "source_observation_rows": 125100,
+  "joined_observation_rows": 125100,
+  "matched_observation_rows": 75600,
+  "time_column": "hour",
+  "duplicate_date_time_road_spot_direction_rows": 0,
+  "mapping_status_counts": {
+    "matched": 75600,
+    "out_of_scope_not_in_90_roads": 49500
+  },
+  "roads_with_observations": 52,
+  "roads_with_valid_observations": 52,
+  "validation_checks": {
+    "row_count_preserved": true,
+    "source_row_ids_unique": true,
+    "reference_road_ids_unique": true,
+    "matched_road_ids_present": true,
+    "road_count_90": true
+  },
+  "notice": "Missing rate is among present observation rows; expected time-grid coverage is not calculated. Duplicate observation keys are not automatically resolved.",
+  "input_files": {
+    "train": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_train_20261123T165049_v01_(성공).parquet",
+    "eval": "D:\\seoul-weather-traffic-data\\traffic_volume\\processed\\yang_seoyeon_traffic_volume_eval_20261123T165049_v01_(성공).parquet",
+    "stable_links": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_stable_links_20261122_v02.csv"
+  },
+  "output_files": {
+    "observations": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_official_traffic_observations_20261124T014054_(성공)_v01.csv",
+    "coverage": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_observation_coverage_20261124T014054_(성공)_v01.csv",
+    "validation": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\yang_seoyeon\\traffic_mapping\\yang_seoyeon_observation_join_20261124T014054_(성공)_v01.json"
+  }
+}
