@@ -2,7 +2,7 @@
 
 - data_root() 가 환경변수 · D 드라이브와 상관없이 저장소 data/raw/ 인지
 - C 결합 코드(src/join/topis_weather_merge.py)가 날씨는 저장소 data/shared/ 의 B 날씨 표를 읽는지
-- TOPIS 월 CSV 는 data/raw/topis_speed/ 에서 찾고, 결합에는 Release 50개월 중 44개월만 쓰는지
+- TOPIS 월 CSV 는 data/raw/topis_speed/ 에서 찾고, 결합에는 TOPIS 원본 50개월 중 44개월만 쓰는지
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class TopisSourceTest(unittest.TestCase):
                          ROOT / "data" / "raw" / "topis_speed" / "2025-12.csv")
 
     def test_결합용_44개월_고르기(self):
-        # Release 실제 구성: 겨울 10~3월 × 4번 + 여름 4~9월 × 4번 + 2022-07 · 08 = 50개월
+        # TOPIS 원본 실제 구성: 겨울 10~3월 × 4번 + 여름 4~9월 × 4번 + 2022-07 · 08 = 50개월
         winters = [f"{y}-{m:02d}" for y in range(2022, 2026) for m in (10, 11, 12)] + \
                   [f"{y + 1}-{m:02d}" for y in range(2022, 2026) for m in (1, 2, 3)]
         summers = [f"{y}-{m:02d}" for y in range(2023, 2027) for m in range(4, 10)]

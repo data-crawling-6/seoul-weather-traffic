@@ -375,7 +375,7 @@ def convert_v03_to_v04(
 def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
     data_root = Path(data_root).resolve()
     project_root = Path(project_root).resolve()
-    # A Release(topis-data-v1)는 50개월: v04를 만든 44개월 + 겨울 평소값용 10월 4개(v05에서 따로 추가)
+    # A TOPIS 원본은 50개월: v04를 만든 44개월 + 겨울 평소값용 10월 4개(v05에서 따로 추가)
     # + 범위 밖 사례용 2022-07 · 08. 결합은 처음과 같은 44개월만 쓴다.
     topis_paths = [path for path in topis_csv_files(data_root / "topis_speed")
                    if path.stem[-2:] != "10" and path.stem[-7:] not in EXTRA_TOPIS_MONTHS]
@@ -476,7 +476,7 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
         "link_sample_path": str(link_sample_path),
         "stable_links_path": str(stable_path),
         "limitations": [
-            "겨울 baseline_start 10/30~10/31 TOPIS 원자료가 Release에 없어 각 겨울 2일이 비어 있음",
+            "겨울 baseline_start 10/30~10/31 TOPIS 원자료가 받은 원본에 없어 각 겨울 2일이 비어 있음",
             "여름 휴가 절정 주간의 날짜 정의가 미확정이라 is_summer_vacation_peak는 NA",
         ],
     }

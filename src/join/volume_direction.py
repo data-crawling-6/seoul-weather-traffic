@@ -1,9 +1,9 @@
 """
 교통량 지점에 TOPIS 방향(상행 · 하행)을 붙이는 연결표 (B 담당)
 
-C 교통량 릴리즈(yang-seoyeon-traffic-volume-v1)는 도로(road_id)까지만 연결돼 있고,
+C 교통량 결합 CSV는 도로(road_id)까지만 연결돼 있고,
 B 정체 표(road_congestion_length)는 도로 × 방향(상행 · 하행) 단위라 방향을 따로 붙인다.
-C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 표를 B 쪽에 새로 만든다.
+C 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 표를 B 쪽에 새로 만든다.
 
 방법
 - 교통량 direction_detail "[성산로]봉원고가차도->독립문역" 에서 출발 · 도착 지명을 뽑는다.
@@ -15,7 +15,7 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
 - 같은 지점의 유입 · 유출이 같은 방향으로 붙으면(conflict) 둘 다 비운다.
 
 입력
-  data/derived/topis_traffic_volume/traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
+  data/derived/topis_traffic_volume/traffic_weather_days_joined_20261124T021832_._v01.csv  (C 결과, 팀 공유 드라이브)
   data/raw/topis_speed/2025-12.csv   (A TOPIS 원본, 공유 드라이브 · 링크 이름 · 방향만 쓴다)
 
 결과
@@ -149,7 +149,7 @@ def road_dir_volume(v: pd.DataFrame, m: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     p = argparse.ArgumentParser(description="교통량 지점에 TOPIS 방향 붙이기 (B)")
-    p.add_argument("--volume", type=Path, default=DEFAULT_VOLUME, help="C 교통량 릴리즈 CSV")
+    p.add_argument("--volume", type=Path, default=DEFAULT_VOLUME, help="C 교통량 결합 CSV")
     p.add_argument("--topis", type=Path, default=DEFAULT_TOPIS, help="TOPIS 월 원본 (zip 또는 csv)")
     a = p.parse_args()
 

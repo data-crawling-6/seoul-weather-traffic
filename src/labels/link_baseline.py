@@ -16,7 +16,7 @@
 기준값은 config/periods.yaml 의 thresholds (congestion_link_ratio · congestion_road_length_ratio)에서 읽는다.
 
 입력
-  C 릴리스 yang-seoyeon-traffic-weather-v3 의 링크 기본표 parquet
+  C 링크 기본표 parquet (팀 공유 드라이브)
   (link_hourly_20261122_v02.parquet, 약 600MB)
   → 연구 기간 · 평일 · 공휴일 제외 · 출퇴근 시간(8 · 9 · 18 · 19 · 20시)만 읽는다
 

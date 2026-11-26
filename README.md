@@ -81,7 +81,7 @@ seoul-weather-traffic/
 │   │   ├── kma_aws/        # B: 구별 AWS 시간자료
 │   │   ├── hanriver_level/ # B: 한강 수위 10분 자료 (홍수통제소 HRFCO)
 │   │   └── seoul_road_heating/ # B: 자치구별 도로 열선 설치 현황
-│   ├── derived/            # 원본으로 만든 결과 (깃에 올리지 않음, 커서 Release · 공유 드라이브로 나눔)
+│   ├── derived/            # 원본으로 만든 결과 (깃에 올리지 않음, 커서 팀 공유 드라이브로 나눔)
 │   │   ├── topis_weather/  # C: TOPIS + 날씨 결합표. 통행시간 v04 = 연구 기간용 (평소값 · 분석) · v05 = v04 + 10월 (교통량 비교용) · 링크 기본표 v02
 │   │   ├── topis_traffic_volume/ # C: 교통량 정리 parquet (train · eval) · 교통량 + 악천후일 결합 CSV
 │   │   ├── road_lines/     # C: 도로 선 geojson (링크 좌표로 만듦)

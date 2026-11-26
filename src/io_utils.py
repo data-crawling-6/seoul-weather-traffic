@@ -1,6 +1,6 @@
 """팀 공통 읽기 함수 (TOPIS 파일 · 모델 세트 · 날씨 판정).
 
-원본은 모두 저장소 ``data/raw/`` 아래에 둔다 (Release에서 받아 푼다). TOPIS 월 CSV는 ``data/raw/topis_speed``.
+원본은 모두 저장소 ``data/raw/`` 아래에 둔다 (팀 공유 드라이브에서 받아 푼다). TOPIS 월 CSV는 ``data/raw/topis_speed``.
 2024-02 이전 ``08시``와 이후 ``~08시``는 ``~08시``로 통일한다.
 원본 CSV는 수정하지 않는다.
 """
@@ -31,7 +31,7 @@ def topis_csv_files(folder: Path) -> list[Path]:
 
 
 def data_root() -> Path:
-    """원본 데이터 위치: 항상 저장소 data/raw/ (Release에서 받아 이 아래에 푼다).
+    """원본 데이터 위치: 항상 저장소 data/raw/ (팀 공유 드라이브에서 받아 이 아래에 푼다).
 
     data/raw/topis_speed · topis_traffic_volume · link_coords · naver_news · 날씨 원본 폴더
     """
@@ -39,7 +39,7 @@ def data_root() -> Path:
 
 
 def derived_root() -> Path:
-    """원본으로 만든 큰 결과 위치: 저장소 data/derived/ (깃에 올리지 않음, 커서 공유 드라이브 · Release로 나눔).
+    """원본으로 만든 큰 결과 위치: 저장소 data/derived/ (깃에 올리지 않음, 커서 팀 공유 드라이브로 나눔).
 
     data/derived/topis_weather:  C TOPIS + 날씨 결합표 (통행시간 v04 · v05 · 링크 기본표 v02)
     data/derived/topis_traffic_volume: C 교통량 정리 parquet · 교통량 + 악천후일 결합 CSV (원본 xlsx는 data/raw/topis_traffic_volume/)
