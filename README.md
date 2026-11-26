@@ -79,8 +79,8 @@ seoul-weather-traffic/
 │   │   ├── kma_aws/        # B: 구별 AWS 시간자료
 │   │   └── hrfco/          # B: 한강 수위 10분 자료
 │   ├── processed/          # 공통 표: 통행시간 · 날씨 · 교통량
-│   │   ├── train/          # 학습 시즌 (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
-│   │   └── eval/           # 평가 시즌 (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
+│   │   ├── train/          # Train + Dev (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
+│   │   └── eval/           # Test (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
 │   └── sample/             # 작은 샘플 (코드 테스트용)
 │
 ├── outputs/
@@ -227,6 +227,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 수집 기록 · 확인 · 분석 · 모델 · 그래프 | `notebooks/*.ipynb` | 과정과 결과를 한눈에 보고 PPT 근거로 쓰려고 |
 
 - 처음 해 보는 전처리는 노트북에서 먼저 짜도 된다. 다른 사람도 쓰게 되면 `src/`로 옮긴다.
+- **Train · Dev · Test는 폴더가 아니라 `model_set` 열로 고른다.** 규칙은 `config/periods.yaml`의 `model_sets` 한 곳. 읽을 때 `src.io_utils.load_processed("weather_hourly")`(Test 빼고) 또는 `add_model_set(df)`로 붙이고, 마지막 평가 때만 `include_test=True`로 연다.
 - `data/processed/` 공통 표는 **.py로만 만든다**. 노트북은 읽기만 하고, 노트북에서 만든 그래프 · 표는 `outputs/`에 저장한다.
 
 ### 수집 기록 노트북 `00_이니셜_collect.ipynb` (담당자별 1개)
