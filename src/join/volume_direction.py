@@ -16,7 +16,7 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
 
 입력
   data/derived/topis_traffic_volume/traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
-  data/raw/topis_speed/2025-12.zip   (A 릴리즈 topis-data-v1, 링크 이름 · 방향만 쓴다)
+  data/raw/topis_speed/2025-12.csv   (A TOPIS 원본, 공유 드라이브 · 링크 이름 · 방향만 쓴다)
 
 결과
   data/shared/traffic_volume_direction_map.csv
@@ -30,7 +30,7 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
 
 실행
   python src/join/volume_direction.py
-  python src/join/volume_direction.py --volume 경로.csv --topis 경로.zip
+  python src/join/volume_direction.py --volume 경로.csv --topis 경로.csv
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 KST = timezone(timedelta(hours=9))
 DEFAULT_VOLUME = ROOT / "data" / "derived" / "topis_traffic_volume" / "traffic_weather_days_joined_20261124T021832_._v01.csv"
-DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis_speed" / "2025-12.zip"
+DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis_speed" / "2025-12.csv"
 PROC_DIR = ROOT / "data" / "shared"
 SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 MIN_PARTIAL = 2   # 부분 일치로 볼 최소 글자 수

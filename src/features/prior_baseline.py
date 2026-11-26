@@ -26,7 +26,7 @@
   prior_replaced                prior_source가 window28이 아니면 True (대체한 행만 따로 오차를 볼 때)
 
 입력
-  data/derived/topis_weather/link_hourly_20261122_v02.parquet (C 릴리스 v3)
+  data/derived/topis_weather/link_hourly_20261122_v02.parquet (C 링크 기본표, 팀 공유 드라이브)
   data/shared/{train_dev,holdout}/link_baseline_*.parquet, baseline_*.csv (B 정답용 평소값)
 
 실행

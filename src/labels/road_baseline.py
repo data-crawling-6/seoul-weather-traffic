@@ -13,7 +13,7 @@ C의 도로 통행시간 표(v04)로 도로 × 방향마다 '평소 통행시간
              기준은 학습 시즌만 보고 정한다 (평가 시즌은 열지 않음)
 
 입력
-  C 릴리스 yang-seoyeon-traffic-weather-v3 의 v04 zip을 data/derived/topis_weather/ 에 풀어 둔 parquet
+  C 통행시간 표 v04 (팀 공유 드라이브에서 받아 data/derived/topis_weather/ 에 둔 parquet)
   (v03을 넣어도 링크가 일부라도 빠진 행을 NaN으로 두는 v04 규칙을 여기서 한 번 더 적용하므로 결과가 같다)
 
 실행

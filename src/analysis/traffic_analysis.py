@@ -27,7 +27,7 @@ TRAVEL_FILE = "commute_20261122_v05.parquet"
 
 
 def _default_travel_path() -> Path:
-    """통행시간 v05: data/derived/topis_weather/ (Release yang-seoyeon-traffic-weather-v3)."""
+    """통행시간 v05: data/derived/topis_weather/ (팀 공유 드라이브)."""
     return TRAFFIC_DIR / TRAVEL_FILE
 REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_name",
             "spot_id", "io_type", "hour", "commute_period", "traffic_volume",
@@ -35,13 +35,13 @@ REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_
 
 
 def latest_input(root: Path = ROOT) -> Path:
-    """교통량·악천후일 결합 CSV. outputs/tables 에 없으면 Release(yang-seoyeon-traffic-volume-v1)에서 받은
-    data/derived/topis_traffic_volume/ 파일을 쓴다 (PR #23 에서 큰 CSV 를 저장소에서 빼고 Release 로 옮김)."""
+    """교통량·악천후일 결합 CSV. outputs/tables 에 없으면 팀 공유 드라이브에서 받은
+    data/derived/topis_traffic_volume/ 파일을 쓴다 (PR #23 에서 큰 CSV 를 저장소에서 뺌)."""
     files = sorted((root / "outputs/tables").glob("yang_seoyeon_traffic_weather_days_joined_*_(성공)_v*.csv"))
     if not files:
         files = sorted((root / "data" / "derived" / "topis_traffic_volume").glob("traffic_weather_days_joined_*_v*.csv"))
     if not files:
-        raise FileNotFoundError("교통량·악천후일 결합 CSV가 없습니다. Release yang-seoyeon-traffic-volume-v1 의 CSV를 "
+        raise FileNotFoundError("교통량·악천후일 결합 CSV가 없습니다. 팀 공유 드라이브의 CSV를 "
                                 "data/derived/topis_traffic_volume/ 에 받아 두세요.")
     return files[-1]
 

@@ -30,14 +30,14 @@
 
 넣지 않은 것
   event_id · impact: 사건이 끝난 뒤에 정해지는 값이라 입력으로 쓰면 누수 -> 평가 구분용으로만
-  구별 AWS · 예보((6)): B가 연구 기간 평일 전체로 다시 받는 중 (노션 8.2, 4단계까지는 빼고 돌린다)
+  구별 AWS · 예보((6)): B가 연구 기간 평일 전체로 받아 두었다 (11/26). 4단계 전에 입력 변수로 추가한다 (노션 8.2)
   권역: 도로별 권역은 C 링크 좌표가 나온 뒤에 붙인다 -> 그 전까지 city/type 비율로 대신
 
 입력
   data/derived/topis_weather/link_hourly_20261122_v02.parquet (24시간 통행시간)
   data/shared/{train_dev,holdout}/prior_road_*.parquet, weather_hourly_*.csv, waterlevel_hourly_*.csv
   data/raw/topis_speed/2025-12.csv (링크 차선 수 · 도심/외곽)
-    -> 저장소에는 없다. Release topis-data-v1의 topis_speed_2025-12.zip을 받아 이 폴더에 먼저 풀어야 한다
+    -> 저장소에는 없다. 팀 공유 드라이브의 TOPIS 원본을 이 폴더에 먼저 풀어야 한다
 
 실행
   python src/features/features.py

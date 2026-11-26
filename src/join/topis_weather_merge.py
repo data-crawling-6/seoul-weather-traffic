@@ -79,7 +79,7 @@ def weather_dir(project_root: Path) -> Path:
 
 
 def topis_csv(data_root: Path, month: str) -> Path:
-    """TOPIS 월 CSV: data/raw/topis_speed/ (A Release topis-data-v1 의 zip을 푼 곳)."""
+    """TOPIS 월 CSV: data/raw/topis_speed/ (A TOPIS 원본, 팀 공유 드라이브에서 받아 푼 곳)."""
     folder = Path(data_root) / "topis_speed"
     old = folder / f"topis_speed_{month}.csv"  # zip 안 이름으로 풀어 둔 경우
     return old if old.is_file() and not (folder / f"{month}.csv").is_file() else folder / f"{month}.csv"
