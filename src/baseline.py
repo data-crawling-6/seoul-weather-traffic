@@ -20,6 +20,8 @@ C의 도로 통행시간 표(v04)로 도로 × 방향마다 '평소 통행시간
   python src/baseline.py                         # 기본 경로의 parquet
   python src/baseline.py --road 경로.parquet
 
+날씨 판정(event_id · impact)은 C 표 안의 열 대신 저장소 weather_hourly 에서 다시 붙인다 (io_utils.attach_weather_labels).
+
 결과
   data/processed/{train,eval}/baseline_{split}.csv          평소값 (시즌 × 도로 × 방향 × 요일 × 시간)
   outputs/tables/congestion_threshold_candidates_train.csv  정체 기준 후보 비교 (학습만)
@@ -36,6 +38,11 @@ import pandas as pd
 
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
+import sys  # noqa: E402
+
+if str(ROOT) not in sys.path:  # python src/baseline.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(ROOT))
+from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_ROAD = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_commute_20261122_v04.parquet"
 PROC_DIR = ROOT / "data" / "processed"
 TABLE_DIR = ROOT / "outputs" / "tables"
@@ -55,6 +62,7 @@ CANDIDATES = {                  # 이름: (설명, 정체 판정 함수)
 def load_road(path: Path) -> pd.DataFrame:
     d = pd.read_parquet(path)
     d["date"] = pd.to_datetime(d["date"])
+    attach_weather_labels(d)  # 날씨 판정은 저장소 weather_hourly 에서 (C 표 안의 복사본 대신)
     # v04 규칙: 링크가 일부라도 빠지면 관측 링크만 합산되어 통행시간이 짧게(과소) 잡힌다 → NaN
     incomplete = d["observed_link_count"] < d["link_count"]
     d.loc[incomplete, ["travel_time_seconds", "road_speed_kmh"]] = np.nan
@@ -157,6 +165,7 @@ def main():
         "ratio_nan_rows": int(r["ratio"].isna().sum()),
         "clear_ratio_median_train": float(r.loc[(r["split"] == "train") & (r["weather_group"] == "맑음"), "ratio"].median()),
         "min_n": MIN_N,
+        "weather_label_mismatch": d.attrs.get("weather_label_mismatch"),
     }
     (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
     (ROOT / "logs" / "ljh" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")

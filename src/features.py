@@ -60,7 +60,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.io_utils import read_topis  # noqa: E402
+from src.io_utils import load_model_sets, read_topis  # noqa: E402
 from src.prior_baseline import DEFAULT_LINK, load_periods, load_season, road_hourly  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
@@ -85,12 +85,9 @@ RIVERSIDE_STATIONS = {
     "내부순환로": ["서울시(중랑교)"],
 }
 
-# 노션 7.2 (11/25). B의 add_model_set()이 생기면 그걸로 바꾼다
-MODEL_SETS = {
-    "2022-23_winter": "train", "2023-24_winter": "train", "2023_summer": "train", "2024_summer": "train",
-    "2024-25_winter": "dev", "2025_summer": "dev",
-    "2025-26_winter": "test", "2026_summer": "test",
-}
+# 노션 7.2 (11/25). Train · Dev · Test 규칙은 config/periods.yaml 의 model_sets 한 곳에서 읽는다
+# (예전에 여기 직접 적어 둔 표와 값이 같다: {시즌: train / dev / test})
+MODEL_SETS = load_model_sets()
 
 
 def road_static(links: pd.DataFrame) -> pd.DataFrame:
