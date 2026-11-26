@@ -24,10 +24,10 @@ class TrafficMappingAuditTests(unittest.TestCase):
         with TemporaryDirectory() as temp:
             folder = Path(temp)
             for name in (
-                "yang_seoyeon_traffic_volume_train_20261123T100000_v01_(성공).parquet",
-                "yang_seoyeon_traffic_volume_eval_20261123T100000_v01_(성공).parquet",
-                "yang_seoyeon_traffic_volume_train_20261123T110000_v01_(성공).parquet",
-                "yang_seoyeon_traffic_volume_train_20261123T120000_v01_(실패).parquet",
+                "traffic_volume_train_20261123T100000_v01_(성공).parquet",
+                "traffic_volume_eval_20261123T100000_v01_(성공).parquet",
+                "traffic_volume_train_20261123T110000_v01_(성공).parquet",
+                "traffic_volume_train_20261123T120000_v01_(실패).parquet",
             ):
                 (folder / name).touch()
             chosen = mapping.select_volume_files(folder)
@@ -548,10 +548,11 @@ class TrafficMappingAuditTests(unittest.TestCase):
         from contextlib import redirect_stdout
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            folder = root / "traffic_volume" / "processed"
+            data_root = root / "raw"  # 원본 폴더. 정리 결과는 옆의 derived/topis_traffic_volume
+            folder = root / "derived" / "topis_traffic_volume"
             folder.mkdir(parents=True)
-            train = folder / "yang_seoyeon_traffic_volume_train_20261123T100000_v01_(성공).parquet"
-            evaluation = folder / "yang_seoyeon_traffic_volume_eval_20261123T100000_v01_(성공).parquet"
+            train = folder / "traffic_volume_train_20261123T100000_v01_(성공).parquet"
+            evaluation = folder / "traffic_volume_eval_20261123T100000_v01_(성공).parquet"
             frame = pd.DataFrame({"date": ["2026-11-01"], "spot_id": ["F-03"],
                                   "io_type": ["유출"], "latitude": [37.6], "longitude": [127.0]})
             train.write_bytes(b"train synthetic")
@@ -559,7 +560,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             before = {p: p.read_bytes() for p in folder.iterdir()}
             with patch.object(mapping.pd, "read_parquet", return_value=frame):
                 with redirect_stdout(io.StringIO()) as output:
-                    self.assertEqual(mapping.execute_coordinate_history(root), 0)
+                    self.assertEqual(mapping.execute_coordinate_history(data_root), 0)
             self.assertIn("2026-11-01", output.getvalue())
             self.assertIn("SHA-256", output.getvalue())
             self.assertEqual({p: p.read_bytes() for p in folder.iterdir()}, before)
@@ -648,17 +649,18 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_f03_evidence_log_success_and_collision(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            folder = root / "traffic_volume" / "processed"
+            data_root = root / "raw"  # 원본 폴더. 정리 결과는 옆의 derived/topis_traffic_volume
+            folder = root / "derived" / "topis_traffic_volume"
             folder.mkdir(parents=True)
             for split in ("train", "eval"):
-                (folder / f"yang_seoyeon_traffic_volume_{split}_20261123T100000_v01_(성공).parquet").write_bytes(b"test")
+                (folder / f"traffic_volume_{split}_20261123T100000_v01_(성공).parquet").write_bytes(b"test")
             with patch.object(mapping.pd, "read_parquet", return_value=pd.DataFrame()), \
                  patch.object(mapping.pd, "read_csv", return_value=pd.DataFrame()), \
                  patch("geopandas.read_file", return_value=None), \
                  patch.object(mapping, "build_f03_evidence", return_value={"review_status": "pending_review"}), \
                  patch.object(mapping, "git_provenance", return_value={}):
-                self.assertEqual(mapping.execute_record_f03_evidence(root, root), 0)
-                self.assertEqual(mapping.execute_record_f03_evidence(root, root), 0)
+                self.assertEqual(mapping.execute_record_f03_evidence(root, data_root), 0)
+                self.assertEqual(mapping.execute_record_f03_evidence(root, data_root), 0)
             outputs = list((root / "logs" / "ysy" / "traffic_mapping").glob("f03_link_evidence_*_(성공)_v01.json"))
             self.assertEqual(len(outputs), 2)
             for output in outputs:

@@ -26,16 +26,16 @@
   prior_replaced                prior_source가 window28이 아니면 True (대체한 행만 따로 오차를 볼 때)
 
 입력
-  data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (C 릴리스 v3)
-  data/processed/{train,eval}/link_baseline_*.parquet, baseline_*.csv (B 정답용 평소값)
+  data/derived/topis_weather/link_hourly_20261122_v02.parquet (C 릴리스 v3)
+  data/shared/{train_dev,holdout}/link_baseline_*.parquet, baseline_*.csv (B 정답용 평소값)
 
 실행
   python src/prior_baseline.py
   python src/prior_baseline.py --seasons 2024-25_winter     # 시즌 하나만 시험
 
 결과
-  data/processed/{train,eval}/prior_link_{split}.parquet
-  data/processed/{train,eval}/prior_road_{split}.parquet
+  data/shared/{train_dev,holdout}/prior_link_{split}.parquet
+  data/shared/{train_dev,holdout}/prior_road_{split}.parquet
   logs/kmj/prior_baseline.json
 """
 from __future__ import annotations
@@ -58,8 +58,9 @@ import sys  # noqa: E402
 if str(ROOT) not in sys.path:  # python src/prior_baseline.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import attach_weather_labels  # noqa: E402
-DEFAULT_LINK = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
-PROC_DIR = ROOT / "data" / "processed"
+DEFAULT_LINK = ROOT / "data" / "derived" / "topis_weather" / "link_hourly_20261122_v02.parquet"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 WINDOW_DAYS = 28
 MIN_N = 8
 
@@ -77,8 +78,8 @@ def load_periods() -> pd.DataFrame:
 
 
 def load_prev_baselines() -> tuple[pd.DataFrame, pd.DataFrame]:
-    link = pd.concat([pd.read_parquet(PROC_DIR / s / f"link_baseline_{s}.parquet") for s in ["train", "eval"]])
-    road = pd.concat([pd.read_csv(PROC_DIR / s / f"baseline_{s}.csv", encoding="utf-8-sig") for s in ["train", "eval"]])
+    link = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"link_baseline_{SPLIT_DIR[s]}.parquet") for s in ["train", "eval"]])
+    road = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[s] / f"baseline_{SPLIT_DIR[s]}.csv", encoding="utf-8-sig") for s in ["train", "eval"]])
     link = link[["season", "link_id", "weekday", "hour", "baseline_link_tt_s"]].rename(
         columns={"baseline_link_tt_s": "prev_tt_s"})
     road = road[["season", "road_id", "direction", "weekday", "hour", "baseline_travel_time_s"]].rename(
@@ -216,12 +217,12 @@ def main():
             t[c] = t[c].astype("category")
 
     for split in ["train", "eval"]:
-        out_dir = PROC_DIR / split
+        out_dir = PROC_DIR / SPLIT_DIR[split]
         out_dir.mkdir(parents=True, exist_ok=True)
         lk = link_all[link_all["split"] == split].sort_values(["season", "link_id", "date", "hour"])
         rd = road_all[road_all["split"] == split].sort_values(["season", "road_id", "direction", "date", "hour"])
-        lk.to_parquet(out_dir / f"prior_link_{split}.parquet", index=False)
-        rd.to_parquet(out_dir / f"prior_road_{split}.parquet", index=False)
+        lk.to_parquet(out_dir / f"prior_link_{SPLIT_DIR[split]}.parquet", index=False)
+        rd.to_parquet(out_dir / f"prior_road_{SPLIT_DIR[split]}.parquet", index=False)
 
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "input": a.link.name,
            "window_days": WINDOW_DAYS, "min_n": MIN_N, "seasons": summary}

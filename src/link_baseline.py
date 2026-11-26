@@ -17,7 +17,7 @@
 
 입력
   C 릴리스 yang-seoyeon-traffic-weather-v3 의 링크 기본표 parquet
-  (yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet, 약 600MB)
+  (link_hourly_20261122_v02.parquet, 약 600MB)
   → 연구 기간 · 평일 · 공휴일 제외 · 출퇴근 시간(8 · 9 · 18 · 19 · 20시)만 읽는다
 
 실행
@@ -25,8 +25,8 @@
   python src/link_baseline.py --link 경로.parquet --link-ratio 1.5 --road-length-ratio 0.3
 
 결과
-  data/processed/{train,eval}/link_baseline_{split}.parquet          링크 평소값
-  data/processed/{train,eval}/road_congestion_length_{split}.parquet 도로 · 방향 · 시간별 정체 길이 비율 · is_congested
+  data/shared/{train_dev,holdout}/link_baseline_{split}.parquet          링크 평소값
+  data/shared/{train_dev,holdout}/road_congestion_length_{split}.parquet 도로 · 방향 · 시간별 정체 길이 비율 · is_congested
   outputs/tables/congestion_length_candidates_train.csv              정체 길이 기준 후보 비교 (학습만)
   logs/ljh/link_baseline.json
 """
@@ -48,8 +48,9 @@ import sys  # noqa: E402
 if str(ROOT) not in sys.path:  # python src/link_baseline.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import attach_weather_labels  # noqa: E402
-DEFAULT_LINK = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
-PROC_DIR = ROOT / "data" / "processed"
+DEFAULT_LINK = ROOT / "data" / "derived" / "topis_weather" / "link_hourly_20261122_v02.parquet"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 TABLE_DIR = ROOT / "outputs" / "tables"
 
 COMMUTE_HOURS = [8, 9, 18, 19, 20]
@@ -173,10 +174,10 @@ def main():
     g = add_is_congested(road_congestion_length(d, b, a.link_ratio), a.road_length_ratio)
 
     for split in ("train", "eval"):
-        out = PROC_DIR / split
+        out = PROC_DIR / SPLIT_DIR[split]
         out.mkdir(parents=True, exist_ok=True)
-        b[b["split"] == split].to_parquet(out / f"link_baseline_{split}.parquet", index=False)
-        g[g["split"] == split].to_parquet(out / f"road_congestion_length_{split}.parquet", index=False)
+        b[b["split"] == split].to_parquet(out / f"link_baseline_{SPLIT_DIR[split]}.parquet", index=False)
+        g[g["split"] == split].to_parquet(out / f"road_congestion_length_{SPLIT_DIR[split]}.parquet", index=False)
         print(f"저장: {split} 링크 평소값 {(b['split'] == split).sum():,}칸 · 정체 길이 {(g['split'] == split).sum():,}행")
 
     cand = compare_candidates(g)

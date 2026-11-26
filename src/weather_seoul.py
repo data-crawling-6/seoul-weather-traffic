@@ -5,18 +5,18 @@
 예보는 권역별 값도 열로 같이 넣어 두어, 나중에 도로별 권역 연결표가 생기면 그 열을 골라 쓸 수 있게 한다.
 
 입력
-  data/processed/{train,eval}/fcst_{split}.csv        발표 × 예보 시각 × 권역 (kma_apihub.py 결과)
-  data/processed/{train,eval}/aws_hourly_{split}.csv  지점 × 시각 (kma_apihub.py 결과)
+  data/shared/{train_dev,holdout}/fcst_{split}.csv        발표 × 예보 시각 × 권역 (kma_apihub.py 결과)
+  data/shared/{train_dev,holdout}/aws_hourly_{split}.csv  지점 × 시각 (kma_apihub.py 결과)
 
 결과
-  data/processed/{train,eval}/fcst_seoul_{split}.csv  발표(base) × 예보 시각(fcst) × 몇 시간 전(lead_h)
+  data/shared/{train_dev,holdout}/fcst_seoul_{split}.csv  발표(base) × 예보 시각(fcst) × 몇 시간 전(lead_h)
       pcp_mean · pcp_max  1시간 강수량 (mm, 4개 권역 평균 · 최댓값)
       sno_mean · sno_max  1시간 신적설 (cm)
       tmp_mean · tmp_min  기온 (℃)
       pty_rain_regions    비가 오는 권역 수 (강수형태 1 비 · 2 비/눈 · 4 소나기)
       pty_snow_regions    눈이 오는 권역 수 (강수형태 2 비/눈 · 3 눈)
       pcp_se · pcp_ne · pcp_sw · pcp_nw 등  권역별 값 (se 동남 · ne 동북 · sw 서남 · nw 서북)
-  data/processed/{train,eval}/aws_seoul_{split}.csv   시각(datetime, 끝 시각 기준)
+  data/shared/{train_dev,holdout}/aws_seoul_{split}.csv   시각(datetime, 끝 시각 기준)
       n_stations          그 시각에 자료가 있는 지점 수
       ta_mean · ta_min    기온 (℃)
       rn_hr1_mean · rn_hr1_max  1시간 강수량 (mm)
@@ -40,7 +40,8 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-PROC_DIR = ROOT / "data" / "processed"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 REGION_CODE = {"동남권": "se", "동북권": "ne", "서남권": "sw", "서북권": "nw"}
 AWS_MISSING = -50   # 이 값 이하(-99 등)는 결측
 
@@ -89,11 +90,11 @@ def aws_seoul(a: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     for split in ("train", "eval"):
-        d = PROC_DIR / split
-        f = fcst_seoul(pd.read_csv(d / f"fcst_{split}.csv"))
-        a = aws_seoul(pd.read_csv(d / f"aws_hourly_{split}.csv"))
-        f.round(3).to_csv(d / f"fcst_seoul_{split}.csv", index=False, encoding="utf-8-sig")
-        a.round(3).to_csv(d / f"aws_seoul_{split}.csv", index=False, encoding="utf-8-sig")
+        d = PROC_DIR / SPLIT_DIR[split]
+        f = fcst_seoul(pd.read_csv(d / f"fcst_{SPLIT_DIR[split]}.csv"))
+        a = aws_seoul(pd.read_csv(d / f"aws_hourly_{SPLIT_DIR[split]}.csv"))
+        f.round(3).to_csv(d / f"fcst_seoul_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
+        a.round(3).to_csv(d / f"aws_seoul_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
         print(f"저장: {split} 예보 {len(f):,}행 (권역 4개 아닌 행 {int((f['n_regions'] != 4).sum())}) · "
               f"AWS {len(a):,}시각 (지점 수 {a['n_stations'].min()}~{a['n_stations'].max()})")
 

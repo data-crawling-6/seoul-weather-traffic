@@ -1,0 +1,18 @@
+{
+  "status": "성공",
+  "run_id": "20261123T213044",
+  "source_csv_count": 44,
+  "requested_links": 5092,
+  "vertex_rows": 33023,
+  "successful_links": 5092,
+  "failed_links": 0,
+  "attempts": [
+    {
+      "attempt": 1,
+      "success_links": 5092,
+      "failed_links": 0
+    }
+  ],
+  "raw_path": "D:\\seoul-weather-traffic-data\\vertices\\yang_seoyeon_link_vertices_raw_20261123T213044_v01_(성공).csv",
+  "run_dir": "D:\\seoul-weather-traffic-data\\vertices\\runs\\yang_seoyeon\\yang_seoyeon_vertex_20261123T213044_v01_(성공)"
+}

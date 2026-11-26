@@ -34,15 +34,15 @@
   권역: 도로별 권역은 C 링크 좌표가 나온 뒤에 붙인다 -> 그 전까지 city/type 비율로 대신
 
 입력
-  data/raw/traffic/yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet (24시간 통행시간)
-  data/processed/{train,eval}/prior_road_*.parquet, weather_hourly_*.csv, waterlevel_hourly_*.csv
-  data/raw/topis/csv/topis_speed_2025-12.csv (링크 차선 수 · 도심/외곽)
+  data/derived/topis_weather/link_hourly_20261122_v02.parquet (24시간 통행시간)
+  data/shared/{train_dev,holdout}/prior_road_*.parquet, weather_hourly_*.csv, waterlevel_hourly_*.csv
+  data/raw/topis_speed/2025-12.csv (링크 차선 수 · 도심/외곽)
     -> 저장소에는 없다. Release topis-data-v1의 topis_speed_2025-12.zip을 받아 이 폴더에 먼저 풀어야 한다
 
 실행
   python src/features.py
 결과
-  data/processed/{train,eval}/features_{split}.parquet
+  data/shared/{train_dev,holdout}/features_{split}.parquet
   logs/kmj/features.json
 """
 from __future__ import annotations
@@ -64,7 +64,8 @@ from src.io_utils import load_model_sets, read_topis  # noqa: E402
 from src.prior_baseline import DEFAULT_LINK, load_periods, load_season, road_hourly  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
-PROC_DIR = ROOT / "data" / "processed"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 TARGET_HOURS = [8, 9, 18, 19, 20]
 HORIZONS = [1, 3]
 LINK_ATTR_MONTH = "2025-12"  # roads.csv metadata_reference_month와 같은 달
@@ -110,7 +111,7 @@ def road_static(links: pd.DataFrame) -> pd.DataFrame:
 
 
 def weather_table() -> pd.DataFrame:
-    w = pd.concat([pd.read_csv(PROC_DIR / s / f"weather_hourly_{s}.csv", parse_dates=["datetime", "date"])
+    w = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[s] / f"weather_hourly_{SPLIT_DIR[s]}.csv", parse_dates=["datetime", "date"])
                    for s in ["train", "eval"]]).drop_duplicates("datetime").sort_values("datetime")
     w = w.set_index("datetime").asfreq("h")  # 빠진 시각이 있어도 shift가 정확히 1시간이 되게
     out = pd.DataFrame(index=w.index)
@@ -132,7 +133,7 @@ def weather_table() -> pd.DataFrame:
 
 
 def water_table() -> pd.DataFrame:
-    wl = pd.concat([pd.read_csv(PROC_DIR / s / f"waterlevel_hourly_{s}.csv", parse_dates=["datetime"])
+    wl = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[s] / f"waterlevel_hourly_{SPLIT_DIR[s]}.csv", parse_dates=["datetime"])
                     for s in ["train", "eval"]])
     wl = wl[wl["obsnm"].isin({s for v in RIVERSIDE_STATIONS.values() for s in v})]
     return wl[["datetime", "obsnm", "wl_rise_3h", "over_attwl", "over_wrnwl"]].rename(
@@ -183,7 +184,7 @@ def make_rows(rh: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFrame:
 
 def build(seasons: list[str]) -> tuple[pd.DataFrame, dict]:
     periods = load_periods().set_index("season")
-    prior = pd.concat([pd.read_parquet(PROC_DIR / s / f"prior_road_{s}.parquet") for s in ["train", "eval"]])
+    prior = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"prior_road_{SPLIT_DIR[s]}.parquet") for s in ["train", "eval"]])
     for c in ["season", "road_id", "direction"]:
         prior[c] = prior[c].astype(str)
     prior["date"] = pd.to_datetime(prior["date"])
@@ -265,7 +266,7 @@ def main():
               "season_kind", "precip_type", "weather_class", "weather_kind"]:
         f[c] = f[c].astype("category")
     for split in ["train", "eval"]:
-        f[f["split"] == split].to_parquet(PROC_DIR / split / f"features_{split}.parquet", index=False)
+        f[f["split"] == split].to_parquet(PROC_DIR / SPLIT_DIR[split] / f"features_{SPLIT_DIR[split]}.parquet", index=False)
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "rows": len(f),
            "target_hours": TARGET_HOURS, "horizons": HORIZONS, "vacation_peak": VACATION_PEAK,
            "riverside_stations": RIVERSIDE_STATIONS, "seasons": summary}

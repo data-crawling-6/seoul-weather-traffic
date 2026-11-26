@@ -19,11 +19,17 @@ from typing import Any
 import pandas as pd
 
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(_PROJECT_ROOT) not in sys.path:  # python src/traffic_mapping.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(_PROJECT_ROOT))
+from src.io_utils import data_root as _data_root, derived_of  # noqa: E402
+
 # [서연] Fixed, versioned source inputs; never read the large link-hourly Parquet.
-DEFAULT_DATA_ROOT = Path(r"D:\seoul-weather-traffic-data")
+# 원본 데이터 위치: 저장소 data/raw/ (io_utils.data_root)
+DEFAULT_DATA_ROOT = _data_root()
 STABLE_LINKS_RELATIVE = Path("outputs/tables/yang_seoyeon_stable_links_20261122_v02.csv")
-VERTEX_FILENAME = "yang_seoyeon_link_vertices_raw_20261123T213044_v01_(성공).csv"
-LINES_FILENAME = "yang_seoyeon_road_lines_20261123T223648_v01_(성공).geojson"
+VERTEX_FILENAME = "link_vertices_raw_20261123T213044_v01_(성공).csv"
+LINES_FILENAME = "road_lines_20261123T223648_v01_(성공).geojson"
 
 
 # [서연] JSON-friendly conversion for pandas and numpy scalar values.
@@ -48,10 +54,10 @@ def select_volume_files(folder: Path) -> dict[str, Path]:
     import re
 
     pattern = re.compile(
-        r"^yang_seoyeon_traffic_volume_(train|eval)_(\d{8}T\d{6})_v(\d+)_\(성공\)\.parquet$"
+        r"^traffic_volume_(train|eval)_(\d{8}T\d{6})_v(\d+)_\(성공\)\.parquet$"
     )
     groups: dict[tuple[str, int], dict[str, Path]] = {}
-    for path in folder.glob("yang_seoyeon_traffic_volume_*.parquet"):
+    for path in folder.glob("traffic_volume_*.parquet"):
         match = pattern.fullmatch(path.name)
         if match:
             split, stamp, version = match.groups()
@@ -105,7 +111,7 @@ def summarize_spot_coordinate_history(volume: pd.DataFrame, spot_id: str = "F-03
 
 # [서연] Inspect only the latest complete successful train/eval pair; print evidence, save nothing.
 def execute_coordinate_history(data_root: Path, spot_id: str = "F-03") -> int:
-    paths = select_volume_files(data_root / "traffic_volume" / "processed")
+    paths = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     frames = [pd.read_parquet(paths[split]) for split in ("train", "eval")]
     history = summarize_spot_coordinate_history(pd.concat(frames, ignore_index=True), spot_id)
     print(f"Coordinate history (read-only): {spot_id}")
@@ -185,9 +191,9 @@ def compare_spot_link_locations(volume: pd.DataFrame, stable: pd.DataFrame, line
 def execute_link_location_check(project_root: Path, data_root: Path, spot_id: str = "F-03") -> int:
     import geopandas as gpd
 
-    volumes = select_volume_files(data_root / "traffic_volume" / "processed")
+    volumes = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
-    lines_path = data_root / "vertices" / LINES_FILENAME
+    lines_path = derived_of(data_root) / "road_lines" / LINES_FILENAME
     source_paths = {"train": volumes["train"], "eval": volumes["eval"],
                     "stable_links": stable_path, "road_lines": lines_path}
     frame = pd.concat([pd.read_parquet(volumes[key]) for key in ("train", "eval")], ignore_index=True)
@@ -266,10 +272,10 @@ def execute_record_f03_evidence(project_root: Path, data_root: Path) -> int:
     evidence = None
     error = None
     try:
-        pair = select_volume_files(data_root / "traffic_volume" / "processed")
+        pair = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
         paths = {"train": pair["train"], "eval": pair["eval"],
                  "stable_links": project_root / STABLE_LINKS_RELATIVE,
-                 "road_lines": data_root / "vertices" / LINES_FILENAME}
+                 "road_lines": derived_of(data_root) / "road_lines" / LINES_FILENAME}
         volume = pd.concat([pd.read_parquet(paths[key]) for key in ("train", "eval")], ignore_index=True)
         stable = pd.read_csv(paths["stable_links"], dtype={"link_id": "string"}, encoding="utf-8-sig")
         lines = gpd.read_file(paths["road_lines"])
@@ -504,10 +510,10 @@ def audit_provenance(project_root: Path, paths: dict[str, Path]) -> dict[str, An
 def run_input_audit(project_root: Path, data_root: Path) -> tuple[dict[str, Any], pd.DataFrame]:
     import geopandas as gpd
 
-    volume_paths = select_volume_files(data_root / "traffic_volume" / "processed")
+    volume_paths = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
-    vertex_path = data_root / "vertices" / VERTEX_FILENAME
-    lines_path = data_root / "vertices" / LINES_FILENAME
+    vertex_path = data_root / "link_coords" / VERTEX_FILENAME
+    lines_path = derived_of(data_root) / "road_lines" / LINES_FILENAME
     paths = {**volume_paths, "stable_links": stable_path, "vertices": vertex_path, "lines": lines_path}
     for key, path in paths.items():
         if not path.is_file():
@@ -617,11 +623,11 @@ def execute_audit(project_root: Path, data_root: Path) -> int:
     # [서연] Fingerprint every discoverable source even when the input audit fails.
     known_paths = {
         "stable_links": project_root / STABLE_LINKS_RELATIVE,
-        "vertices": data_root / "vertices" / VERTEX_FILENAME,
-        "lines": data_root / "vertices" / LINES_FILENAME,
+        "vertices": data_root / "link_coords" / VERTEX_FILENAME,
+        "lines": derived_of(data_root) / "road_lines" / LINES_FILENAME,
     }
     try:
-        known_paths.update(select_volume_files(data_root / "traffic_volume" / "processed"))
+        known_paths.update(select_volume_files(derived_of(data_root) / "topis_traffic_volume"))
     except (OSError, ValueError):
         pass
     report["provenance"] = audit_provenance(project_root, known_paths)
@@ -852,11 +858,11 @@ def allocate_map_paths(project_root: Path, stamp: str, success: bool) -> dict[st
 def run_mapping(project_root: Path, data_root: Path) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Path]]:
     import geopandas as gpd
 
-    volume_paths = select_volume_files(data_root / "traffic_volume" / "processed")
+    volume_paths = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     paths = {
         **volume_paths,
         "stable_links": project_root / STABLE_LINKS_RELATIVE,
-        "lines": data_root / "vertices" / LINES_FILENAME,
+        "lines": derived_of(data_root) / "road_lines" / LINES_FILENAME,
     }
     for name, path in paths.items():
         if not path.is_file():
@@ -944,10 +950,10 @@ def execute_map(project_root: Path, data_root: Path) -> int:
     error = None
     paths: dict[str, Path] = {
         "stable_links": project_root / STABLE_LINKS_RELATIVE,
-        "lines": data_root / "vertices" / LINES_FILENAME,
+        "lines": derived_of(data_root) / "road_lines" / LINES_FILENAME,
     }
     try:
-        paths.update(select_volume_files(data_root / "traffic_volume" / "processed"))
+        paths.update(select_volume_files(derived_of(data_root) / "topis_traffic_volume"))
         candidates, review, paths = run_mapping(project_root, data_root)
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
@@ -2278,10 +2284,10 @@ def evaluate_full_road_candidates(versions: pd.DataFrame, roads: Any,
 
 def execute_full_road_evaluation(project_root: Path, data_root: Path) -> int:
     import geopandas as gpd
-    volume_paths = select_volume_files(data_root / "traffic_volume" / "processed")
+    volume_paths = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     paths = {"train": volume_paths["train"], "eval": volume_paths["eval"],
              "stable_links": project_root / STABLE_LINKS_RELATIVE,
-             "lines": data_root / "vertices" / LINES_FILENAME}
+             "lines": derived_of(data_root) / "road_lines" / LINES_FILENAME}
     for name, path in paths.items():
         if not path.is_file():
             raise FileNotFoundError(f"Missing {name}: {path}")
@@ -2402,7 +2408,7 @@ def build_official_road_mapping(volume: pd.DataFrame, stable: pd.DataFrame
 
 # [서연] Generate two versioned read-only tables in one command.
 def execute_official_road_mapping(project_root: Path, data_root: Path) -> int:
-    volume_paths = select_volume_files(data_root / "traffic_volume" / "processed")
+    volume_paths = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
     if not stable_path.is_file():
         raise FileNotFoundError(f"Missing stable links: {stable_path}")
@@ -2541,7 +2547,7 @@ def build_official_observation_tables(volume: pd.DataFrame, stable: pd.DataFrame
 
 # [서연] Read-only observation-level join and observed-row coverage, versioned outputs.
 def execute_official_observation_join(project_root: Path, data_root: Path) -> int:
-    inputs = select_volume_files(data_root / "traffic_volume" / "processed")
+    inputs = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
     volume = pd.concat([pd.read_parquet(inputs["train"]), pd.read_parquet(inputs["eval"])],
                        ignore_index=True)
@@ -2660,7 +2666,7 @@ def audit_traffic_baseline(volume: pd.DataFrame, stable: pd.DataFrame) -> tuple[
 
 # [서연] One read-only baseline feasibility report; no traffic baseline values are calculated.
 def execute_baseline_audit(project_root: Path, data_root: Path) -> int:
-    inputs = select_volume_files(data_root / "traffic_volume" / "processed")
+    inputs = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
     volume = pd.concat([pd.read_parquet(inputs["train"]), pd.read_parquet(inputs["eval"])],
                        ignore_index=True)
@@ -2755,7 +2761,7 @@ def audit_traffic_dates(volume: pd.DataFrame, stable: pd.DataFrame) -> tuple[pd.
 
 
 def execute_date_audit(project_root: Path, data_root: Path) -> int:
-    inputs = select_volume_files(data_root / "traffic_volume" / "processed")
+    inputs = select_volume_files(derived_of(data_root) / "topis_traffic_volume")
     stable_path = project_root / STABLE_LINKS_RELATIVE
     volume = pd.concat([pd.read_parquet(inputs["train"]), pd.read_parquet(inputs["eval"])], ignore_index=True)
     stable = pd.read_csv(stable_path, dtype={"road_id": "string"}, encoding="utf-8-sig")

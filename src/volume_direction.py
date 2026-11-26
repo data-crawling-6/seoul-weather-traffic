@@ -15,13 +15,13 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
 - 같은 지점의 유입 · 유출이 같은 방향으로 붙으면(conflict) 둘 다 비운다.
 
 입력
-  data/raw/traffic/yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
-  data/raw/topis/topis_speed_2025-12.zip   (A 릴리즈 topis-data-v1, 링크 이름 · 방향만 쓴다)
+  data/derived/topis_traffic_volume/traffic_weather_days_joined_20261124T021832_._v01.csv  (C 릴리즈)
+  data/raw/topis_speed/2025-12.zip   (A 릴리즈 topis-data-v1, 링크 이름 · 방향만 쓴다)
 
 결과
-  data/processed/traffic_volume_direction_map.csv
+  data/shared/traffic_volume_direction_map.csv
       지점 × 유입 · 유출마다 road_id · direction · 붙인 방법(match_method)
-  data/processed/{train,eval}/traffic_volume_road_dir_{split}.csv
+  data/shared/{train_dev,holdout}/traffic_volume_road_dir_{split}.csv
       날짜 × 시간 × 도로 × 방향 교통량 (정체 표와 date + hour + road_id + direction 으로 붙인다)
       volume_mean          그 도로 · 방향에 붙은 지점들의 교통량 평균 (대/시간)
       n_spots              붙은 지점 수
@@ -45,9 +45,10 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 KST = timezone(timedelta(hours=9))
-DEFAULT_VOLUME = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_traffic_weather_days_joined_20261124T021832_._v01.csv"
-DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis" / "topis_speed_2025-12.zip"
-PROC_DIR = ROOT / "data" / "processed"
+DEFAULT_VOLUME = ROOT / "data" / "derived" / "topis_traffic_volume" / "traffic_weather_days_joined_20261124T021832_._v01.csv"
+DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis_speed" / "2025-12.zip"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 MIN_PARTIAL = 2   # 부분 일치로 볼 최소 글자 수
 
 
@@ -159,9 +160,9 @@ def main():
 
     g = road_dir_volume(v, m)
     for split in ("train", "eval"):
-        out = PROC_DIR / split
+        out = PROC_DIR / SPLIT_DIR[split]
         out.mkdir(parents=True, exist_ok=True)
-        g[g["split"] == split].to_csv(out / f"traffic_volume_road_dir_{split}.csv", index=False, encoding="utf-8-sig")
+        g[g["split"] == split].to_csv(out / f"traffic_volume_road_dir_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
 
     matched = m["direction"].notna()
     spot_ok = m.groupby("spot_id")["direction"].apply(lambda s: s.notna().all())

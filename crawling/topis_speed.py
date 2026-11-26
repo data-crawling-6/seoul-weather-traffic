@@ -36,8 +36,8 @@ PAGE_URL = BASE + "/refRoom/openRefRoom_1.do"
 DOWNLOAD_URL = BASE + "/downloadFileRefRoom.do"
 
 ROOT = Path(__file__).resolve().parents[1]
-XLSX_DIR = ROOT / "data" / "raw" / "topis" / "xlsx"
-CSV_DIR = ROOT / "data" / "raw" / "topis" / "csv"
+XLSX_DIR = ROOT / "data" / "raw" / "topis_speed" / "xlsx"
+CSV_DIR = ROOT / "data" / "raw" / "topis_speed"
 LOG_DIR = ROOT / "logs" / "kmj"
 LOG_FILE = LOG_DIR / "topis_speed.log"
 NET_LOG = LOG_DIR / "topis_network.log"
@@ -278,8 +278,8 @@ def verify_and_convert(xlsx, csv_path, y, m):
 # ---------------------------------------------------------------- 실행
 def process_month(session, files, manifest, year, m, recheck=False):
     key = ym(year, m)
-    xlsx = XLSX_DIR / f"topis_speed_{key}.xlsx"
-    csv_path = CSV_DIR / f"topis_speed_{key}.csv"
+    xlsx = XLSX_DIR / f"{key}.xlsx"
+    csv_path = CSV_DIR / f"{key}.csv"
 
     done = manifest.get(key, {}).get("상태") in ("OK", "WARN")
     if done and not recheck and looks_like_xlsx(xlsx) and csv_path.exists():

@@ -1,0 +1,41 @@
+{
+  "run_id": "20261123T162318",
+  "version": "v01",
+  "run_mode": "one_month_test",
+  "test_month": "2022-12",
+  "status_at_start": "중단",
+  "started_at": "2026-11-23T16:23:18+09:00",
+  "entrypoint": "crawling/traffic_volume.py::run_test_month",
+  "project_root": "C:\\Users\\USER\\seoul-weather-traffic",
+  "data_root": "D:\\seoul-weather-traffic-data",
+  "python_version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+  "python_executable": "C:\\Users\\USER\\.conda\\envs\\youth-isolation\\python.exe",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "settings": {
+    "headless": false,
+    "retries": 3,
+    "wait_seconds": 60
+  },
+  "code_provenance": {
+    "git_available": true,
+    "git_commit": "e9a9c26badb24bccf7e84160f431222b63ae90be",
+    "git_branch": "c-traffic",
+    "git_dirty": true,
+    "git_changed_files": [
+      "otebooks/10_B_comparison.ipynb",
+      "notebooks/yang_seoyeon/yang_seoyeon_05_traffic_volume.ipynb",
+      "data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v01.csv",
+      "data/sample/yang_seoyeon_topis_weather_commute_sample_20261122_v02.csv",
+      "data/sample/yang_seoyeon_topis_weather_link_sample_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_roads_candidate_review_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_stable_links_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_partial_missing_review_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v01.csv",
+      "outputs/tables/yang_seoyeon_topis_weather_merge_summary_20261122_v02.csv"
+    ],
+    "code_sha256": {
+      "crawling\\traffic_volume.py": "ad531772c87b944e14d60254e78abf736ba854ff35d6850f2f0bd8e7a8398142",
+      "notebooks\\yang_seoyeon\\yang_seoyeon_05_traffic_volume.ipynb": "43cf5ec09d8b76d4c82895142d8985dda487c60250d363199f4cf3ac172387c3"
+    }
+  }
+}

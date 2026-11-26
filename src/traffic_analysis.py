@@ -18,17 +18,17 @@ import sys  # noqa: E402
 
 if str(ROOT) not in sys.path:  # python src/traffic_analysis.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
-from src.io_utils import data_root as _data_root  # noqa: E402
+from src.io_utils import data_root as _data_root, derived_of, derived_root as _derived_root  # noqa: E402
 
-# 데이터 위치: 환경변수 SEOUL_TRAFFIC_DATA_ROOT, 없으면 D:\seoul-weather-traffic-data (io_utils.data_root)
+# 원본 데이터 위치: 저장소 data/raw/ (io_utils.data_root). C 결합표는 data/derived/topis_weather/ (io_utils.derived_root)
 DATA_ROOT = _data_root()
-TRAVEL_FILE = "yang_seoyeon_topis_weather_commute_20261122_v05.parquet"
+TRAFFIC_DIR = _derived_root() / "topis_weather"
+TRAVEL_FILE = "commute_20261122_v05.parquet"
 
 
 def _default_travel_path() -> Path:
-    """통행시간 v05: 저장소 data/raw/traffic/ 에 있으면 그것, 없으면 데이터 루트 processed/."""
-    local = ROOT / "data" / "raw" / "traffic" / TRAVEL_FILE
-    return local if local.is_file() else DATA_ROOT / "processed" / TRAVEL_FILE
+    """통행시간 v05: data/derived/topis_weather/ (Release yang-seoyeon-traffic-weather-v3)."""
+    return TRAFFIC_DIR / TRAVEL_FILE
 REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_name",
             "spot_id", "io_type", "hour", "commute_period", "traffic_volume",
             "intensity", "precip_mm", "new_snow_cm"}
@@ -36,13 +36,13 @@ REQUIRED = {"date", "matched_date", "role", "split", "season", "road_id", "road_
 
 def latest_input(root: Path = ROOT) -> Path:
     """교통량·악천후일 결합 CSV. outputs/tables 에 없으면 Release(yang-seoyeon-traffic-volume-v1)에서 받은
-    data/raw/traffic/ 파일을 쓴다 (PR #23 에서 큰 CSV 를 저장소에서 빼고 Release 로 옮김)."""
+    data/derived/topis_traffic_volume/ 파일을 쓴다 (PR #23 에서 큰 CSV 를 저장소에서 빼고 Release 로 옮김)."""
     files = sorted((root / "outputs/tables").glob("yang_seoyeon_traffic_weather_days_joined_*_(성공)_v*.csv"))
     if not files:
-        files = sorted((root / "data" / "raw" / "traffic").glob("yang_seoyeon_traffic_weather_days_joined_*_v*.csv"))
+        files = sorted((root / "data" / "derived" / "topis_traffic_volume").glob("traffic_weather_days_joined_*_v*.csv"))
     if not files:
         raise FileNotFoundError("교통량·악천후일 결합 CSV가 없습니다. Release yang-seoyeon-traffic-volume-v1 의 CSV를 "
-                                "data/raw/traffic/ 에 받아 두세요.")
+                                "data/derived/topis_traffic_volume/ 에 받아 두세요.")
     return files[-1]
 
 
@@ -289,8 +289,8 @@ def visualize_latest(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
     unclassified = evaluation.loc[evaluation["cluster"].isna()].copy()
     unclassified.to_csv(paths["eval_unclustered"], index=False, encoding="utf-8-sig")
 
-    geo_files = sorted((data_root / "vertices").glob("yang_seoyeon_road_lines_*_(성공).geojson"))
-    mapping_files = sorted((data_root / "processed").glob("yang_seoyeon_topis_weather_link_hourly_*_v02.parquet"))
+    geo_files = sorted((derived_of(data_root) / "road_lines").glob("road_lines_*_(성공).geojson"))
+    mapping_files = sorted(TRAFFIC_DIR.glob("link_hourly_*_v02.parquet"))
     if not geo_files or not mapping_files:
         raise FileNotFoundError("도로 GeoJSON 또는 링크-도로 매핑 Parquet를 찾지 못했습니다.")
     links = gpd.read_file(geo_files[-1])
@@ -713,7 +713,7 @@ def combine_news(root: Path = ROOT, data_root: Path = DATA_ROOT,
     """[서연] 기존 분석 결과에 뉴스 후보를 연결한다. 수집·학습은 재실행하지 않는다."""
     import matplotlib.pyplot as plt
     import re
-    news_dir = news_dir or data_root / "naver_news/processed"
+    news_dir = news_dir or derived_of(data_root) / "naver_news"
     def latest(folder, pattern):
         files = sorted(folder.glob(pattern))
         if not files:
@@ -722,7 +722,7 @@ def combine_news(root: Path = ROOT, data_root: Path = DATA_ROOT,
     table_dir = root / "outputs/tables"
     combined_path = combined_path or latest(table_dir, "yang_seoyeon_traffic_travel_road_hour_*_(성공)_v*.csv")
     summary_path = summary_path or latest(table_dir, "yang_seoyeon_road_cluster_summary_*_(성공)_v*.csv")
-    candidate_path = latest(news_dir, "yang_seoyeon_news_road_candidates_*_(성공)_v*.csv")
+    candidate_path = latest(news_dir, "news_road_candidates_*_(성공)_v*.csv")
     event_path = candidate_path.with_name(candidate_path.name.replace("news_road_candidates", "news_event_links"))
     def read(path):
         return pd.read_csv(path, encoding="utf-8-sig", dtype={"road_id": "string"})
@@ -926,8 +926,8 @@ def visualize_dtw_map(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
             raise FileNotFoundError(f'입력 없음: {folder / pattern}')
         return files[-1]
     source = latest(root / 'outputs/tables', 'yang_seoyeon_dtw_clusters_*_(성공)_v*.csv')
-    geo = latest(data_root / 'vertices', 'yang_seoyeon_road_lines_*_(성공).geojson')
-    mapping = latest(data_root / 'processed', 'yang_seoyeon_topis_weather_link_hourly_*_v02.parquet')
+    geo = latest(derived_of(data_root) / 'road_lines', 'road_lines_*_(성공).geojson')
+    mapping = latest(TRAFFIC_DIR, 'link_hourly_*_v02.parquet')
     d = pd.read_csv(source, dtype={'road_id': 'string'})
     if d.duplicated(['split','road_id']).any():
         raise ValueError('DTW 도로 키 중복')
@@ -979,8 +979,8 @@ def visualize_dtw_map(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
 
 def extract_road_control(root: Path, data_root: Path, news_dir: Path | None = None) -> dict:
     """[서연] 제목 기반 통제 및 위험 후보 추출. 실제 통제 여부는 수동 검증한다."""
-    folder = news_dir or data_root / "naver_news/processed"
-    files = sorted(folder.glob("yang_seoyeon_news_road_candidates_*_(성공)_v*.csv"))
+    folder = news_dir or derived_of(data_root) / "naver_news"
+    files = sorted(folder.glob("news_road_candidates_*_(성공)_v*.csv"))
     if not files:
         raise FileNotFoundError(folder)
     source = files[-1]

@@ -1,0 +1,2 @@
+﻿run_id,test_month,source_file,source_bytes,source_rows_5hours_all_days,target_days_in_month,selected_rows,unique_spots,hours,expected_hours_ok,traffic_volume_missing,coordinate_missing,duplicate_keys
+20261123T162318,2022-12,yang_seoyeon_topis_traffic_volume_2022-12.xlsx,1461934,43090,1,1390,139,"8,9,18,19,20",True,342,0,0

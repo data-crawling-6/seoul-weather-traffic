@@ -18,9 +18,9 @@ import pandas as pd
 from src.io_utils import attach_weather_labels, load_weather_labels
 
 ROOT = Path(__file__).resolve().parents[2]
-TRAFFIC = ROOT / "data" / "raw" / "traffic"
-ROAD_V04 = TRAFFIC / "yang_seoyeon_topis_weather_commute_20261122_v04.parquet"
-LINK_V02 = TRAFFIC / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
+TRAFFIC = ROOT / "data" / "derived" / "topis_weather"
+ROAD_V04 = TRAFFIC / "commute_20261122_v04.parquet"
+LINK_V02 = TRAFFIC / "link_hourly_20261122_v02.parquet"
 
 
 def labels() -> pd.DataFrame:

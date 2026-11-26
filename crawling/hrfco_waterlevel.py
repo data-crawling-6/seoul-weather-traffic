@@ -22,10 +22,10 @@
 인증키: api_keys.txt 에  HRFCO_KEY=발급받은키
 
 결과
-  data/raw/hrfco/stations.json                           관측소 목록 원본
-  data/raw/hrfco/wl_{관측소코드}_{YYYYMM}.json             10분 수위 원본 (한 달씩)
-  data/processed/waterlevel_stations.csv                 받은 관측소 · 기준수위(관심 · 주의 · 경보 · 심각)
-  data/processed/{train,eval}/waterlevel_hourly_{split}.csv
+  data/raw/hanriver_level/stations.json                           관측소 목록 원본
+  data/raw/hanriver_level/wl_{관측소코드}_{YYYYMM}.json             10분 수위 원본 (한 달씩)
+  data/shared/waterlevel_stations.csv                 받은 관측소 · 기준수위(관심 · 주의 · 경보 · 심각)
+  data/shared/{train_dev,holdout}/waterlevel_hourly_{split}.csv
       datetime(끝 시각) · wlobscd · obsnm · wl_last(정시 수위) · wl_max · wl_mean · wl_rise_3h
       · fw_last(유량) · fw_max · n_obs · over_attwl(관심 이상) · over_wrnwl(주의 이상)
       학습 = 2023 · 2024 · 2025 여름, 평가 = 2026 여름. 연구 기간 5/9~9/23 만 남긴다.
@@ -44,8 +44,9 @@ import pandas as pd
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_DIR = ROOT / "data" / "raw" / "hrfco"
-PROC_DIR = ROOT / "data" / "processed"
+RAW_DIR = ROOT / "data" / "raw" / "hanriver_level"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 LOG_PATH = ROOT / "logs" / "ljh" / "hrfco_waterlevel.log"
 
 
@@ -328,7 +329,7 @@ def parse_all():
         return
     h = to_hourly(raw, stations)
     for split, part in h.groupby("split"):
-        out = PROC_DIR / split / f"waterlevel_hourly_{split}.csv"
+        out = PROC_DIR / SPLIT_DIR[split] / f"waterlevel_hourly_{SPLIT_DIR[split]}.csv"
         out.parent.mkdir(parents=True, exist_ok=True)
         part.drop(columns=["split"]).to_csv(out, index=False, encoding="utf-8-sig")
         log.info("%s: %d행 · 관측소 %d곳 · %s ~ %s → %s", split, len(part), part["wlobscd"].nunique(),

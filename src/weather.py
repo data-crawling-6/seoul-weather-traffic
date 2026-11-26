@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 
 # ── 기준값 기본값 (실제 값은 config/periods.yaml 의 thresholds 가 우선) ──────
 THRESHOLDS = {
@@ -480,7 +481,7 @@ def add_warnings(hourly: pd.DataFrame):
     import sys
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
-    from src import kma_warnings as WR
+    from src import warnings_seoul as WR
     res = WR.build(hourly["datetime"])
     if res is None:
         print("⚠️ 기상특보 원본이 없어 특보 열 없이 저장합니다 (crawling/kma_warning.py 실행 필요)")
@@ -496,18 +497,18 @@ def add_warnings(hourly: pd.DataFrame):
 
 def save_outputs(hourly, ev, fl, opts, rec, days, th=THRESHOLDS, warn_items=None, warn_eps=None):
     import yaml
-    proc = ROOT / "data/processed"
+    proc = ROOT / "data/shared"
     cols = HOURLY_COLS + [c for c in hourly.columns if c.startswith("warn_")]
     for split in ("train", "eval"):
         (proc / split).mkdir(parents=True, exist_ok=True)
         if warn_eps is not None:
-            warn_eps[warn_eps["split"] == split].to_csv(proc / split / f"weather_warnings_{split}.csv",
+            warn_eps[warn_eps["split"] == split].to_csv(proc / SPLIT_DIR[split] / f"weather_warnings_{SPLIT_DIR[split]}.csv",
                                                         index=False, encoding="utf-8-sig")
         hourly[hourly["split"] == split][cols].to_csv(
-            proc / split / f"weather_hourly_{split}.csv", index=False, encoding="utf-8-sig")
-        ev[ev["split"] == split].to_csv(proc / split / f"weather_events_{split}.csv",
+            proc / SPLIT_DIR[split] / f"weather_hourly_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
+        ev[ev["split"] == split].to_csv(proc / SPLIT_DIR[split] / f"weather_events_{SPLIT_DIR[split]}.csv",
                                         index=False, encoding="utf-8-sig")
-        days[days["split"] == split].to_csv(proc / split / f"weather_days_{split}.csv",
+        days[days["split"] == split].to_csv(proc / SPLIT_DIR[split] / f"weather_days_{SPLIT_DIR[split]}.csv",
                                             index=False, encoding="utf-8-sig")
     tables = ROOT / "outputs/tables"
     tables.mkdir(parents=True, exist_ok=True)

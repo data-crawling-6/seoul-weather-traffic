@@ -13,6 +13,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
+from src.io_utils import SPLIT_DIR
 from src.features import HORIZONS, PROC_DIR, TARGET_HOURS, make_rows
 
 KEY = ["date", "target_hour", "horizon", "road_id", "direction"]
@@ -95,11 +96,11 @@ class ShapeTest(unittest.TestCase):
         self.assertEqual(len(f), int(rh["hour"].isin(TARGET_HOURS).sum()) * len(HORIZONS))
 
 
-@unittest.skipUnless((PROC_DIR / "train" / "features_train.parquet").exists(), "결과 파일 없음")
+@unittest.skipUnless((PROC_DIR / "train_dev" / "features_train_dev.parquet").exists(), "결과 파일 없음")
 class OutputTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.f = pd.concat([pd.read_parquet(PROC_DIR / s / f"features_{s}.parquet") for s in ["train", "eval"]],
+        cls.f = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"features_{SPLIT_DIR[s]}.parquet") for s in ["train", "eval"]],
                           ignore_index=True)
 
     def test_행_수_와_키_중복(self):
@@ -113,7 +114,7 @@ class OutputTest(unittest.TestCase):
         at_t = h1.reindex(pd.MultiIndex.from_arrays([s["road_id"], s["direction"], s["date"], s["t_hour"]]))
         np.testing.assert_allclose(s["ratio_t0"].to_numpy(), at_t.to_numpy())
 
-        w = pd.concat([pd.read_csv(PROC_DIR / sp / f"weather_hourly_{sp}.csv", parse_dates=["datetime"])
+        w = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[sp] / f"weather_hourly_{SPLIT_DIR[sp]}.csv", parse_dates=["datetime"])
                        for sp in ["train", "eval"]]).drop_duplicates("datetime").set_index("datetime")
         s = f.sample(2000, random_state=1)
         t_dt = s["date"] + pd.to_timedelta(s["t_hour"], unit="h")

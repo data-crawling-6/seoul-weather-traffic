@@ -1,7 +1,7 @@
 """
 구별 AWS 시간자료 · 과거 단기예보 수집 (B 담당 · 기상청 API허브)
 
-악천후일 · 비교일 90일(data/processed/{train,eval}/weather_days_*.csv),
+악천후일 · 비교일 90일(data/shared/{train_dev,holdout}/weather_days_*.csv),
 또는 --part full 이면 연구 기간 평일(공휴일 제외) 전체에 대해 (11/25 결정: 예측 · 경보 모델이
 연구 기간 평일 출퇴근 전체로 학습 · 평가하므로, 예보 · AWS도 같은 범위가 있어야 입력으로 쓸 수 있다)
   1) 방재기상관측(AWS) 정시자료  : 서울 29개 지점, 하루당 36시간 (전날 13시 ~ 그날 24시)
@@ -36,8 +36,8 @@
 결과
   data/raw/kma_aws/aws_YYYYMMDDHH.txt                 AWS 원본 (서울 지점만 남김)
   data/raw/kma_fcst/fcst_발표_예보_변수.json            단기예보 (서울 4개 권역 값만)
-  data/processed/{train,eval}/aws_hourly_{split}.csv   지점 × 시각 표 (datetime, stn, 관측값들)
-  data/processed/{train,eval}/fcst_{split}.csv         발표 × 예보 시각 × 권역 표 (PCP · SNO · PTY · TMP)
+  data/shared/{train_dev,holdout}/aws_hourly_{split}.csv   지점 × 시각 표 (datetime, stn, 관측값들)
+  data/shared/{train_dev,holdout}/fcst_{split}.csv         발표 × 예보 시각 × 권역 표 (PCP · SNO · PTY · TMP)
 """
 import argparse
 import json
@@ -56,7 +56,8 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 AWS_DIR = ROOT / "data" / "raw" / "kma_aws"
 FCST_DIR = ROOT / "data" / "raw" / "kma_fcst"
-PROC_DIR = ROOT / "data" / "processed"
+PROC_DIR = ROOT / "data" / "shared"
+SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 LOG_PATH = ROOT / "logs" / "ljh" / "kma_apihub.log"
 CALLS_PATH = ROOT / "logs" / "ljh" / "kma_apihub_calls.json"
 
@@ -133,7 +134,7 @@ def load_days(part):
         return load_full_days()
     frames = []
     for split in ("train", "eval"):
-        d = pd.read_csv(PROC_DIR / split / f"weather_days_{split}.csv", encoding="utf-8-sig")
+        d = pd.read_csv(PROC_DIR / SPLIT_DIR[split] / f"weather_days_{SPLIT_DIR[split]}.csv", encoding="utf-8-sig")
         d["split"] = split
         frames.append(d)
     d = pd.concat(frames)
@@ -466,13 +467,13 @@ def parse_all():
                             "split": split_of.get(("fcst", base, fc), "")})
 
     for split in ("train", "eval"):
-        out = PROC_DIR / split
+        out = PROC_DIR / SPLIT_DIR[split]
         if aws_frames:
             a = pd.concat(aws_frames)
             a = a[a["split"] == split].drop(columns="split")
             if len(a):
-                a.to_csv(out / f"aws_hourly_{split}.csv", index=False, encoding="utf-8-sig")
-                log.info("저장: %s (%d행, 지점 %d개)", (out / f"aws_hourly_{split}.csv").relative_to(ROOT),
+                a.to_csv(out / f"aws_hourly_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
+                log.info("저장: %s (%d행, 지점 %d개)", (out / f"aws_hourly_{SPLIT_DIR[split]}.csv").relative_to(ROOT),
                          len(a), a["STN"].nunique())
         if fc_rows:
             f = pd.DataFrame(fc_rows)
@@ -480,8 +481,8 @@ def parse_all():
             if len(f):
                 f = f.pivot_table(index=["base", "fcst", "lead_h", "region"], columns="var",
                                   values="value", aggfunc="first").reset_index()
-                f.to_csv(out / f"fcst_{split}.csv", index=False, encoding="utf-8-sig")
-                log.info("저장: %s (%d행)", (out / f"fcst_{split}.csv").relative_to(ROOT), len(f))
+                f.to_csv(out / f"fcst_{SPLIT_DIR[split]}.csv", index=False, encoding="utf-8-sig")
+                log.info("저장: %s (%d행)", (out / f"fcst_{SPLIT_DIR[split]}.csv").relative_to(ROOT), len(f))
 
 
 def main():

@@ -15,6 +15,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
+from src.io_utils import SPLIT_DIR
 from src.prior_baseline import (DEFAULT_LINK, MIN_N, PROC_DIR, apply_fallback, load_season,
                                 road_hourly, rolling_prior)
 
@@ -144,38 +145,38 @@ class RoadSumTest(unittest.TestCase):
         self.assertEqual(r["window_tt_s"], 150.0)
 
 
-@unittest.skipUnless((PROC_DIR / "train" / "prior_road_train.parquet").exists(), "결과 파일 없음")
+@unittest.skipUnless((PROC_DIR / "train_dev" / "prior_road_train_dev.parquet").exists(), "결과 파일 없음")
 class OutputTest(unittest.TestCase):
     def test_도로_결과_키_중복_없음(self):
         for split in ["train", "eval"]:
-            r = pd.read_parquet(PROC_DIR / split / f"prior_road_{split}.parquet")
+            r = pd.read_parquet(PROC_DIR / SPLIT_DIR[split] / f"prior_road_{SPLIT_DIR[split]}.parquet")
             self.assertEqual(r.duplicated(["date", "hour", "road_id", "direction"]).sum(), 0)
 
     def test_링크_결과_키_중복_없음(self):
         for split in ["train", "eval"]:
-            path = PROC_DIR / split / f"prior_link_{split}.parquet"
+            path = PROC_DIR / SPLIT_DIR[split] / f"prior_link_{SPLIT_DIR[split]}.parquet"
             if path.exists():
                 r = pd.read_parquet(path, columns=["date", "hour", "link_id"])
                 self.assertEqual(r.duplicated().sum(), 0)
 
     def test_대체_표시_열은_window28이_아닌_행과_같다(self):
         for split in ["train", "eval"]:
-            r = pd.read_parquet(PROC_DIR / split / f"prior_road_{split}.parquet", columns=["prior_source", "prior_replaced"])
+            r = pd.read_parquet(PROC_DIR / SPLIT_DIR[split] / f"prior_road_{SPLIT_DIR[split]}.parquet", columns=["prior_source", "prior_replaced"])
             self.assertTrue((r["prior_replaced"] == (r["prior_source"].astype(str) != "window28")).all())
 
     def test_결과는_연구_기간_평일만(self):
-        r = pd.read_parquet(PROC_DIR / "train" / "prior_road_train.parquet", columns=["date"])
+        r = pd.read_parquet(PROC_DIR / "train_dev" / "prior_road_train_dev.parquet", columns=["date"])
         self.assertTrue((pd.to_datetime(r["date"]).dt.weekday < 5).all())
 
 
-@unittest.skipUnless(DEFAULT_LINK.exists() and (PROC_DIR / "train" / "prior_road_train.parquet").exists(),
+@unittest.skipUnless(DEFAULT_LINK.exists() and (PROC_DIR / "train_dev" / "prior_road_train_dev.parquet").exists(),
                      "링크 표 v02 또는 결과 파일 없음")
 class RealDataLeakTest(unittest.TestCase):
     def test_실제_도로값을_d_이전_데이터만으로_다시_계산(self):
         season = "2024-25_winter"
         d = load_season(DEFAULT_LINK, season)
         road = road_hourly(d)
-        out = pd.read_parquet(PROC_DIR / "train" / "prior_road_train.parquet")
+        out = pd.read_parquet(PROC_DIR / "train_dev" / "prior_road_train_dev.parquet")
         out = out[(out["season"] == season) & (out["prior_source"] == "window28")].sample(5, random_state=0)
         for _, r in out.iterrows():
             day = pd.Timestamp(r["date"])

@@ -9,8 +9,7 @@
     python crawling/traffic_volume.py download
     python crawling/traffic_volume.py preprocess
 
-원본과 결과의 기본 위치는 ``SEOUL_TRAFFIC_DATA_ROOT`` 환경변수이며,
-값이 없으면 ``D:\\seoul-weather-traffic-data``를 사용한다.
+원본과 결과의 기본 위치는 저장소 ``data/raw/`` 이다 (io_utils.data_root).
 """
 
 from __future__ import annotations
@@ -35,16 +34,15 @@ KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
 TOPIS_URL = "https://topis.seoul.go.kr/refRoom/openRefRoom_2.do"
 DAY_FILES = (
-    ROOT / "data" / "processed" / "train" / "weather_days_train.csv",
-    ROOT / "data" / "processed" / "eval" / "weather_days_eval.csv",
+    ROOT / "data" / "shared" / "train_dev" / "weather_days_train_dev.csv",
+    ROOT / "data" / "shared" / "holdout" / "weather_days_holdout.csv",
 )
 
-DATA_ROOT_ENV = "SEOUL_TRAFFIC_DATA_ROOT"
-DEFAULT_DATA_ROOT = Path(r"D:\seoul-weather-traffic-data")
-RAW_SUBDIR = Path("traffic_volume/raw/xlsx")
-PROCESSED_SUBDIR = Path("traffic_volume/processed")
-LOG_SUBDIR = Path("traffic_volume/logs/yang_seoyeon")
-RUN_SUBDIR = Path("traffic_volume/runs/yang_seoyeon")
+RAW_SUBDIR = Path("topis_traffic_volume")  # 원본 xlsx: data/raw/topis_traffic_volume/
+PROCESSED_SUBDIR = Path("topis_traffic_volume")  # data/derived 아래 (정리 결과는 원본과 분리)
+RUN_DIR = ROOT / "logs" / "ysy" / "traffic_volume"  # 실행 기록은 저장소 logs/ysy/traffic_volume/ (원본과 분리)
+LOG_SUBDIR = Path("traffic_volume/logs/yang_seoyeon")  # 예전 위치 (이력 읽기용)
+RUN_SUBDIR = Path("traffic_volume/runs/yang_seoyeon")  # 예전 위치 (이력 읽기용)
 LEGACY_RUN_SUBDIR = Path("traffic_volume/runs")
 
 # 교통량 XLSX는 시작 시각, TOPIS 속도는 끝 시각을 열 이름으로 쓴다.
@@ -73,8 +71,13 @@ OUTPUT_COLUMNS = [
 
 
 def data_root() -> Path:
-    """외부 데이터 루트를 반환한다."""
-    return Path(os.getenv(DATA_ROOT_ENV, str(DEFAULT_DATA_ROOT))).expanduser().resolve()
+    """원본 데이터 위치: 저장소 data/raw/ (io_utils.data_root 와 같음)."""
+    return ROOT / "data" / "raw"
+
+
+def processed_root(base: Path | None = None) -> Path:
+    """교통량 정리 parquet 위치: 원본 폴더 옆 data/derived/topis_traffic_volume/."""
+    return Path(base or data_root()).parent / "derived" / PROCESSED_SUBDIR
 
 
 def _now() -> str:
@@ -134,7 +137,7 @@ def git_provenance(project_root: Path = ROOT) -> dict[str, object]:
 
 def _unique_run_dir(base: Path, run_id: str, label: str = "") -> tuple[Path, str]:
     """처음부터 (중단)으로 표시된 고유 실행 폴더를 만든다."""
-    runs_dir = base / RUN_SUBDIR
+    runs_dir = RUN_DIR
     runs_dir.mkdir(parents=True, exist_ok=True)
     safe_label = re.sub(r"[^0-9A-Za-z가-힣_-]+", "_", label).strip("_")
     label_part = f"_{safe_label}" if safe_label else ""
@@ -173,7 +176,7 @@ def list_run_history(root: Path | None = None) -> pd.DataFrame:
     run_dirs: list[Path] = []
     seen: set[Path] = set()
     # 새 개인 경로와 기존 경로를 함께 읽어 과거 실행 이력을 보존한다.
-    for history_root in (base / RUN_SUBDIR, base / LEGACY_RUN_SUBDIR):
+    for history_root in (RUN_DIR, base / RUN_SUBDIR, base / LEGACY_RUN_SUBDIR):
         if not history_root.is_dir():
             continue
         run_dirs = {
@@ -356,12 +359,12 @@ def download_required_months(
 ) -> dict[str, object]:
     """TOPIS 화면을 조작해 필요한 월별 XLSX를 다운로드한다.
 
-    이미 ``topis_traffic_volume_YYYY-MM.xlsx``가 있으면 크기가 0이 아닌지
+    이미 ``YYYY-MM.xlsx``가 있으면 크기가 0이 아닌지
     확인하고 건너뛴다. 실패한 월은 제한 횟수만 재시도하고 다음 월로 진행한다.
     """
     base = (root or data_root()).resolve()
     raw_dir = base / RAW_SUBDIR
-    record_dir = run_dir or (base / LOG_SUBDIR)
+    record_dir = run_dir or RUN_DIR
     record_dir.mkdir(parents=True, exist_ok=True)
     effective_run_id = run_id or datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     log_path = record_dir / f"collection_log_{effective_run_id}_(중단).jsonl"
@@ -393,7 +396,7 @@ def download_required_months(
         }
         _append_jsonl(log_path, browser_event)
         for month in targets:
-            destination = raw_dir / f"yang_seoyeon_topis_traffic_volume_{month}.xlsx"
+            destination = raw_dir / f"{month}.xlsx"
             if destination.is_file() and destination.stat().st_size > 0:
                 progress(f"[건너뜀] {month}: 기존 파일 {destination.name}")
                 summary["skipped"].append(month)
@@ -633,8 +636,8 @@ def preprocess_downloads(
     """다운로드 파일에서 90일·5시간대만 추출해 train/eval Parquet로 저장한다."""
     base = (root or data_root()).resolve()
     raw_dir = base / RAW_SUBDIR
-    processed_dir = base / PROCESSED_SUBDIR
-    record_dir = run_dir or (base / LOG_SUBDIR)
+    processed_dir = processed_root(base)
+    record_dir = run_dir or RUN_DIR
     record_dir.mkdir(parents=True, exist_ok=True)
     effective_run_id = run_id or datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     log_path = record_dir / f"preprocess_{effective_run_id}_(중단).json"
@@ -642,7 +645,7 @@ def preprocess_downloads(
     days = load_target_days()
     months = required_months(days)
     files = {
-        month: raw_dir / f"yang_seoyeon_topis_traffic_volume_{month}.xlsx"
+        month: raw_dir / f"{month}.xlsx"
         for month in months
     }
     missing = [str(path) for path in files.values() if not path.is_file()]
@@ -667,7 +670,7 @@ def preprocess_downloads(
     output_paths: dict[str, str] = {}
     for split in ("train", "eval"):
         output = processed_dir / (
-            f"yang_seoyeon_traffic_volume_{split}_{effective_run_id}_{version}_(성공).parquet"
+            f"traffic_volume_{split}_{effective_run_id}_{version}_(성공).parquet"
         )
         if output.exists():
             raise FileExistsError(output)
@@ -720,7 +723,7 @@ def validate_test_month(
     if not re.fullmatch(r"20\d{2}-(0[1-9]|1[0-2])", month):
         raise ValueError(f"시험 연월은 YYYY-MM 형식이어야 합니다: {month}")
     base = (root or data_root()).resolve()
-    path = base / RAW_SUBDIR / f"yang_seoyeon_topis_traffic_volume_{month}.xlsx"
+    path = base / RAW_SUBDIR / f"{month}.xlsx"
     if not path.is_file() or path.stat().st_size <= 0:
         raise FileNotFoundError(path)
     frame = _read_month_file(path, month)
@@ -1075,7 +1078,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "command", choices=("months", "download", "preprocess", "test", "run", "history")
     )
-    parser.add_argument("--data-root", type=Path, default=None, help="기본값: SEOUL_TRAFFIC_DATA_ROOT 또는 D 드라이브")
+    parser.add_argument("--data-root", type=Path, default=None, help="기본값: 저장소 data/raw")
     parser.add_argument("--headless", action="store_true", help="다운로드 Chrome을 화면에 표시하지 않음")
     parser.add_argument("--retries", type=int, default=3)
     parser.add_argument("--wait-seconds", type=int, default=60)
