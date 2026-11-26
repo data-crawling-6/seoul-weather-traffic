@@ -7,9 +7,6 @@ on:
   schedule:
     - cron: "0 21 * * *"
   workflow_dispatch:
-  push:
-    branches: [a-forecast]   # 시험 실행용. 확인되면 지운다
-    paths: [crawling/topis_forecast.py, .github/workflows/topis_forecast.yml]
 
 permissions:
   contents: write   # data-collect 브랜치에 결과를 커밋하려고
