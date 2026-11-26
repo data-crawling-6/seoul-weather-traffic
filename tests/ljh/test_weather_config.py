@@ -1,4 +1,4 @@
-"""[정희] 공통 설정(config/periods.yaml) 다루기 테스트 — src/weather.py
+"""[정희] 공통 설정(config/periods.yaml) 다루기 테스트 — src/clean/weather.py
 
 11/23 팀원 리뷰로 고친 것을 지키는지 본다.
 - 기준값은 yaml이 우선 (코드 값은 yaml에 없을 때 기본값)
@@ -13,7 +13,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from src import weather as W
+from src.clean import weather as W
 
 PERIOD = {"겨울": {"option": "평균 ± 1주", "start": "11-27", "end": "03-10"},
           "여름": {"option": "평균", "start": "05-09", "end": "09-23"}}

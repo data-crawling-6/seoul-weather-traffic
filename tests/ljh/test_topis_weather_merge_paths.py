@@ -1,7 +1,7 @@
 """[정희] 원본 위치 테스트 — 모든 원본은 저장소 data/raw/ 아래 (io_utils.data_root)
 
 - data_root() 가 환경변수 · D 드라이브와 상관없이 저장소 data/raw/ 인지
-- C 결합 코드(src/topis_weather_merge.py)가 날씨는 저장소 data/shared/ 의 B 날씨 표를 읽는지
+- C 결합 코드(src/join/topis_weather_merge.py)가 날씨는 저장소 data/shared/ 의 B 날씨 표를 읽는지
 - TOPIS 월 CSV 는 data/raw/topis_speed/ 에서 찾고, 결합에는 Release 50개월 중 44개월만 쓰는지
 """
 from __future__ import annotations
@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 from src.io_utils import data_root
-from src.topis_weather_merge import EXTRA_TOPIS_MONTHS, load_weather, topis_csv, weather_dir
+from src.join.topis_weather_merge import EXTRA_TOPIS_MONTHS, load_weather, topis_csv, weather_dir
 
 ROOT = Path(__file__).resolve().parents[2]
 

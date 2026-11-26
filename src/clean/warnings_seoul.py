@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = ROOT / "data" / "raw" / "kma_warning"
 KINDS = {"대설": "snow", "호우": "rain", "한파": "cold"}
 LEVEL = {"주의보": 1, "경보": 2}

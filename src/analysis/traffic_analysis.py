@@ -12,11 +12,11 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 import sys  # noqa: E402
 
-if str(ROOT) not in sys.path:  # python src/traffic_analysis.py 로 바로 실행해도 src 를 찾게
+if str(ROOT) not in sys.path:  # python src/analysis/traffic_analysis.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import data_root as _data_root, derived_of, derived_root as _derived_root  # noqa: E402
 

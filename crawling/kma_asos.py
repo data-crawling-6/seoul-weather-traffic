@@ -16,7 +16,7 @@ ASOS 서울(108) 시간자료 수집 (B 담당)
         (공공데이터포털의 '일반 인증키(Decoding)' 값을 쓴다. 이 파일은 깃에 올라가지 않는다.)
 
 API로 받기 어려우면 기상자료개방포털에서 받은 CSV를 data/raw/asos_manual/ 에 넣어도 된다.
-분석 코드(src/weather.py)가 두 형식을 모두 읽는다.
+분석 코드(src/clean/weather.py)가 두 형식을 모두 읽는다.
 """
 import argparse
 import calendar

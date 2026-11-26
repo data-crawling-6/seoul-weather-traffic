@@ -296,7 +296,7 @@ def run_vertices(*, retries: int = 3, delay_seconds: float = 0.1) -> dict[str, o
     data_root = DEFAULT_DATA_ROOT
     csv_dir = data_root / "topis_speed"
     vertex_dir = data_root / "link_coords"
-    run_root = ROOT / "logs" / "ysy" / "vertices"  # 실행 기록은 저장소 logs/ysy/vertices/ (원본과 분리)
+    run_root = ROOT / "logs" / "ysy" / "link_coords"  # 실행 기록은 저장소 logs/ysy/link_coords/ (원본과 분리)
     run_id = datetime.now(KST).strftime("%Y%m%dT%H%M%S")
     pending_dir = run_root / f"vertex_{run_id}_v01_(중단)"
     pending_dir.mkdir(parents=True, exist_ok=False)

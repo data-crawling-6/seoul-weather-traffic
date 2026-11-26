@@ -29,8 +29,8 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
   logs/ljh/volume_direction.json   붙은 지점 수 · 방법별 개수
 
 실행
-  python src/volume_direction.py
-  python src/volume_direction.py --volume 경로.csv --topis 경로.zip
+  python src/join/volume_direction.py
+  python src/join/volume_direction.py --volume 경로.csv --topis 경로.zip
 """
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 KST = timezone(timedelta(hours=9))
 DEFAULT_VOLUME = ROOT / "data" / "derived" / "topis_traffic_volume" / "traffic_weather_days_joined_20261124T021832_._v01.csv"
 DEFAULT_TOPIS = ROOT / "data" / "raw" / "topis_speed" / "2025-12.zip"

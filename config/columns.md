@@ -92,7 +92,7 @@
 
 ## 입력용 평소값 열
 
-강민주가 2026-11-25 추가. `src/prior_baseline.py` -> `data/shared/{train_dev,holdout}/prior_{link,road}_{split}.parquet`. 규칙은 노션 '분석 설계 3.4'. 예측 입력과 A 예측 정답 y의 분모에 쓰고, 정답용 평소값(`baseline_link_tt_s` · `baseline_travel_time_s`)과 섞지 않는다.
+강민주가 2026-11-25 추가. `src/features/prior_baseline.py` -> `data/shared/{train_dev,holdout}/prior_{link,road}_{split}.parquet`. 규칙은 노션 '분석 설계 3.4'. 예측 입력과 A 예측 정답 y의 분모에 쓰고, 정답용 평소값(`baseline_link_tt_s` · `baseline_travel_time_s`)과 섞지 않는다.
 
 | 열 이름 | 자료형 | 단위/허용값 | 의미 |
 |---|---|---|---|

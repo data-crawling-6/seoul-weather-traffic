@@ -130,7 +130,7 @@ def _season_key(value: object) -> str:
 
 
 def _season_of_date(ts: pd.Timestamp) -> str:
-    """날짜 → 시즌 이름 (src/weather.py season_of 와 같은 규칙: 10~4월 겨울, 5~9월 여름)."""
+    """날짜 → 시즌 이름 (src/clean/weather.py season_of 와 같은 규칙: 10~4월 겨울, 5~9월 여름)."""
     if ts.month >= 10:
         return f"{ts.year}-{str(ts.year + 1)[2:]}_winter"
     if ts.month <= 4:

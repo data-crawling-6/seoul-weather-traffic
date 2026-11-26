@@ -159,7 +159,7 @@ def load_full_days():
     cfg = yaml.safe_load((ROOT / "config" / "periods.yaml").read_text(encoding="utf-8")) or {}
     periods = cfg.get("periods") or []
     if not periods:
-        raise ValueError("config/periods.yaml 에 periods 가 없습니다. 먼저 python src/weather.py 를 실행하세요.")
+        raise ValueError("config/periods.yaml 에 periods 가 없습니다. 먼저 python src/clean/weather.py 를 실행하세요.")
     try:
         import holidays  # pip install holidays
         kr = holidays.KR(years=list(range(2022, 2028)))

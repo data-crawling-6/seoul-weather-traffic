@@ -30,7 +30,7 @@
 - 예보는 발표 시각(base)이 t 이전인 행만 써야 한다 (미래 정보 누수 방지). 이 표는 거르지 않고 모두 남긴다.
 
 실행
-  python src/weather_seoul.py
+  python src/clean/weather_seoul.py
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 PROC_DIR = ROOT / "data" / "shared"
 SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 REGION_CODE = {"동남권": "se", "동북권": "ne", "서남권": "sw", "서북권": "nw"}

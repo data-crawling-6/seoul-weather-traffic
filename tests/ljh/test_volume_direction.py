@@ -1,4 +1,4 @@
-"""[정희] 교통량 지점 방향(상행 · 하행) 붙이기 테스트 — src/volume_direction.py
+"""[정희] 교통량 지점 방향(상행 · 하행) 붙이기 테스트 — src/join/volume_direction.py
 
 억지로 붙이지 않는다는 원칙을 지키는지 본다.
 - 출발 → 도착이 한 방향 링크로만 이어지면 그 방향
@@ -11,7 +11,7 @@ import unittest
 
 import pandas as pd
 
-from src.volume_direction import build_map, find_direction, parse_detail
+from src.join.volume_direction import build_map, find_direction, parse_detail
 
 
 def links(rows):

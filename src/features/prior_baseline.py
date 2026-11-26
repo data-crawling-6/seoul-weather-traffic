@@ -30,8 +30,8 @@
   data/shared/{train_dev,holdout}/link_baseline_*.parquet, baseline_*.csv (B 정답용 평소값)
 
 실행
-  python src/prior_baseline.py
-  python src/prior_baseline.py --seasons 2024-25_winter     # 시즌 하나만 시험
+  python src/features/prior_baseline.py
+  python src/features/prior_baseline.py --seasons 2024-25_winter     # 시즌 하나만 시험
 
 결과
   data/shared/{train_dev,holdout}/prior_link_{split}.parquet
@@ -52,10 +52,10 @@ import pyarrow.dataset as ds
 import yaml
 
 KST = timezone(timedelta(hours=9))
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 import sys  # noqa: E402
 
-if str(ROOT) not in sys.path:  # python src/prior_baseline.py 로 바로 실행해도 src 를 찾게
+if str(ROOT) not in sys.path:  # python src/features/prior_baseline.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_LINK = ROOT / "data" / "derived" / "topis_weather" / "link_hourly_20261122_v02.parquet"

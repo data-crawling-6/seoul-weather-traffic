@@ -17,8 +17,8 @@ C의 도로 통행시간 표(v04)로 도로 × 방향마다 '평소 통행시간
   (v03을 넣어도 링크가 일부라도 빠진 행을 NaN으로 두는 v04 규칙을 여기서 한 번 더 적용하므로 결과가 같다)
 
 실행
-  python src/road_baseline.py                         # 기본 경로의 parquet
-  python src/road_baseline.py --road 경로.parquet
+  python src/labels/road_baseline.py                         # 기본 경로의 parquet
+  python src/labels/road_baseline.py --road 경로.parquet
 
 날씨 판정(event_id · impact)은 C 표 안의 열 대신 저장소 weather_hourly 에서 다시 붙인다 (io_utils.attach_weather_labels).
 
@@ -37,10 +37,10 @@ import numpy as np
 import pandas as pd
 
 KST = timezone(timedelta(hours=9))
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 import sys  # noqa: E402
 
-if str(ROOT) not in sys.path:  # python src/road_baseline.py 로 바로 실행해도 src 를 찾게
+if str(ROOT) not in sys.path:  # python src/labels/road_baseline.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_ROAD = ROOT / "data" / "derived" / "topis_weather" / "commute_20261122_v04.parquet"

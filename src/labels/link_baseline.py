@@ -21,8 +21,8 @@
   → 연구 기간 · 평일 · 공휴일 제외 · 출퇴근 시간(8 · 9 · 18 · 19 · 20시)만 읽는다
 
 실행
-  python src/link_baseline.py
-  python src/link_baseline.py --link 경로.parquet --link-ratio 1.5 --road-length-ratio 0.3
+  python src/labels/link_baseline.py
+  python src/labels/link_baseline.py --link 경로.parquet --link-ratio 1.5 --road-length-ratio 0.3
 
 결과
   data/shared/{train_dev,holdout}/link_baseline_{split}.parquet          링크 평소값
@@ -42,10 +42,10 @@ import pandas as pd
 import pyarrow.dataset as ds
 
 KST = timezone(timedelta(hours=9))
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 import sys  # noqa: E402
 
-if str(ROOT) not in sys.path:  # python src/link_baseline.py 로 바로 실행해도 src 를 찾게
+if str(ROOT) not in sys.path:  # python src/labels/link_baseline.py 로 바로 실행해도 src 를 찾게
     sys.path.insert(0, str(ROOT))
 from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_LINK = ROOT / "data" / "derived" / "topis_weather" / "link_hourly_20261122_v02.parquet"

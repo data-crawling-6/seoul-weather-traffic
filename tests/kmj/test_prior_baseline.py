@@ -1,4 +1,4 @@
-"""[민주] 입력용 평소값(prior) 규칙 테스트 — src/prior_baseline.py
+"""[민주] 입력용 평소값(prior) 규칙 테스트 — src/features/prior_baseline.py
 
 노션 '분석 설계 3.4' (11/25 A · B 합의) 규칙을 지키는지 본다.
 - 기준일 d의 값은 d-28 ~ d-1 맑은 평일 같은 시간 표본으로만 계산 (당일 · 미래 X)
@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 from src.io_utils import SPLIT_DIR
-from src.prior_baseline import (DEFAULT_LINK, MIN_N, PROC_DIR, apply_fallback, load_season,
+from src.features.prior_baseline import (DEFAULT_LINK, MIN_N, PROC_DIR, apply_fallback, load_season,
                                 road_hourly, rolling_prior)
 
 START = pd.Timestamp("2023-10-30")  # 평소값 구간 시작

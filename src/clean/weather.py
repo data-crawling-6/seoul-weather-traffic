@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SPLIT_DIR = {"train": "train_dev", "eval": "holdout"}  # split 값 → data/shared 폴더 · 파일 이름 (io_utils.SPLIT_DIR 과 같음)
 
 # ── 기준값 기본값 (실제 값은 config/periods.yaml 의 thresholds 가 우선) ──────
@@ -481,7 +481,7 @@ def add_warnings(hourly: pd.DataFrame):
     import sys
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
-    from src import warnings_seoul as WR
+    from src.clean import warnings_seoul as WR
     res = WR.build(hourly["datetime"])
     if res is None:
         print("⚠️ 기상특보 원본이 없어 특보 열 없이 저장합니다 (crawling/kma_warning.py 실행 필요)")

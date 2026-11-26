@@ -1,6 +1,5 @@
 """[서연] Unit tests for the reusable mapping input audit; no real input files required."""
 
-import importlib.util
 import json
 from pathlib import Path
 
@@ -10,11 +9,9 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 
-# [서연] Load the implementation directly without requiring src to be a package.
-MODULE_PATH = Path(__file__).resolve().parents[2] / "src" / "traffic_mapping.py"
-spec = importlib.util.spec_from_file_location("traffic_mapping", MODULE_PATH)
-mapping = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mapping)
+# [서연] 단계별 패키지 src/join/volume_road_mapping/ 를 불러온다. 함수는 mapping.<이름> 으로 그대로 쓰고,
+# 바꿔치기(patch)는 그 이름을 실제로 찾는 단계 모듈(mapping.audit 등)에 한다.
+import src.join.volume_road_mapping as mapping
 
 
 # [서연] unittest tests use synthetic data only; never run audit-inputs on actual files.
@@ -121,7 +118,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             root = Path(temp)
             source = root / "input.csv"
             source.write_text("sample", encoding="utf-8")
-            with patch.object(mapping, "git_provenance", return_value={
+            with patch.object(mapping.common, "git_provenance", return_value={
                 "commit_id": "a" * 40,
                 "has_uncommitted_changes": True,
                 "git_error": None,
@@ -147,10 +144,10 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_execute_audit_failure_writes_real_timestamped_json(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "run_input_audit", side_effect=FileNotFoundError("test missing input")):
+            with patch.object(mapping.audit, "run_input_audit", side_effect=FileNotFoundError("test missing input")):
                 status = mapping.execute_audit(root, root)
             self.assertEqual(status, 1)
-            files = list((root / "logs" / "ysy" / "traffic_mapping").glob("*_(실패).json"))
+            files = list((root / "logs" / "ysy" / "volume_road_mapping").glob("*_(실패).json"))
             self.assertEqual(len(files), 1)
             payload = json.loads(files[0].read_text(encoding="utf-8"))
             self.assertEqual(payload["status"], "failure")
@@ -193,7 +190,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             result["expected_1753_links"] = True
             result["expected_90_roads"] = True
             return result
-        with patch.object(mapping, "audit_link_coverage", side_effect=synthetic_coverage):
+        with patch.object(mapping.candidates, "audit_link_coverage", side_effect=synthetic_coverage):
             candidates, review = mapping.generate_mapping_candidates(volume, stable, lines)
         self.assertEqual(len(review), 4)
         self.assertEqual(review["mapping_status"].eq("unmapped").sum(), 1)
@@ -216,7 +213,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_map_cli_registration(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "execute_map", return_value=0) as mock_run:
+            with patch.object(mapping.cli, "execute_map", return_value=0) as mock_run:
                 result = mapping.main(["map", "--project-root", str(root), "--data-root", str(root)])
             self.assertEqual(result, 0)
             mock_run.assert_called_once_with(root, root)
@@ -295,7 +292,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
         with TemporaryDirectory() as temp:
             root = Path(temp)
             source = root / "candidates.csv"
-            with patch.object(mapping, "execute_candidate_analysis", return_value=0) as mock_run:
+            with patch.object(mapping.cli, "execute_candidate_analysis", return_value=0) as mock_run:
                 result = mapping.main([
                     "analyze-candidates", "--project-root", str(root),
                     "--candidates", str(source),
@@ -359,7 +356,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             root = Path(temp)
             candidates = root / "candidates.csv"
             review = root / "review.csv"
-            with patch.object(mapping, "execute_review_alternatives", return_value=0) as mock_run:
+            with patch.object(mapping.cli, "execute_review_alternatives", return_value=0) as mock_run:
                 result = mapping.main([
                     "review-alternatives", "--project-root", str(root),
                     "--candidates", str(candidates), "--final-review", str(review),
@@ -481,7 +478,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
             source_path = tables / "yang_seoyeon_alternative_link_review_20261123T100000_(성공)_v01.csv"
             self.road_review_fixture().to_csv(source_path, index=False, encoding="utf-8-sig")
             before = source_path.read_bytes()
-            with patch.object(mapping, "git_provenance", return_value={"commit_id": "a" * 40, "has_uncommitted_changes": True, "git_error": None}):
+            with patch.object(mapping.review, "git_provenance", return_value={"commit_id": "a" * 40, "has_uncommitted_changes": True, "git_error": None}):
                 self.assertEqual(mapping.execute_record_road_review(root), 0)
             paths = mapping.road_review_output_paths(root, source_path)
             report = json.loads(paths["json"].read_text(encoding="utf-8"))
@@ -500,7 +497,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_record_road_review_cli_registration(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "execute_record_road_review", return_value=0) as mock_run:
+            with patch.object(mapping.cli, "execute_record_road_review", return_value=0) as mock_run:
                 self.assertEqual(mapping.main(["record-road-review", "--project-root", str(root)]), 0)
             mock_run.assert_called_once_with(root)
 
@@ -537,7 +534,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_coordinate_history_cli_registration(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "execute_coordinate_history", return_value=0) as run:
+            with patch.object(mapping.cli, "execute_coordinate_history", return_value=0) as run:
                 self.assertEqual(mapping.main(["coordinate-history", "--data-root", str(root),
                                                "--spot-id", "F-03"]), 0)
             run.assert_called_once_with(root, "F-03")
@@ -608,7 +605,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_link_location_check_cli_registration(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "execute_link_location_check", return_value=0) as run:
+            with patch.object(mapping.cli, "execute_link_location_check", return_value=0) as run:
                 self.assertEqual(mapping.main(["link-location-check", "--project-root", str(root),
                                                "--data-root", str(root), "--spot-id", "F-03"]), 0)
             run.assert_called_once_with(root, root, "F-03")
@@ -657,11 +654,11 @@ class TrafficMappingAuditTests(unittest.TestCase):
             with patch.object(mapping.pd, "read_parquet", return_value=pd.DataFrame()), \
                  patch.object(mapping.pd, "read_csv", return_value=pd.DataFrame()), \
                  patch("geopandas.read_file", return_value=None), \
-                 patch.object(mapping, "build_f03_evidence", return_value={"review_status": "pending_review"}), \
-                 patch.object(mapping, "git_provenance", return_value={}):
+                 patch.object(mapping.history, "build_f03_evidence", return_value={"review_status": "pending_review"}), \
+                 patch.object(mapping.common, "git_provenance", return_value={}):
                 self.assertEqual(mapping.execute_record_f03_evidence(root, data_root), 0)
                 self.assertEqual(mapping.execute_record_f03_evidence(root, data_root), 0)
-            outputs = list((root / "logs" / "ysy" / "traffic_mapping").glob("f03_link_evidence_*_(성공)_v01.json"))
+            outputs = list((root / "logs" / "ysy" / "volume_road_mapping").glob("f03_link_evidence_*_(성공)_v01.json"))
             self.assertEqual(len(outputs), 2)
             for output in outputs:
                 payload = json.loads(output.read_text(encoding="utf-8"))
@@ -673,9 +670,9 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_f03_evidence_log_failure(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "git_provenance", return_value={}):
+            with patch.object(mapping.common, "git_provenance", return_value={}):
                 self.assertEqual(mapping.execute_record_f03_evidence(root, root), 1)
-            outputs = list((root / "logs" / "ysy" / "traffic_mapping").glob("*_(실패)_v01.json"))
+            outputs = list((root / "logs" / "ysy" / "volume_road_mapping").glob("*_(실패)_v01.json"))
             self.assertEqual(len(outputs), 1)
             self.assertIsNone(json.loads(outputs[0].read_text(encoding="utf-8"))["evidence"])
 
@@ -683,7 +680,7 @@ class TrafficMappingAuditTests(unittest.TestCase):
     def test_f03_evidence_cli_dispatch(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            with patch.object(mapping, "execute_record_f03_evidence", return_value=0) as run:
+            with patch.object(mapping.cli, "execute_record_f03_evidence", return_value=0) as run:
                 self.assertEqual(mapping.main(["record-f03-evidence", "--project-root", str(root),
                                                "--data-root", str(root)]), 0)
             run.assert_called_once_with(root, root)

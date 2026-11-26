@@ -37,7 +37,13 @@ seoul-weather-traffic/
 │   └── columns.md          # 공통 열 이름 · 단위 설명서 (사람이 읽는 문서)
 │
 ├── crawling/               # 수집 코드 (담당은 아래 「코드 담당표」)
-├── src/                    # 전처리 · 계산 · 분석 코드 (담당은 아래 「코드 담당표」)
+├── src/                    # 전처리 · 계산 · 분석 코드, 데이터 흐름 순서로 나눔 (담당은 아래 「코드 담당표」)
+│   ├── io_utils.py         # 공통 읽기 함수
+│   ├── clean/              # 1. 원본 정리 (날씨 · 예보 AWS · 특보)
+│   ├── join/               # 2. 자료끼리 합치기 (TOPIS + 날씨, 교통량 지점 ↔ 도로)
+│   ├── labels/             # 3. 정답 (평소값 · 정체 정답, 예측 입력에 쓰지 않음)
+│   ├── features/           # 4. 예측 입력 (입력용 평소값 · 입력 변수)
+│   └── analysis/           # 5. 분석 (교통량 변화 · 군집 · 지도 · 뉴스)
 │
 ├── notebooks/              # 분석 (번호 = 순서, 영문자 = 담당) · 작성 방법은 아래 「노트북 작성 방법」
 │   ├── 00_kmj_collect.ipynb   # 수집 기록 (담당자별 1개)
@@ -46,7 +52,7 @@ seoul-weather-traffic/
 │   ├── 01_kmj_topis_check.ipynb
 │   ├── 02_ljh_weather_events.ipynb
 │   ├── 03_ysy_travel_time.ipynb
-│   ├── 04_ysy_traffic_mapping.ipynb
+│   ├── 04_ysy_volume_road_mapping.ipynb
 │   ├── 05_kmj_vacation_peak.ipynb
 │   ├── 10_ljh_comparison.ipynb
 │   ├── 11_kmj_prediction.ipynb
@@ -84,9 +90,9 @@ seoul-weather-traffic/
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
     ├── kmj/                # A 실행 기록 (topis_speed · topis_network · topis_manifest) · screenshots/ 화면 캡처
     ├── ljh/                # B 실행 기록 (kma_* · hrfco_waterlevel · baseline · link_baseline · volume_direction) · screenshots/ 화면 캡처
-    └── ysy/                # C 개인 실행·오류·검증 기록 (traffic_volume · vertices 수집 기록 포함)
+    └── ysy/                # C 개인 실행·오류·검증 기록 (traffic_volume · link_coords 수집 기록 포함)
         ├── travel_time/
-        ├── traffic_mapping/
+        ├── volume_road_mapping/
         ├── traffic_volume/
         └── naver_news/
 ```
@@ -115,18 +121,17 @@ seoul-weather-traffic/
 | 파일 | 담당 | 하는 일 |
 | --- | --- | --- |
 | `io_utils.py` | 공통 | 데이터 위치, TOPIS 읽기, Train · Dev · Test 붙이기(`add_model_set`), 공통 표 읽기(`load_processed`), 날씨 판정 붙이기 |
-| `weather.py` | B 정희 | 시간별 날씨 표, 눈 · 비 사건, 연구 기간, 악천후일 · 비교일 90일 |
-| `weather_seoul.py` | B 정희 | 예보 · AWS를 서울 전체 값(평균 · 최대 · 권역)으로 |
-| `warnings_seoul.py` | B 정희 | 특보 통보문 → 서울 특보 상태 |
-| `road_baseline.py` | B 정희 | 도로 · 방향 평소 통행시간, 정체 기준 후보 비교 |
-| `link_baseline.py` | B 정희 | 링크 평소값, 정체 길이 비율 → 정체 정답(`is_congested`) |
-| `volume_direction.py` | B 정희 | 교통량 지점에 TOPIS 상행 · 하행 붙이기 |
-| `prior_baseline.py` | A 민주 | 예측 입력용 평소값 (그날 이전 28일) |
-| `features.py` | A 민주 | 예측 모델 입력 변수 표 |
-| `topis_weather_merge.py` | C 서연 | TOPIS + 날씨 결합표 (도로 통행시간 v04 · v05, 링크 v02) |
-| `traffic_mapping.py` | C 서연 | 교통량 지점 ↔ TOPIS 도로 · 링크 연결 |
-| `traffic_mapping_candidates.py` | C 서연 | 매핑 후보 점검 |
-| `traffic_analysis.py` | C 서연 | 교통량 변화 · 군집(K-means · DTW) · 지도 · 뉴스 연결 |
+| `clean/weather.py` | B 정희 | 시간별 날씨 표, 눈 · 비 사건, 연구 기간, 악천후일 · 비교일 90일 |
+| `clean/weather_seoul.py` | B 정희 | 예보 · AWS를 서울 전체 값(평균 · 최대 · 권역)으로 |
+| `clean/warnings_seoul.py` | B 정희 | 특보 통보문 → 서울 특보 상태 |
+| `join/volume_direction.py` | B 정희 | 교통량 지점에 TOPIS 상행 · 하행 붙이기 |
+| `join/topis_weather_merge.py` | C 서연 | TOPIS + 날씨 결합표 (도로 통행시간 v04 · v05, 링크 v02) |
+| `join/volume_road_mapping/` | C 서연 | 교통량 지점 ↔ TOPIS 도로 · 링크 연결. 단계별 모듈: `audit` ① 입력 점검 · `candidates` ② 후보 · `review` ③ 검토 · `official` ④ 공식 매핑 · `checks` ⑤ 사후 점검 · `history` 좌표 이력 · `common` 공통 · `candidate_diagnostics` 후보 진단. 실행: `python -m src.join.volume_road_mapping <명령>` |
+| `labels/road_baseline.py` | B 정희 | 도로 · 방향 평소 통행시간, 정체 기준 후보 비교 |
+| `labels/link_baseline.py` | B 정희 | 링크 평소값, 정체 길이 비율 → 정체 정답(`is_congested`) |
+| `features/prior_baseline.py` | A 민주 | 예측 입력용 평소값 (그날 이전 28일) |
+| `features/features.py` | A 민주 | 예측 모델 입력 변수 표 |
+| `analysis/traffic_analysis.py` | C 서연 | 교통량 변화 · 군집(K-means · DTW) · 지도 · 뉴스 연결 |
 
 ## 실행 순서
 
@@ -237,7 +242,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 번호 | 단계 | 언제 | 노트북 |
 | --- | --- | --- | --- |
 | 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_kmj` · `00_ljh_collect` · `00_ysy_collect` |
-| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` · `05_kmj_vacation_peak` |
+| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_volume_road_mapping` · `05_kmj_vacation_peak` |
 | 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_ysy_clustering` |
 | 20–29 | 사례 검증 (함께) | 12/10 ~ | `20_all_case_1204` |
 | 30 | 제출용 안내 (함께) | 12/14 제출 정리 | `30_all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
@@ -250,7 +255,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 무엇 | 어디에 | 왜 |
 | --- | --- | --- |
 | 수집 본체 (오래 도는 것) | `crawling/*.py`, 터미널에서 실행 | 1시간씩 도는 수집이 노트북 커널과 함께 끊기지 않게, 이어받기 · 재시도 옵션을 쓰려고 |
-| 여러 명이 쓰는 전처리 · 계산 | `src/*.py` | 한 곳만 고치면 모두에게 반영되게 |
+| 여러 명이 쓰는 전처리 · 계산 | `src/<단계>/*.py` | 한 곳만 고치면 모두에게 반영되게 |
 | 수집 기록 · 확인 · 분석 · 모델 · 그래프 | `notebooks/*.ipynb` | 과정과 결과를 한눈에 보고 PPT 근거로 쓰려고 |
 
 - 처음 해 보는 전처리는 노트북에서 먼저 짜도 된다. 다른 사람도 쓰게 되면 `src/`로 옮긴다.

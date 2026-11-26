@@ -19,6 +19,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
+import sys  # noqa: E402
+
+_ROOT = Path(__file__).resolve().parents[2]
+if str(_ROOT) not in sys.path:  # python src/join/topis_weather_merge.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(_ROOT))
 from src.io_utils import HOUR_COLS, data_root as _data_root, derived_root, read_topis, read_topis_gaps, topis_csv_files
 
 
@@ -582,7 +587,7 @@ if __name__ == "__main__":
     if not args.extend_v04_october:
         parser.error("노트북 또는 명시적 함수 호출로 run_merge()를 실행하세요.")
     root = args.data_root
-    result = extend_v04_october(root, Path(__file__).resolve().parents[1],
+    result = extend_v04_october(root, Path(__file__).resolve().parents[2],
         args.source_v04 or derived_root() / "topis_weather/commute_20261122_v04.parquet",
         args.link_path or derived_root() / "topis_weather/link_hourly_20261122_v02.parquet")
     print(json.dumps(result, ensure_ascii=False, indent=2))

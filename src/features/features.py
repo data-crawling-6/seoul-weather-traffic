@@ -40,7 +40,7 @@
     -> 저장소에는 없다. Release topis-data-v1의 topis_speed_2025-12.zip을 받아 이 폴더에 먼저 풀어야 한다
 
 실행
-  python src/features.py
+  python src/features/features.py
 결과
   data/shared/{train_dev,holdout}/features_{split}.parquet
   logs/kmj/features.json
@@ -56,12 +56,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.io_utils import load_model_sets, read_topis  # noqa: E402
-from src.prior_baseline import DEFAULT_LINK, load_periods, load_season, road_hourly  # noqa: E402
+from src.features.prior_baseline import DEFAULT_LINK, load_periods, load_season, road_hourly  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
 PROC_DIR = ROOT / "data" / "shared"

@@ -1,4 +1,4 @@
-"""[민주] 예측 입력 변수 테스트 — src/features.py
+"""[민주] 예측 입력 변수 테스트 — src/features/features.py
 
 - 누수: 예측 시점 t 이후의 통행시간 · 날씨를 바꿔도 입력은 그대로다 (정답 y만 바뀐다)
 - 키 중복 없음, 행 수 = 목표 행 × 예측 거리
@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from src.io_utils import SPLIT_DIR
-from src.features import HORIZONS, PROC_DIR, TARGET_HOURS, make_rows
+from src.features.features import HORIZONS, PROC_DIR, TARGET_HOURS, make_rows
 
 KEY = ["date", "target_hour", "horizon", "road_id", "direction"]
 INPUTS = ["ratio_t0", "ratio_t1", "ratio_t2", "ratio_t0_missing", "ratio_t1_missing", "ratio_t2_missing",
