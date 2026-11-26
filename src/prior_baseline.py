@@ -53,6 +53,11 @@ import yaml
 
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
+import sys  # noqa: E402
+
+if str(ROOT) not in sys.path:  # python src/prior_baseline.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(ROOT))
+from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_LINK = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
 PROC_DIR = ROOT / "data" / "processed"
 WINDOW_DAYS = 28
@@ -88,6 +93,7 @@ def load_season(path: Path, season: str) -> pd.DataFrame:
     for c in ["link_id", "road_id", "direction"]:
         d[c] = d[c].astype(str)
     d["date"] = pd.to_datetime(d["date"]).dt.normalize()
+    attach_weather_labels(d)  # 날씨 판정은 저장소 weather_hourly 에서 (C 표 안의 복사본 대신, B 추가)
     d["ok_day"] = d["is_weekday"] & ~d["is_holiday"]
     d["clear"] = d["event_id"].isna() & d["impact"].isna()
     return d
@@ -184,6 +190,7 @@ def main():
             "road_source": rd["prior_source"].value_counts().to_dict(),
             "link_prior_nan": int(lk["prior_tt_s"].isna().sum()),
             "road_prior_nan": int(rd["prior_tt_s"].isna().sum()),
+            "weather_label_mismatch": d.attrs.get("weather_label_mismatch"),
         }
         print(season, json.dumps(summary[season], ensure_ascii=False))
         del d

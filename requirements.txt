@@ -5,7 +5,7 @@ openpyxl>=3.1
 
 # 분석
 pandas>=2.2
-numpy<2.6        # 2.6부터 weather.py의 시간 계산 경고가 오류가 될 수 있음 (제출 전까지 고정)
+numpy<2.6        # 2.6부터 pandas 안의 시간 계산 경고가 오류가 될 수 있음 (제출 전까지 고정)
 pyyaml
 holidays>=0.109
 pyarrow>=26.0.1
@@ -22,6 +22,8 @@ folium           # 취약 도로 지도 (C)
 geopandas        # 링크 좌표 · 교통량 지점 매핑 (C)
 pyproj           # 좌표계 변환 (C)
 shapely          # 도로 선 · 거리 계산 (C)
+esda             # Gi* 핫스팟 (C)
+libpysal         # 공간 가중치 · 이웃 (C, esda와 같이)
 
 # 테스트
 pytest          # python -m pytest tests

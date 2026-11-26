@@ -63,10 +63,11 @@ seoul-weather-traffic/
 │   ├── 02_ljh_weather_events.ipynb
 │   ├── 03_ysy_travel_time.ipynb
 │   ├── 04_ysy_traffic_mapping.ipynb
+│   ├── 05_kmj_vacation_peak.ipynb
 │   ├── 10_ljh_comparison.ipynb
 │   ├── 11_kmj_prediction.ipynb
 │   ├── 12_ljh_alert_survival.ipynb
-│   ├── 13_C_clustering.ipynb
+│   ├── 13_ysy_clustering.ipynb
 │   └── 20_all_case_1204.ipynb
 │
 ├── data/
@@ -79,8 +80,8 @@ seoul-weather-traffic/
 │   │   ├── kma_aws/        # B: 구별 AWS 시간자료
 │   │   └── hrfco/          # B: 한강 수위 10분 자료
 │   ├── processed/          # 공통 표: 통행시간 · 날씨 · 교통량
-│   │   ├── train/          # 학습 시즌 (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
-│   │   └── eval/           # 평가 시즌 (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
+│   │   ├── train/          # Train + Dev (겨울 2022~23 · 2023~24 · 2024~25 / 여름 2023 · 2024 · 2025)
+│   │   └── eval/           # Test (겨울 2025~26 / 여름 2026) · 결과를 보기 전까지 열지 않기
 │   └── sample/             # 작은 샘플 (코드 테스트용)
 │
 ├── outputs/
@@ -210,8 +211,8 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 번호 | 단계 | 언제 | 노트북 |
 | --- | --- | --- | --- |
 | 00 | 수집 기록: 어떻게 받았나 | ~ 11/25 | `00_kmj` · `00_ljh_collect` · `00_ysy_collect` |
-| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` |
-| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_C_clustering` |
+| 01–09 | 공통 표 만들기: 원본을 다듬어 셋이 같이 쓰는 표로 | ~ 11/25 (동결) | `01_kmj_topis_check` · `02_ljh_weather_events` · `03_ysy_travel_time` · `04_ysy_traffic_mapping` · `05_kmj_vacation_peak` |
+| 10–19 | 분석 · 모델 | 11/25 ~ 12/9 | `10_ljh_comparison` · `11_kmj_prediction` · `12_ljh_alert_survival` · `13_ysy_clustering` |
 | 20–29 | 사례 검증 (함께) | 12/10 ~ | `20_all_case_1204` |
 | 30 | 제출용 안내 (함께) | 12/14 제출 정리 | `30_all_summary`: 문제 → 데이터 → 핵심 결과 → 해결안을 짧게, 자세한 건 다른 노트북 안내. `outputs/`의 그림 · 표만 읽는다 |
 
@@ -227,6 +228,7 @@ Parquet는 D 드라이브에만 두고 Git에 추가하지 않는다.
 | 수집 기록 · 확인 · 분석 · 모델 · 그래프 | `notebooks/*.ipynb` | 과정과 결과를 한눈에 보고 PPT 근거로 쓰려고 |
 
 - 처음 해 보는 전처리는 노트북에서 먼저 짜도 된다. 다른 사람도 쓰게 되면 `src/`로 옮긴다.
+- **Train · Dev · Test는 폴더가 아니라 `model_set` 열로 고른다.** 규칙은 `config/periods.yaml`의 `model_sets` 한 곳. 읽을 때 `src.io_utils.load_processed("weather_hourly")`(Test 빼고) 또는 `add_model_set(df)`로 붙이고, 마지막 평가 때만 `include_test=True`로 연다.
 - `data/processed/` 공통 표는 **.py로만 만든다**. 노트북은 읽기만 하고, 노트북에서 만든 그래프 · 표는 `outputs/`에 저장한다.
 
 ### 수집 기록 노트북 `00_이니셜_collect.ipynb` (담당자별 1개)
