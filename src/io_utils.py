@@ -1,4 +1,4 @@
-"""팀 공통 읽기 함수 (TOPIS 파일 · 모델 세트).
+"""팀 공통 읽기 함수 (TOPIS 파일 · 모델 세트 · 날씨 판정).
 
 저장소 내부 ``data/raw/topis/csv``와 외부 데이터 루트를 모두 지원한다.
 2024-02 이전 ``08시``와 이후 ``~08시``는 ``~08시``로 통일한다.
@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -175,3 +176,66 @@ def load_processed(
             raise FileNotFoundError(f"{stem}.parquet 또는 .csv 가 없습니다.")
     frame = pd.concat(parts, ignore_index=True)
     return add_model_set(frame, season_col=season_col, include_test=include_test, project_root=project_root)
+
+
+# 날씨 판정 (맑음 · 약한 비·눈 · 악천후)은 저장소의 weather_hourly 한 곳에서만 가져온다.
+# C 통행시간 표에도 같은 열이 들어 있지만 만든 날의 복사본이라, 날씨 판정이 바뀌면 어긋난다.
+WEATHER_LABEL_COLS = ("event_id", "event_intensity", "impact")
+
+
+def load_weather_labels(project_root: Path | None = None) -> pd.DataFrame:
+    """data/processed/{train,eval}/weather_hourly_*.csv 의 date · hour · 날씨 판정 열."""
+    root = Path(project_root) if project_root is not None else ROOT
+    paths = [root / "data" / "processed" / s / f"weather_hourly_{s}.csv" for s in ("train", "eval")]
+    w = pd.concat([pd.read_csv(p, encoding="utf-8-sig", usecols=["date", "hour", *WEATHER_LABEL_COLS])
+                   for p in paths], ignore_index=True)
+    w["date"] = pd.to_datetime(w["date"]).dt.normalize()
+    w["hour"] = w["hour"].astype("int64")
+    if w.duplicated(["date", "hour"]).any():
+        raise ValueError("weather_hourly 에 같은 date · hour 가 두 번 있습니다.")
+    return w
+
+
+def _same_value(old: pd.Series, new: pd.Series) -> pd.Series:
+    old = old.reset_index(drop=True)
+    new = new.reset_index(drop=True)
+    if pd.api.types.is_numeric_dtype(new):
+        old = pd.to_numeric(old, errors="coerce")
+    else:
+        old, new = old.astype("string"), new.astype("string")
+    return (old.isna() & new.isna()) | (old == new).fillna(False)
+
+
+def attach_weather_labels(
+    frame: pd.DataFrame,
+    date_col: str = "date",
+    hour_col: str = "hour",
+    labels: pd.DataFrame | None = None,
+    project_root: Path | None = None,
+) -> pd.DataFrame:
+    """frame 의 event_id · event_intensity · impact 를 저장소 weather_hourly 값으로 바꾼다.
+
+    - date + hour 로 붙인다 (C traffic_merge.py 와 같은 키).
+    - 원래 열이 있으면 바꾸기 전에 비교해, 값이 다른 행 수를 frame.attrs["weather_label_mismatch"] 에 남기고 경고한다.
+    - 날씨 표에 없는 date · hour 가 있으면 맑음으로 잘못 바뀌지 않도록 오류를 낸다.
+    - 큰 표를 복사하지 않도록 frame 을 직접 고치고 그대로 돌려준다.
+    """
+    w = labels if labels is not None else load_weather_labels(project_root)
+    w_idx = pd.MultiIndex.from_arrays([w["date"], w["hour"]])
+    key = pd.MultiIndex.from_arrays([pd.to_datetime(frame[date_col]).dt.normalize(),
+                                     pd.to_numeric(frame[hour_col]).astype("int64")])
+    pos = w_idx.get_indexer(key)
+    if (pos < 0).any():
+        bad = key[pos < 0].unique()[:3].tolist()
+        raise ValueError(f"weather_hourly 에 없는 date · hour {(pos < 0).sum():,}행 (예: {bad})")
+
+    mismatch = {}
+    for col in WEATHER_LABEL_COLS:
+        new = w[col].iloc[pos].reset_index(drop=True)
+        if col in frame.columns:
+            mismatch[col] = int((~_same_value(frame[col], new)).sum())
+        frame[col] = new.to_numpy()
+    frame.attrs["weather_label_mismatch"] = mismatch
+    if any(mismatch.values()):
+        warnings.warn(f"C 표의 날씨 판정이 저장소 weather_hourly 와 다른 행을 바꿨습니다: {mismatch}", stacklevel=2)
+    return frame

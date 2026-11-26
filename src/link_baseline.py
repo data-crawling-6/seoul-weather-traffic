@@ -43,6 +43,11 @@ import pyarrow.dataset as ds
 
 KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[1]
+import sys  # noqa: E402
+
+if str(ROOT) not in sys.path:  # python src/link_baseline.py 로 바로 실행해도 src 를 찾게
+    sys.path.insert(0, str(ROOT))
+from src.io_utils import attach_weather_labels  # noqa: E402
 DEFAULT_LINK = ROOT / "data" / "raw" / "traffic" / "yang_seoyeon_topis_weather_link_hourly_20261122_v02.parquet"
 PROC_DIR = ROOT / "data" / "processed"
 TABLE_DIR = ROOT / "outputs" / "tables"
@@ -78,6 +83,7 @@ def load_links(path: Path) -> pd.DataFrame:
            & (ds.field("is_holiday") == False) & ds.field("hour").isin(COMMUTE_HOURS))  # noqa: E712
     d = ds.dataset(path).to_table(columns=COLUMNS, filter=flt).to_pandas()
     d["date"] = pd.to_datetime(d["date"])
+    attach_weather_labels(d)  # 날씨 판정은 저장소 weather_hourly 에서 (C 표 안의 복사본 대신)
     d["weekday"] = d["date"].dt.weekday.astype("int8")
     clear = d["event_id"].isna() & d["impact"].isna()
     d["weather_group"] = np.where(d["impact"].notna(), "악천후", np.where(clear, "맑음", "약한 비·눈"))
@@ -192,6 +198,7 @@ def main():
         "baseline_level_counts": b["baseline_level"].value_counts().to_dict(),
         "road_rows": len(g),
         "min_n": MIN_N,
+        "weather_label_mismatch": d.attrs.get("weather_label_mismatch"),
     }
     (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
     (ROOT / "logs" / "ljh" / "link_baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
