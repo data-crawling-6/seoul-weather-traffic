@@ -427,13 +427,13 @@ def run_merge(data_root: Path, project_root: Path) -> dict[str, object]:
 
     summary_dir = project_root / "outputs" / "tables"
     sample_dir = project_root / "data" / "sample"
-    log_dir = project_root / "logs" / "ysy" / "travel_time"
+    log_dir = project_root / "logs" / "ysy" / "topis_weather_merge"
     log_dir.mkdir(parents=True, exist_ok=True)
-    summary_path = _next_version(summary_dir, f"yang_seoyeon_topis_weather_merge_summary_{run_date}", ".csv")
+    summary_path = _next_version(summary_dir, f"topis_weather_merge_summary_{run_date}", ".csv")
     sample_path = _next_version(sample_dir, f"topis_weather_commute_sample_{run_date}", ".csv")
     link_sample_path = _next_version(sample_dir, f"topis_weather_link_sample_{run_date}", ".csv")
     log_path = _next_version(log_dir, f"topis_weather_merge_{run_date}", ".json")
-    stable_path = _next_version(summary_dir, f"yang_seoyeon_stable_links_{run_date}", ".csv")
+    stable_path = _next_version(summary_dir, f"stable_links_{run_date}", ".csv")
     pd.DataFrame(monthly_stats).to_csv(summary_path, encoding="utf-8-sig", index=False)
     road.head(200).to_csv(sample_path, encoding="utf-8-sig", index=False)
     pq.ParquetFile(link_path).read_row_group(0).to_pandas().head(200).to_csv(
@@ -550,7 +550,7 @@ def extend_v04_october(data_root: Path, project_root: Path, source_path: Path,
     if result.duplicated(keys).any():
         raise ValueError("결합 키 중복: 기존 데이터와 10월 중복 확인")
     pd.testing.assert_frame_equal(result.iloc[:len(old)].reset_index(drop=True), old.reset_index(drop=True), check_dtype=False)
-    log_dir = project_root / "logs/ysy/travel_time"
+    log_dir = project_root / "logs/ysy/topis_weather_merge"
     log_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(KST).strftime("%Y%m%dT%H%M%S%f")
     log_path = log_dir / f"traffic_october_v05_{stamp}.json"

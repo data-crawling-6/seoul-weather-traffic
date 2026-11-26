@@ -26,7 +26,7 @@ C 릴리즈 파일은 고치지 않고, 연결표와 도로 × 방향 교통량 
       volume_mean          그 도로 · 방향에 붙은 지점들의 교통량 평균 (대/시간)
       n_spots              붙은 지점 수
       n_spots_observed     교통량이 있는 지점 수 (0이면 volume_mean 빈값)
-  logs/ljh/volume_direction.json   붙은 지점 수 · 방법별 개수
+  logs/ljh/volume_direction/volume_direction.json   붙은 지점 수 · 방법별 개수
 
 실행
   python src/join/volume_direction.py
@@ -178,8 +178,8 @@ def main():
         "match_method_counts": m["match_method"].value_counts().to_dict(),
         "road_dir_rows": {s: int((g["split"] == s).sum()) for s in ("train", "eval")},
     }
-    (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
-    (ROOT / "logs" / "ljh" / "volume_direction.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "ljh" / "volume_direction").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "ljh" / "volume_direction" / "volume_direction.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
 

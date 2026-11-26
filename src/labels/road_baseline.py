@@ -168,8 +168,8 @@ def main():
         "min_n": MIN_N,
         "weather_label_mismatch": d.attrs.get("weather_label_mismatch"),
     }
-    (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
-    (ROOT / "logs" / "ljh" / "baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "ljh" / "road_baseline").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "ljh" / "road_baseline" / "road_baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
 

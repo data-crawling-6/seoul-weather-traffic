@@ -19,7 +19,7 @@
 
 결과 (실행한 날짜별 폴더)
     {out}/YYYY-MM-DD/weekly.csv, roadtype_hourly.csv, link_hourly.csv, axis_map.csv
-    logs/kmj/topis_forecast.log, logs/kmj/screenshots/forecast_YYYY-MM-DD.png
+    logs/kmj/topis_forecast/topis_forecast.log, logs/kmj/topis_forecast/forecast_YYYY-MM-DD.png
 """
 import argparse
 import sys
@@ -39,9 +39,9 @@ KST = timezone(timedelta(hours=9))
 BASE = "https://topis.seoul.go.kr"
 PAGE_URL = BASE + "/prdc/openTodayFcst.do"
 ROOT = Path(__file__).resolve().parents[1]
-LOG_DIR = ROOT / "logs" / "kmj"
+LOG_DIR = ROOT / "logs" / "kmj" / "topis_forecast"
 LOG_FILE = LOG_DIR / "topis_forecast.log"
-SHOT_DIR = LOG_DIR / "screenshots"
+SHOT_DIR = LOG_DIR
 WAIT_SEC = 30
 PAUSE_SEC = 0.2
 FIRST_HOUR, LAST_HOUR = 7, 20  # 출근 ~ 퇴근 (TOPIS 예보는 07시부터)

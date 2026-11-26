@@ -61,6 +61,15 @@
 
 `data/sample/topis_weather_commute_sample_20261122_v04.csv`는 규칙 검토용 표본이다. 정상 관측 100행과 링크 결측으로 `travel_time_seconds`·`road_speed_kmh`를 의도적으로 `NaN` 처리한 사례 100행을 함께 담았다. 따라서 샘플의 결측 비율은 전체 자료의 결측 비율을 대표하지 않으며, 전체 v04 결측률은 실행 로그를 기준으로 확인한다.
 
+## 도로 통행시간 표 버전 (`data/derived/topis_weather/`)
+
+| 파일 | 행 수 | 내용 | 쓰는 곳 |
+| --- | --- | --- | --- |
+| `commute_20261122_v04.parquet` | 588,600 | 연구 기간(44개월, 10월 제외) 평일 출퇴근 | 평소 통행시간(`src/labels/road_baseline.py`) · 휴가철 분석(`notebooks/01_shared/kmj_vacation_peak`) 등 연구 기간 안의 계산 |
+| `commute_20261122_v05.parquet` | 657,000 | v04 전체 + 2022~2025년 10월 평일 출퇴근 68,400행 (기존 행은 v04와 같다) | 교통량과 통행시간 비교(`src/analysis/traffic_analysis.py`) |
+
+v05의 10월 행은 연구 기간 밖이고 10월 날씨 결측을 보간하지 않았다. 평소값 계산 입력으로는 v04를 쓴다.
+
 `missing_reason` 허용값:
 
 - 빈 문자열: 정상 관측

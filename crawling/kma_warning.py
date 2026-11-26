@@ -10,8 +10,8 @@
 결과
   data/raw/kma_warning/warning_list.csv    목록 (발표시각 · 지역 · 제목 · 상세 키)
   data/raw/kma_warning/warning_detail.csv  상세 (발효시각 · 해당지역 원문)
-  logs/ljh/kma_warning.log                    실행 기록
-  logs/ljh/screenshots/*.png                 조회 전 · 후 · 상세 화면 캡처 (PPT 증거용)
+  logs/ljh/kma_warning/kma_warning.log                  실행 기록
+  logs/ljh/kma_warning/*.png          조회 전 · 후 · 상세 화면 캡처 (PPT 증거용)
 
 실행:  python crawling/kma_warning.py
        python crawling/kma_warning.py --start 2022-10-01 --end 2026-09-30 --headless
@@ -33,8 +33,8 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw" / "kma_warning"
-LOG_PATH = ROOT / "logs" / "ljh" / "kma_warning.log"
-SHOT_DIR = ROOT / "logs" / "ljh" / "screenshots"
+LOG_PATH = ROOT / "logs" / "ljh" / "kma_warning" / "kma_warning.log"
+SHOT_DIR = ROOT / "logs" / "ljh" / "kma_warning"
 URL = "https://data.kma.go.kr/data/weatherReport/wsrList.do?pgmNo=647"
 REGION = "서울·인천·경기도"
 KINDS = ["대설", "호우", "한파"]

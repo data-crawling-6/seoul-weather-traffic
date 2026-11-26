@@ -30,8 +30,8 @@ jobs:
           name: topis-forecast-${{ github.run_id }}
           path: |
             forecast/
-            logs/kmj/topis_forecast.log
-            logs/kmj/screenshots/forecast_*.png
+            logs/kmj/topis_forecast/topis_forecast.log
+            logs/kmj/topis_forecast/forecast_*.png
           retention-days: 90
       - name: 결과를 data-collect 브랜치에 커밋
         if: success()

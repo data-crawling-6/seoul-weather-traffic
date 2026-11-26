@@ -36,7 +36,7 @@
 결과
   data/shared/{train_dev,holdout}/prior_link_{split}.parquet
   data/shared/{train_dev,holdout}/prior_road_{split}.parquet
-  logs/kmj/prior_baseline.json
+  logs/kmj/prior_baseline/prior_baseline.json
 """
 from __future__ import annotations
 
@@ -226,8 +226,8 @@ def main():
 
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "input": a.link.name,
            "window_days": WINDOW_DAYS, "min_n": MIN_N, "seasons": summary}
-    (ROOT / "logs" / "kmj").mkdir(parents=True, exist_ok=True)
-    (ROOT / "logs" / "kmj" / "prior_baseline.json").write_text(
+    (ROOT / "logs" / "kmj" / "prior_baseline").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "kmj" / "prior_baseline" / "prior_baseline.json").write_text(
         json.dumps(log, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
 
 

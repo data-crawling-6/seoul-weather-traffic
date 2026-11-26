@@ -28,7 +28,7 @@
   data/shared/{train_dev,holdout}/link_baseline_{split}.parquet          링크 평소값
   data/shared/{train_dev,holdout}/road_congestion_length_{split}.parquet 도로 · 방향 · 시간별 정체 길이 비율 · is_congested
   outputs/tables/congestion_length_candidates_train.csv              정체 길이 기준 후보 비교 (학습만)
-  logs/ljh/link_baseline.json
+  logs/ljh/link_baseline/link_baseline.json
 """
 from __future__ import annotations
 
@@ -201,8 +201,8 @@ def main():
         "min_n": MIN_N,
         "weather_label_mismatch": d.attrs.get("weather_label_mismatch"),
     }
-    (ROOT / "logs" / "ljh").mkdir(parents=True, exist_ok=True)
-    (ROOT / "logs" / "ljh" / "link_baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "ljh" / "link_baseline").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "ljh" / "link_baseline" / "link_baseline.json").write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
 
 

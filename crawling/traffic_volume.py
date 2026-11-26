@@ -121,7 +121,7 @@ def git_provenance(project_root: Path = ROOT) -> dict[str, object]:
     changed_files = [line[3:] for line in status.splitlines() if len(line) >= 4]
     code_files = [
         project_root / "crawling" / "traffic_volume.py",
-        project_root / "notebooks" / "00_ysy_collect.ipynb",
+        project_root / "notebooks" / "00_collect" / "ysy_collect.ipynb",
     ]
     return {
         "git_available": commit_code == branch_code == status_code == 0,

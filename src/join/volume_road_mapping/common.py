@@ -30,7 +30,7 @@ from src.io_utils import data_root as _data_root, derived_of  # noqa: E402
 DEFAULT_DATA_ROOT = _data_root()
 
 
-STABLE_LINKS_RELATIVE = Path("outputs/tables/yang_seoyeon_stable_links_20261122_v02.csv")
+STABLE_LINKS_RELATIVE = Path("outputs/tables/stable_links_20261122_v02.csv")
 
 
 VERTEX_FILENAME = "link_vertices_raw_20261123T213044_v01_(성공).csv"

@@ -43,7 +43,7 @@
   python src/features/features.py
 결과
   data/shared/{train_dev,holdout}/features_{split}.parquet
-  logs/kmj/features.json
+  logs/kmj/features/features.json
 """
 from __future__ import annotations
 
@@ -270,8 +270,8 @@ def main():
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "rows": len(f),
            "target_hours": TARGET_HOURS, "horizons": HORIZONS, "vacation_peak": VACATION_PEAK,
            "riverside_stations": RIVERSIDE_STATIONS, "seasons": summary}
-    (ROOT / "logs" / "kmj").mkdir(parents=True, exist_ok=True)
-    (ROOT / "logs" / "kmj" / "features.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
+    (ROOT / "logs" / "kmj" / "features").mkdir(parents=True, exist_ok=True)
+    (ROOT / "logs" / "kmj" / "features" / "features.json").write_text(json.dumps(log, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":

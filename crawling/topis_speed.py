@@ -38,11 +38,11 @@ DOWNLOAD_URL = BASE + "/downloadFileRefRoom.do"
 ROOT = Path(__file__).resolve().parents[1]
 XLSX_DIR = ROOT / "data" / "raw" / "topis_speed" / "xlsx"
 CSV_DIR = ROOT / "data" / "raw" / "topis_speed"
-LOG_DIR = ROOT / "logs" / "kmj"
+LOG_DIR = ROOT / "logs" / "kmj" / "topis_speed"
 LOG_FILE = LOG_DIR / "topis_speed.log"
 NET_LOG = LOG_DIR / "topis_network.log"
 MANIFEST = LOG_DIR / "topis_manifest.csv"
-SHOT_DIR = LOG_DIR / "screenshots"
+SHOT_DIR = LOG_DIR
 
 WAIT_SEC = 20
 RETRIES = 3
