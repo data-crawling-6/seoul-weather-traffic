@@ -1,0 +1,31 @@
+name: 실시간 속도 API 시험
+
+# 본 수집 전에 한 번 돌려 보는 시험. a-realtime-probe 브랜치에 push할 때만 돌고, main에는 합치지 않는다.
+on:
+  push:
+    branches: [a-realtime-probe]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python crawling/realtime_speed_probe.py --out probe
+        env:
+          SEOUL_OPEN_DATA_API_KEY: ${{ secrets.SEOUL_OPEN_DATA_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: realtime-probe-${{ github.run_id }}
+          path: probe/
+          retention-days: 14
