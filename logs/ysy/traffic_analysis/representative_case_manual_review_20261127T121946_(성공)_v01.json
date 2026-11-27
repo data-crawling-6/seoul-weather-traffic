@@ -1,0 +1,14 @@
+{
+  "status": "성공",
+  "reviewed_at": "2026-11-27T12:19:46+09:00",
+  "source": "outputs/tables/yang_seoyeon_representative_cases_20261127T004243181900_(성공)_v01.csv",
+  "output": "outputs/tables/ysy_representative_case_manual_review_20261127T121946_(성공)_v01.csv",
+  "reviewed_cases": 5,
+  "results": {
+    "확인완료": 2,
+    "부분확인": 1,
+    "관련기사미확인": 2
+  },
+  "interpretation_rule": "뉴스는 교통 변화의 맥락과 도로 통제 여부를 보조 검증하는 자료로만 사용하며, 기사 존재만으로 인과관계를 확정하지 않는다.",
+  "remaining_manual_review": 0
+}

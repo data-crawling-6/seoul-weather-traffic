@@ -1,0 +1,61 @@
+{
+  "status": "성공",
+  "inputs": {
+    "anomaly": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_anomaly_candidates_20261127T004236266537_(성공)_v01.csv",
+    "news": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_news_case_audit_20261127T004218254586_(성공)_v01.csv",
+    "control": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_control_candidates_20261126T222133490786_(성공)_v01.csv"
+  },
+  "candidate_road_days": 232,
+  "news_matched_road_days": 3,
+  "control_keyword_road_days": 2,
+  "representative_cases": 5,
+  "representative_keys": [
+    {
+      "split": "train",
+      "event_date": "2024-07-17",
+      "road_id": "R006",
+      "hour": 9,
+      "case_type": "통행시간 급증·교통량 감소",
+      "evidence_level": "뉴스·통제표현 후보 있음"
+    },
+    {
+      "split": "dev",
+      "event_date": "2024-11-27",
+      "road_id": "R075",
+      "hour": 20,
+      "case_type": "통행시간 감소·교통량 감소",
+      "evidence_level": "뉴스 제목 후보 있음"
+    },
+    {
+      "split": "train",
+      "event_date": "2024-07-17",
+      "road_id": "R005",
+      "hour": 9,
+      "case_type": "통행시간 급증·교통량 감소",
+      "evidence_level": "뉴스·통제표현 후보 있음"
+    },
+    {
+      "split": "train",
+      "event_date": "2024-02-20",
+      "road_id": "R009",
+      "hour": 19,
+      "case_type": "통행시간 급증",
+      "evidence_level": "수치 이상만 확인"
+    },
+    {
+      "split": "train",
+      "event_date": "2024-02-22",
+      "road_id": "R003",
+      "hour": 19,
+      "case_type": "복합 이상",
+      "evidence_level": "수치 이상만 확인"
+    }
+  ],
+  "test_excluded": true,
+  "limitations": "수치와 뉴스 제목을 도로·날짜 기준으로 연결한 수동 검토 후보이다. 기사 본문, 실제 사건 시각, 통제 여부 및 인과관계는 확정하지 않는다.",
+  "outputs": {
+    "candidates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_representative_case_candidates_20261127T004243181900_(성공)_v01.csv",
+    "representatives": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_representative_cases_20261127T004243181900_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_representative_cases_20261127T004243181900_(성공)_v01.json"
+  }
+}
