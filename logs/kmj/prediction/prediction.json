@@ -1,0 +1,81 @@
+{
+ "run_at": "2026-11-27T11:03:54+09:00",
+ "features": [
+  "road_id",
+  "direction",
+  "function_type",
+  "n_links",
+  "total_distance_m",
+  "lanes",
+  "urban_share",
+  "is_riverside",
+  "target_hour",
+  "horizon",
+  "weekday",
+  "month",
+  "season_kind",
+  "is_vacation_peak",
+  "ratio_t0",
+  "ratio_t1",
+  "ratio_t2",
+  "ratio_t0_missing",
+  "ratio_t1_missing",
+  "ratio_t2_missing",
+  "city_ratio_t0",
+  "type_ratio_t0"
+ ],
+ "rows": {
+  "train": 592972,
+  "dev": 291296,
+  "train_seasons": [
+   "2022-23_winter",
+   "2023-24_winter",
+   "2023_summer",
+   "2024_summer"
+  ],
+  "dev_seasons": [
+   "2024-25_winter",
+   "2025_summer"
+  ]
+ },
+ "dropped_no_target": 1332,
+ "linear": "빈 비율 1.0 + 빈값 표시, 범주 원핫(drop first): road_id, direction, function_type, target_hour, horizon, weekday, month, season_kind",
+ "catboost_params": {
+  "iterations": 800,
+  "learning_rate": 0.08,
+  "depth": 6,
+  "loss_function": "RMSE",
+  "random_seed": 0,
+  "verbose": 0,
+  "allow_writing_files": false
+ },
+ "catboost_importance": {
+  "ratio_t0": 24.62,
+  "type_ratio_t0": 12.03,
+  "city_ratio_t0": 11.55,
+  "target_hour": 8.33,
+  "total_distance_m": 7.09,
+  "lanes": 6.97,
+  "month": 5.9,
+  "weekday": 5.7,
+  "horizon": 4.22,
+  "function_type": 2.54,
+  "ratio_t1": 2.04,
+  "n_links": 2.0,
+  "ratio_t2": 1.98,
+  "is_vacation_peak": 1.51,
+  "direction": 1.47,
+  "road_id": 0.78,
+  "season_kind": 0.73,
+  "urban_share": 0.45,
+  "is_riverside": 0.06,
+  "ratio_t0_missing": 0.03,
+  "ratio_t1_missing": 0.0,
+  "ratio_t2_missing": 0.0
+ },
+ "seconds": {
+  "linear": 11.1,
+  "catboost": 209.7,
+  "total": 240.5
+ }
+}
