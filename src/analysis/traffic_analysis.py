@@ -139,10 +139,13 @@ def cluster_roads(
     scaler = StandardScaler()
     x = scaler.fit_transform(complete[cols])
     scores = {}
+    inertias = {}
     upper = min(6, len(complete) - 1)
     for k in range(2, upper + 1):
-        labels = KMeans(n_clusters=k, random_state=42, n_init=20).fit_predict(x)
+        candidate = KMeans(n_clusters=k, random_state=42, n_init=20).fit(x)
+        labels = candidate.labels_
         scores[k] = float(silhouette_score(x, labels))
+        inertias[k] = float(candidate.inertia_)
     best_k = max(scores, key=scores.get)
     model = KMeans(n_clusters=best_k, random_state=42, n_init=20)
     complete["cluster"] = model.fit_predict(x)
@@ -189,6 +192,7 @@ def cluster_roads(
         "feature_columns": cols,
         "best_k": int(best_k),
         "silhouette_scores": {str(k): v for k, v in scores.items()},
+        "elbow_inertias": {str(k): v for k, v in inertias.items()},
         "clustered_roads": len(complete),
         "unclustered_roads": int(train_result["cluster"].isna().sum()),
         "dev_clustered_roads": len(dev_complete),
@@ -458,21 +462,30 @@ def combine_travel_time(
         cluster_frames.append(frame)
     cluster_map = pd.concat(cluster_frames, ignore_index=True)
     combined = travel_road_hour.merge(cluster_map, on=["split", "road_id"], how="left", validate="many_to_one")
+    combined["year"] = pd.to_datetime(combined["severe_date"], errors="raise").dt.year
 
     def correlation_row(frame: pd.DataFrame, scope: str, value: str) -> dict:
         usable = frame[["volume_change_pct_median", "travel_time_change_pct_median"]].dropna()
         if len(usable) < 3:
-            pearson = spearman = np.nan
+            pearson = spearman = ci_low = ci_high = np.nan
         else:
             pearson = usable.iloc[:, 0].corr(usable.iloc[:, 1], method="pearson")
             spearman = usable.iloc[:, 0].rank().corr(usable.iloc[:, 1].rank(), method="pearson")
+            # [서연] Pearson r의 Fisher z 95% 신뢰구간. n=3이면 구간을 계산하지 않는다.
+            if len(usable) > 3 and abs(pearson) < 1:
+                z = np.arctanh(pearson)
+                margin = 1.959963984540054 / np.sqrt(len(usable) - 3)
+                ci_low, ci_high = np.tanh([z - margin, z + margin])
+            else:
+                ci_low = ci_high = np.nan
         return {"scope": scope, "value": value, "valid_rows": len(usable),
-                "pearson_r": pearson, "spearman_rho": spearman,
+                "pearson_r": pearson, "pearson_ci95_low": ci_low,
+                "pearson_ci95_high": ci_high, "spearman_rho": spearman,
                 "traffic_change_median": usable.iloc[:, 0].median() if len(usable) else np.nan,
                 "travel_time_change_median": usable.iloc[:, 1].median() if len(usable) else np.nan}
 
     correlation_rows = [correlation_row(combined, "overall", "all")]
-    for column in ["split", "cluster", "commute_period", "intensity"]:
+    for column in ["split", "year", "cluster", "commute_period", "intensity"]:
         for value, group in combined.groupby(column, dropna=False, observed=True):
             correlation_rows.append(correlation_row(group, column, str(value)))
     correlations = pd.DataFrame(correlation_rows)
@@ -575,6 +588,7 @@ def validate_relationships(root: Path = ROOT) -> dict:
     )
     if data["season"].isna().any():
         raise ValueError("결합 결과 일부에 season을 연결하지 못했습니다.")
+    data["year"] = pd.to_datetime(data["severe_date"], errors="raise").dt.year
 
     complete = data[[x_col, y_col]].notna().all(axis=1)
     quantiles = {
@@ -590,12 +604,19 @@ def validate_relationships(root: Path = ROOT) -> dict:
     def correlation_row(frame: pd.DataFrame, dataset: str, scope: str, value: str) -> dict:
         usable = frame[[x_col, y_col]].dropna()
         if len(usable) < 3:
-            pearson = spearman = np.nan
+            pearson = spearman = ci_low = ci_high = np.nan
         else:
             pearson = usable[x_col].corr(usable[y_col], method="pearson")
             spearman = usable[x_col].rank().corr(usable[y_col].rank(), method="pearson")
+            if len(usable) > 3 and abs(pearson) < 1:
+                z = np.arctanh(pearson)
+                margin = 1.959963984540054 / np.sqrt(len(usable) - 3)
+                ci_low, ci_high = np.tanh([z - margin, z + margin])
+            else:
+                ci_low = ci_high = np.nan
         return {"dataset": dataset, "scope": scope, "value": value, "valid_rows": len(usable),
-                "pearson_r": pearson, "spearman_rho": spearman,
+                "pearson_r": pearson, "pearson_ci95_low": ci_low,
+                "pearson_ci95_high": ci_high, "spearman_rho": spearman,
                 "traffic_change_median": usable[x_col].median() if len(usable) else np.nan,
                 "travel_time_change_median": usable[y_col].median() if len(usable) else np.nan}
 
@@ -603,10 +624,49 @@ def validate_relationships(root: Path = ROOT) -> dict:
     datasets = {"full": data, "trimmed_1_99pct": data.loc[~data["sensitivity_outlier"]]}
     for dataset_name, frame in datasets.items():
         rows.append(correlation_row(frame, dataset_name, "overall", "all"))
-        for column in ["split", "season", "cluster", "commute_period", "intensity"]:
+        for column in ["split", "season", "year", "cluster", "commute_period", "intensity"]:
             for value, group in frame.groupby(column, dropna=False, observed=True):
                 rows.append(correlation_row(group, dataset_name, column, str(value)))
     correlations = pd.DataFrame(rows)
+
+    # [서연] 노션 C 연관성 점검: 여름 하천변 도로의 수위 상승과 통행시간 변화.
+    # 절대 수위는 관측소마다 기준이 달라 사용하지 않고 공용 설계의 주 관측소·3시간 상승폭만 쓴다.
+    riverside_primary = {
+        "올림픽대로": "서울시(한강대교)",
+        "강변북로": "서울시(한강대교)",
+        "동부간선도로": "서울시(월계2교)",
+        "내부순환로": "서울시(중랑교)",
+    }
+    water_path = root / "data/shared/train_dev/waterlevel_hourly_train_dev.csv"
+    water_rows = []
+    if water_path.exists():
+        water = pd.read_csv(water_path, encoding="utf-8-sig", parse_dates=["datetime"])
+        river = data.loc[
+            data["road_name"].isin(riverside_primary)
+            & data["season"].astype(str).str.match(r"^(S\d{4}|\d{4}_summer)$", na=False)
+        ].copy()
+        river["datetime"] = pd.to_datetime(river["severe_date"], errors="raise") + pd.to_timedelta(
+            pd.to_numeric(river["hour"], errors="raise"), unit="h"
+        )
+        river["water_station"] = river["road_name"].map(riverside_primary)
+        river = river.merge(
+            water[["datetime", "obsnm", "wl_rise_3h", "over_attwl", "over_wrnwl"]],
+            left_on=["datetime", "water_station"], right_on=["datetime", "obsnm"],
+            how="left", validate="many_to_one",
+        )
+        for (split, road_id, road_name), group in river.groupby(
+            ["split", "road_id", "road_name"], observed=True
+        ):
+            usable = group[["wl_rise_3h", y_col]].dropna()
+            coefficient = usable["wl_rise_3h"].corr(usable[y_col], method="spearman") if len(usable) >= 3 else np.nan
+            water_rows.append({
+                "split": split, "road_id": road_id, "road_name": road_name,
+                "station": riverside_primary[road_name], "valid_rows": len(usable),
+                "spearman_rho_wl_rise3h_travel_change": coefficient,
+                "attention_hours": int(group["over_attwl"].fillna(False).astype(bool).sum()),
+                "warning_hours": int(group["over_wrnwl"].fillna(False).astype(bool).sum()),
+            })
+    water_relationships = pd.DataFrame(water_rows)
 
     stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S")
     suffix = f"{stamp}_(성공)_v01"
@@ -618,6 +678,7 @@ def validate_relationships(root: Path = ROOT) -> dict:
     paths = {
         "outliers": table_dir / f"yang_seoyeon_traffic_travel_outliers_{suffix}.csv",
         "sensitivity": table_dir / f"yang_seoyeon_traffic_travel_sensitivity_{suffix}.csv",
+        "waterlevel": table_dir / f"yang_seoyeon_riverside_waterlevel_relationships_{suffix}.csv",
         "plot": figure_dir / f"traffic_travel_sensitivity_{suffix}.png",
         "log": log_dir / f"traffic_travel_sensitivity_{suffix}.json",
     }
@@ -625,6 +686,7 @@ def validate_relationships(root: Path = ROOT) -> dict:
         raise FileExistsError("민감도 분석 출력 경로가 이미 존재합니다.")
     data.loc[data["sensitivity_outlier"]].to_csv(paths["outliers"], index=False, encoding="utf-8-sig")
     correlations.to_csv(paths["sensitivity"], index=False, encoding="utf-8-sig")
+    water_relationships.to_csv(paths["waterlevel"], index=False, encoding="utf-8-sig")
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 10), sharex="row", sharey="row")
     for row_idx, (dataset_name, frame) in enumerate(datasets.items()):
@@ -665,6 +727,8 @@ def validate_relationships(root: Path = ROOT) -> dict:
         "overall_full": overall_values("full"),
         "overall_trimmed": overall_values("trimmed_1_99pct"),
         "interpretation_rule": "전체와 민감도 결과가 크게 다르면 극단값 영향을 명시하고 인과관계로 해석하지 않음",
+        "waterlevel_rule": "여름 하천변 4개 도로·공용 주 관측소의 3시간 수위 상승폭과 통행시간 변화의 탐색적 연관성; 인과 해석 금지",
+        "waterlevel_rows": len(water_relationships),
         "outputs": {name: str(path) for name, path in paths.items()},
     }
     paths["log"].write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1044,7 +1108,7 @@ def extract_road_control(root: Path, data_root: Path, news_dir: Path | None = No
     return result
 
 
-def analyze_hotspots_anomalies(
+def _analyze_hotspots_anomalies_legacy(
     root: Path = ROOT,
     data_root: Path = DATA_ROOT,
     combined_path: Path | None = None,
@@ -1197,6 +1261,548 @@ def analyze_hotspots_anomalies(
         "hotspot_counts": hot.groupby(["split", "k", "hotspot_status"]).size().rename("count").reset_index().to_dict("records"),
         "test_excluded": True,
         "limitations": "Gi*는 도로 중심점 대칭 kNN·9999회 순열·BH 보정의 탐색 분석이다. Isolation Forest는 Train에만 적합하고 Dev에 적용하며, 이상치가 사고나 인과를 뜻하지 않는다.",
+        "outputs": {name: str(path) for name, path in paths.items()},
+    }
+    paths["log"].write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    return report
+
+
+def analyze_hotspots_anomalies(
+    root: Path = ROOT,
+    data_root: Path = DATA_ROOT,
+    combined_path: Path | None = None,
+) -> dict:
+    """[서연] 노션 기준의 링크 Gi*와 맑은 시간 Isolation Forest를 실행한다.
+
+    Gi*: 악천후 링크 통행시간/정답용 링크 평소값, 500m 이웃, 정규근사 p값의 BH 보정.
+    IF: 맑은 시간 도로 통행시간/과거 28일 입력용 평소값, Train 적합 후 Dev 적용.
+    Test 자료는 읽지 않는다.
+    """
+    import geopandas as gpd
+    import matplotlib.pyplot as plt
+    from scipy.sparse import csr_matrix
+    from scipy.stats import norm
+    from sklearn.ensemble import IsolationForest
+
+    table = root / "outputs/tables"
+    derived = derived_of(data_root)
+
+    def latest(folder: Path, pattern: str) -> Path:
+        paths = sorted(folder.glob(pattern))
+        if not paths:
+            raise FileNotFoundError(str(folder / pattern))
+        return paths[-1]
+
+    link_source = latest(derived / "topis_weather", "link_hourly_*_v02.parquet")
+    geo_source = latest(derived / "road_lines", "road_lines_*_(성공).geojson")
+    baseline_source = root / "data/shared/train_dev/link_baseline_train_dev.parquet"
+    commute_source = _default_travel_path()
+    prior_source = root / "data/shared/train_dev/prior_road_train_dev.parquet"
+    for path in [baseline_source, commute_source, prior_source]:
+        if not path.exists():
+            raise FileNotFoundError(path)
+
+    # [서연] 링크 단위 악천후 비율. baseline_link_tt_s는 정답/공간 취약도에만 사용한다.
+    link_cols = ["link_id", "road_id", "road_name", "direction", "date", "hour", "season",
+                 "split", "link_travel_time_seconds", "event_id", "impact"]
+    links_hourly = pd.read_parquet(link_source, columns=link_cols)
+    links_hourly = add_model_set(links_hourly, include_test=False)
+    links_hourly = links_hourly.loc[
+        links_hourly["model_set"].isin(["train", "dev"])
+        & links_hourly["impact"].notna()
+    ].copy()
+    links_hourly["weekday"] = pd.to_datetime(links_hourly["date"], errors="raise").dt.day_of_week
+    baseline = pd.read_parquet(baseline_source)
+    baseline["link_id"] = baseline["link_id"].astype(str)
+    links_hourly["link_id"] = links_hourly["link_id"].astype(str)
+    base_keys = ["season", "split", "link_id", "road_id", "direction", "weekday", "hour"]
+    links_hourly = links_hourly.merge(
+        baseline[base_keys + ["baseline_link_tt_s"]], on=base_keys, how="left", validate="many_to_one"
+    )
+    valid_ratio = (
+        links_hourly["link_travel_time_seconds"].notna()
+        & links_hourly["baseline_link_tt_s"].gt(0)
+    )
+    links_hourly["link_tt_ratio"] = np.where(
+        valid_ratio,
+        links_hourly["link_travel_time_seconds"] / links_hourly["baseline_link_tt_s"],
+        np.nan,
+    )
+    link_values = (links_hourly.groupby(["model_set", "link_id", "road_id", "road_name"], observed=True)
+                   .agg(value=("link_tt_ratio", "median"),
+                        valid_hours=("link_tt_ratio", "count"),
+                        event_count=("event_id", "nunique"))
+                   .reset_index())
+    link_values = link_values.loc[link_values["value"].notna() & link_values["valid_hours"].ge(3)].copy()
+
+    geometry = gpd.read_file(geo_source)[["link_id", "geometry"]]
+    geometry["link_id"] = geometry["link_id"].astype(str)
+    geometry = geometry.to_crs(5179).drop_duplicates("link_id")
+    if link_values["link_id"].isin(geometry["link_id"]).mean() < .99:
+        raise ValueError("Gi* 링크 geometry 연결률이 99% 미만입니다.")
+
+    def bh_adjust(p_values: np.ndarray) -> np.ndarray:
+        order = np.argsort(p_values)
+        n = len(p_values)
+        adjusted = np.empty(n)
+        ranked = p_values[order] * n / np.arange(1, n + 1)
+        adjusted[order] = np.minimum(1, np.minimum.accumulate(ranked[::-1])[::-1])
+        return adjusted
+
+    hotspot_frames = []
+    for model_set, values_frame in link_values.groupby("model_set", observed=True):
+        layer = geometry.merge(values_frame, on="link_id", how="inner", validate="one_to_one")
+        layer = layer.sort_values("link_id").reset_index(drop=True)
+        centers = layer.geometry.centroid
+        xy = np.c_[centers.x, centers.y]
+        # [서연] Train에서 정한 500m 고정 이웃. 자기 자신을 포함한다.
+        from scipy.spatial import cKDTree
+        tree = cKDTree(xy)
+        neighbor_lists = tree.query_ball_point(xy, r=500.0)
+        rows = np.repeat(np.arange(len(layer)), [len(v) for v in neighbor_lists])
+        columns = np.concatenate(neighbor_lists)
+        weights = csr_matrix((np.ones(len(rows)), (rows, columns)), shape=(len(layer), len(layer)))
+        x = layer["value"].to_numpy(float)
+        n = len(x)
+        sums = np.asarray(weights.sum(axis=1)).ravel()
+        denominator = x.std(ddof=0) * np.sqrt((n * sums - sums * sums) / (n - 1))
+        valid = denominator > 0
+        z_score = np.full(n, np.nan)
+        z_score[valid] = ((weights @ x) - x.mean() * sums)[valid] / denominator[valid]
+        p_value = np.where(valid, 2 * norm.sf(np.abs(z_score)), 1.0)
+        q_value = bh_adjust(p_value)
+        out = pd.DataFrame(layer.drop(columns="geometry")).assign(
+            gi_z=z_score, p_normal=p_value, q_bh=q_value,
+            neighbor_count=sums.astype(int) - 1,
+        )
+        out["hotspot_status"] = np.select(
+            [(q_value < .05) & (z_score > 0), (q_value < .05) & (z_score < 0)],
+            ["hot", "cold"], default="not_significant",
+        )
+        hotspot_frames.append(out)
+    hot = pd.concat(hotspot_frames, ignore_index=True)
+
+    # [서연] 맑은 시간 이상 탐지. 미래 정보가 없는 prior_tt_s만 입력에 사용한다.
+    commute_cols = ["date", "hour", "season", "split", "road_id", "road_name", "direction",
+                    "travel_time_seconds", "event_id", "impact", "commute_period"]
+    clear = pd.read_parquet(commute_source, columns=commute_cols)
+    clear = add_model_set(clear, include_test=False)
+    clear = clear.loc[
+        clear["model_set"].isin(["train", "dev"])
+        & clear["event_id"].isna() & clear["impact"].isna()
+    ].copy()
+    prior = pd.read_parquet(prior_source)
+    prior_keys = ["season", "split", "date", "hour", "road_id", "direction"]
+    clear = clear.merge(
+        prior[prior_keys + ["prior_tt_s", "prior_n", "prior_source", "prior_replaced"]],
+        on=prior_keys, how="left", validate="one_to_one",
+    )
+    clear["travel_time_ratio"] = np.where(
+        clear["travel_time_seconds"].notna() & clear["prior_tt_s"].gt(0),
+        clear["travel_time_seconds"] / clear["prior_tt_s"], np.nan,
+    )
+    feature = pd.concat([
+        clear[["travel_time_ratio"]],
+        pd.get_dummies(clear[["hour", "direction"]].astype(str), dtype=float),
+    ], axis=1)
+    complete = feature.notna().all(axis=1)
+    train = complete & clear["model_set"].eq("train")
+    if train.sum() < 30:
+        raise ValueError("맑은 시간 Isolation Forest Train 자료가 30행 미만입니다.")
+    model = IsolationForest(n_estimators=300, contamination="auto", random_state=42, n_jobs=-1)
+    model.fit(feature.loc[train])
+    clear["anomaly_score"] = np.nan
+    clear.loc[complete, "anomaly_score"] = -model.score_samples(feature.loc[complete])
+    threshold = float(clear.loc[train, "anomaly_score"].quantile(.95))
+    clear["anomaly_5pct"] = complete & clear["anomaly_score"].ge(threshold)
+    clear["anomaly_status"] = np.select(
+        [~complete, clear["anomaly_5pct"]], ["missing", "사고·통제 의심"], default="normal"
+    )
+    candidates = clear.loc[clear["anomaly_5pct"]].sort_values("anomaly_score", ascending=False)
+    summary = clear.groupby("model_set").agg(
+        rows=("road_id", "size"), valid=("anomaly_score", "count"), anomalies=("anomaly_5pct", "sum"),
+        dates=("date", "nunique"), roads=("road_id", "nunique"),
+    ).reset_index()
+
+    stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f") + "_(성공)_v02"
+    fig_dir = root / "outputs/figures/ysy"
+    log_dir = root / "logs/ysy/traffic_analysis"
+    for folder in [table, fig_dir, log_dir]:
+        folder.mkdir(parents=True, exist_ok=True)
+    frames = {"gi_link_hotspots": hot, "isolation_forest_clear": clear,
+              "anomaly_clear_candidates": candidates, "anomaly_clear_summary": summary}
+    paths = {name: table / f"yang_seoyeon_{name}_{stamp}.csv" for name in frames}
+    paths.update(map=fig_dir / f"gi_link_hotspots_{stamp}.png",
+                 log=log_dir / f"traffic_hotspots_anomalies_{stamp}.json")
+    if any(path.exists() for path in paths.values()):
+        raise FileExistsError("출력 경로 중복")
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    for ax, model_set in zip(axes, ["train", "dev"]):
+        result = hot.loc[hot["model_set"].eq(model_set), ["link_id", "hotspot_status"]]
+        layer = geometry.merge(result, on="link_id", how="inner")
+        for status, color in [("not_significant", "#aaaaaa"), ("hot", "#d73027"), ("cold", "#4575b4")]:
+            group = layer.loc[layer["hotspot_status"].eq(status)]
+            if not group.empty:
+                group.plot(ax=ax, color=color, label=status, linewidth=1.2)
+        ax.set_title(model_set)
+        ax.set_axis_off()
+        ax.legend()
+    fig.tight_layout()
+    fig.savefig(paths["map"], dpi=180)
+    plt.close(fig)
+    for name, frame in frames.items():
+        frame.to_csv(paths[name], index=False, encoding="utf-8-sig")
+    report = {
+        "status": "성공",
+        "inputs": {"link_hourly": str(link_source), "link_baseline": str(baseline_source),
+                   "commute": str(commute_source), "prior_road": str(prior_source),
+                   "geometry": str(geo_source)},
+        "gi_rule": "악천후 링크 통행시간/시즌 링크 평소값; 500m; Gi* 정규근사 p값; BH-FDR",
+        "gi_rows": len(hot),
+        "hotspot_counts": hot.groupby(["model_set", "hotspot_status"]).size().rename("count").reset_index().to_dict("records"),
+        "isolation_rule": "맑은 시간 실제 통행시간/과거 28일 입력용 평소값; Train fit; Train 95백분위",
+        "isolation_threshold": threshold,
+        "summary": summary.to_dict("records"),
+        "test_excluded": True,
+        "limitations": "Gi*의 시즌 링크 평소값은 정답/공간 취약도에만 사용하고 예측 입력으로 사용하지 않음. 이상 후보는 사고·통제 의심 라벨이며 뉴스 확인 전 확정 사례가 아님.",
+        "outputs": {name: str(path) for name, path in paths.items()},
+    }
+    paths["log"].write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    return report
+
+
+def run_notion_method_updates(root: Path = ROOT, data_root: Path = DATA_ROOT) -> dict:
+    """[서연] 노션 확정 기준 보완 분석을 한 번에 실행한다. Test는 두 함수 모두 제외한다."""
+    core = run(root, None)
+    relationships = validate_relationships(root)
+    spatial_anomaly = analyze_hotspots_anomalies(root, data_root)
+    return {
+        "status": "성공",
+        "test_excluded": True,
+        "core_with_elbow": core,
+        "relationships": relationships,
+        "spatial_anomaly": spatial_anomaly,
+    }
+
+
+def analyze_travel_time_curves(root: Path = ROOT) -> dict:
+    """[서연] 도로·방향별 악천후 통행시간 비율 곡선을 K-means와 DTW로 군집한다.
+
+    Train으로만 모델을 적합하고 Dev는 배정·안정성 확인에만 사용한다. Test는 읽지 않는다.
+    전체 악천후, 눈, 비를 각각 계산하며 교통량 변화는 군집 해석용 보조 지표로만 붙인다.
+    """
+    from sklearn.cluster import AgglomerativeClustering
+    from sklearn.metrics import adjusted_rand_score
+    import matplotlib.pyplot as plt
+
+    hours = [8, 9, 18, 19, 20]
+    commute_path = _default_travel_path()
+    baseline_path = root / "data/shared/train_dev/baseline_train_dev.csv"
+    if not commute_path.exists() or not baseline_path.exists():
+        raise FileNotFoundError("v05 통행시간 또는 Train·Dev 도로 평소값이 없습니다.")
+
+    columns = ["date", "hour", "season", "split", "road_id", "road_name", "direction",
+               "travel_time_seconds", "commute_period", "impact", "event_id"]
+    commute = pd.read_parquet(commute_path, columns=columns)
+    commute = add_model_set(commute, include_test=False)
+    commute = commute.loc[
+        commute["model_set"].isin(["train", "dev"])
+        & commute["impact"].notna() & commute["hour"].isin(hours)
+    ].copy()
+    commute["date"] = pd.to_datetime(commute["date"], errors="raise")
+    commute["weekday"] = commute["date"].dt.day_of_week
+    commute["weather_kind"] = np.where(
+        commute["impact"].astype(str).str.contains("눈", na=False), "snow", "rain"
+    )
+    baseline = pd.read_csv(baseline_path, encoding="utf-8-sig")
+    base_keys = ["season", "split", "road_id", "direction", "weekday", "hour"]
+    commute = commute.merge(
+        baseline[base_keys + ["baseline_travel_time_s", "baseline_n", "baseline_level"]],
+        on=base_keys, how="left", validate="many_to_one",
+    )
+    commute["travel_time_ratio"] = np.where(
+        commute["travel_time_seconds"].notna() & commute["baseline_travel_time_s"].gt(0),
+        commute["travel_time_seconds"] / commute["baseline_travel_time_s"], np.nan,
+    )
+    # [서연] 같은 관측을 전체·눈/비 두 범위에 복제해 동일한 코드로 비교한다.
+    scoped = pd.concat([
+        commute.assign(weather_scope="all"),
+        commute.assign(weather_scope=commute["weather_kind"]),
+    ], ignore_index=True)
+    profile_long = (scoped.groupby(
+        ["weather_scope", "model_set", "road_id", "road_name", "direction", "hour"],
+        observed=True, dropna=False,
+    ).agg(ratio_median=("travel_time_ratio", "median"),
+          valid_hours=("travel_time_ratio", "count"),
+          event_count=("event_id", "nunique"),
+          valid_dates=("date", lambda value: value[scoped.loc[value.index, "travel_time_ratio"].notna()].nunique()))
+     .reset_index())
+
+    assignments = []
+    score_rows = []
+    profile_rows = []
+    auxiliary_rows = []
+    scope_reports = {}
+
+    def dtw_distance(a: np.ndarray, b: np.ndarray) -> float:
+        total = 0.0
+        for lo, hi in [(0, 2), (2, 5)]:
+            x, y = a[lo:hi], b[lo:hi]
+            n = len(x)
+            cost = np.full((n + 1, n + 1), np.inf)
+            cost[0, 0] = 0.0
+            for i in range(1, n + 1):
+                for j in range(max(1, i - 1), min(n, i + 1) + 1):
+                    cost[i, j] = (x[i - 1] - y[j - 1]) ** 2 + min(
+                        cost[i - 1, j], cost[i, j - 1], cost[i - 1, j - 1]
+                    )
+            total += cost[n, n]
+        return float(np.sqrt(total))
+
+    for scope in ["all", "snow", "rain"]:
+        part = profile_long.loc[profile_long["weather_scope"].eq(scope)].copy()
+        scope_observations = scoped.loc[scoped["weather_scope"].eq(scope)]
+        observation_counts = {
+            model_set: {
+                "events": int(group["event_id"].nunique()),
+                "dates": int(group["date"].nunique()),
+                "hours": int(group["travel_time_ratio"].notna().sum()),
+            }
+            for model_set, group in scope_observations.groupby("model_set", observed=True)
+        }
+        wide = part.pivot_table(
+            index=["model_set", "road_id", "road_name", "direction"],
+            columns="hour", values="ratio_median", aggfunc="first",
+        ).reindex(columns=hours)
+        counts = part.pivot_table(
+            index=["model_set", "road_id", "road_name", "direction"],
+            columns="hour", values="valid_dates", aggfunc="first",
+        ).reindex(columns=hours).fillna(0)
+        eligible = wide.notna().all(axis=1) & counts.ge(3).all(axis=1)
+        train_index = (wide.index.get_level_values("model_set") == "train") & eligible
+        dev_index = (wide.index.get_level_values("model_set") == "dev") & eligible
+        train = wide.loc[train_index].copy()
+        dev = wide.loc[dev_index].copy()
+        if len(train) < 6:
+            scope_reports[scope] = {
+                "status": "표본부족", "train_eligible": len(train), "dev_eligible": len(dev),
+                "rule": "5개 시간대별 유효 사건일 3일 이상",
+                "observations": observation_counts,
+            }
+            continue
+
+        scaler = StandardScaler().fit(train)
+        x_train = scaler.transform(train)
+        x_dev = scaler.transform(dev) if len(dev) else np.empty((0, len(hours)))
+        k_candidates = range(2, min(6, len(train) - 1) + 1)
+        models = {}
+
+        def stability(train_labels: np.ndarray, dev_labels: np.ndarray) -> tuple[int, int, float | None]:
+            train_map = pd.DataFrame({
+                "road_direction": [(value[1], value[3]) for value in train.index],
+                "cluster_train": train_labels,
+            })
+            dev_map = pd.DataFrame({
+                "road_direction": [(value[1], value[3]) for value in dev.index],
+                "cluster_dev": dev_labels,
+            })
+            agreement = train_map.merge(dev_map, on="road_direction", how="inner", validate="one_to_one")
+            same = agreement["cluster_train"].eq(agreement["cluster_dev"])
+            return len(agreement), int(same.sum()), float(same.mean()) if len(same) else None
+
+        for k in k_candidates:
+            candidate = KMeans(n_clusters=k, random_state=42, n_init=50).fit(x_train)
+            counts_k = pd.Series(candidate.labels_).value_counts()
+            candidate_dev = candidate.predict(x_dev) if len(dev) else np.array([], dtype=int)
+            comparable_k, same_k, agreement_k = stability(candidate.labels_, candidate_dev)
+            score_rows.append({
+                "weather_scope": scope, "method": "kmeans", "k": k,
+                "silhouette": float(silhouette_score(x_train, candidate.labels_)),
+                "inertia": float(candidate.inertia_), "min_cluster_size": int(counts_k.min()),
+                "dev_comparable": comparable_k, "dev_same_cluster": same_k,
+                "dev_agreement_rate": agreement_k,
+            })
+            models[k] = candidate
+        k = 3 if 3 in models else min(models)
+        kmeans = models[k]
+        km_train = kmeans.labels_
+        km_dev = kmeans.predict(x_dev) if len(dev) else np.array([], dtype=int)
+
+        distance_train = np.array([[dtw_distance(a, b) for b in x_train] for a in x_train])
+        dtw_candidates = []
+        for dtw_k in k_candidates:
+            try:
+                dtw_model = AgglomerativeClustering(
+                    n_clusters=dtw_k, metric="precomputed", linkage="average"
+                )
+            except TypeError:
+                dtw_model = AgglomerativeClustering(
+                    n_clusters=dtw_k, affinity="precomputed", linkage="average"
+                )
+            candidate_train = dtw_model.fit_predict(distance_train)
+            counts_dtw = pd.Series(candidate_train).value_counts()
+            medoids_candidate = []
+            for cluster in range(dtw_k):
+                indices = np.flatnonzero(candidate_train == cluster)
+                medoids_candidate.append(int(indices[
+                    np.argmin(distance_train[np.ix_(indices, indices)].sum(axis=1))
+                ]))
+            candidate_distance_dev = np.array([
+                [dtw_distance(value, x_train[medoid]) for medoid in medoids_candidate]
+                for value in x_dev
+            ])
+            candidate_dev = candidate_distance_dev.argmin(axis=1) if len(dev) else np.array([], dtype=int)
+            comparable_dtw, same_dtw, agreement_dtw = stability(candidate_train, candidate_dev)
+            candidate_score = float(silhouette_score(
+                distance_train, candidate_train, metric="precomputed"
+            ))
+            score_rows.append({
+                "weather_scope": scope, "method": "dtw", "k": dtw_k,
+                "silhouette": candidate_score, "inertia": np.nan,
+                "min_cluster_size": int(counts_dtw.min()),
+                "dev_comparable": comparable_dtw, "dev_same_cluster": same_dtw,
+                "dev_agreement_rate": agreement_dtw,
+            })
+            dtw_candidates.append({
+                "k": dtw_k, "score": candidate_score, "min_size": int(counts_dtw.min()),
+                "train": candidate_train, "dev": candidate_dev,
+                "medoids": medoids_candidate, "agreement": agreement_dtw,
+            })
+        eligible_dtw = [candidate for candidate in dtw_candidates if candidate["min_size"] >= 5]
+        if eligible_dtw:
+            selected_dtw = max(eligible_dtw, key=lambda value: (value["score"], -value["k"]))
+            dtw_status = "보조 분석 사용"
+            dtw_k = selected_dtw["k"]
+            dtw_train = selected_dtw["train"].astype(float)
+            dtw_dev = selected_dtw["dev"].astype(float)
+        else:
+            # [서연] 작은 군집을 억지로 채택하지 않고 K-means 주 분석만 보존한다.
+            dtw_status = "소군집으로 제외"
+            dtw_k = None
+            dtw_train = np.full(len(train), np.nan)
+            dtw_dev = np.full(len(dev), np.nan)
+
+        def add_assignment(index: pd.MultiIndex, km: np.ndarray, dtw: np.ndarray) -> None:
+            for values, km_label, dtw_label in zip(index, km, dtw):
+                model_set, road_id, road_name, direction = values
+                assignments.append({
+                    "weather_scope": scope, "model_set": model_set, "road_id": road_id,
+                    "road_name": road_name, "direction": direction,
+                    "kmeans_cluster": int(km_label),
+                    "dtw_cluster": int(dtw_label) if pd.notna(dtw_label) else np.nan,
+                })
+        add_assignment(train.index, km_train, dtw_train)
+        add_assignment(dev.index, km_dev, dtw_dev)
+
+        comparable, same_count, agreement_rate = stability(km_train, km_dev)
+        if dtw_k is not None:
+            dtw_comparable, dtw_same, dtw_agreement = stability(dtw_train, dtw_dev)
+            dtw_cluster_sizes = pd.Series(dtw_train).value_counts().sort_index().to_dict()
+            kmeans_dtw_ari = float(adjusted_rand_score(km_train, dtw_train))
+        else:
+            dtw_comparable, dtw_same, dtw_agreement = 0, 0, None
+            dtw_cluster_sizes = {}
+            kmeans_dtw_ari = None
+        cluster_sizes = pd.Series(km_train).value_counts().sort_index().to_dict()
+        interpretation_status = "주 분석 사용" if agreement_rate is not None and agreement_rate >= .60 else "불안정_해석보류"
+        scope_reports[scope] = {
+            "status": "성공", "interpretation_status": interpretation_status,
+            "selected_k": k, "dtw_status": dtw_status, "dtw_selected_k": dtw_k,
+            "train_eligible": len(train), "dev_eligible": len(dev),
+            "comparable": comparable, "same_cluster": same_count,
+            "agreement_rate": agreement_rate,
+            "train_cluster_sizes": {str(key): int(value) for key, value in cluster_sizes.items()},
+            "dtw_comparable": dtw_comparable, "dtw_same_cluster": dtw_same,
+            "dtw_agreement_rate": dtw_agreement,
+            "dtw_train_cluster_sizes": {str(key): int(value) for key, value in dtw_cluster_sizes.items()},
+            "kmeans_dtw_ari_train": kmeans_dtw_ari,
+            "selection_rule": "k=3 기본; k=2~6 실루엣·inertia·최소 군집 크기를 함께 보고",
+            "dtw_selection_rule": "k=2~6 중 최소 군집 5개 이상인 후보에서 실루엣 최대",
+            "observations": observation_counts,
+        }
+        for index, row in wide.loc[train_index | dev_index].iterrows():
+            for hour, ratio in row.items():
+                profile_rows.append({
+                    "weather_scope": scope, "model_set": index[0], "road_id": index[1],
+                    "road_name": index[2], "direction": index[3], "hour": hour,
+                    "travel_time_ratio_median": ratio,
+                })
+
+    assignment_frame = pd.DataFrame(assignments)
+    scores = pd.DataFrame(score_rows)
+    profiles = pd.DataFrame(profile_rows)
+
+    # [서연] 기존 52개 도로 교통량은 주 군집의 원인 해석을 돕는 보조 지표로만 사용한다.
+    combined_files = sorted((root / "outputs/tables").glob(
+        "yang_seoyeon_traffic_travel_road_hour_*_(성공)_v*.csv"
+    ))
+    if combined_files and not assignment_frame.empty:
+        traffic = pd.read_csv(combined_files[-1], encoding="utf-8-sig", dtype={"road_id": "string"})
+        traffic["model_set"] = traffic["split"].replace({"train": "train", "dev": "dev"})
+        traffic_summary = (traffic.groupby(["model_set", "road_id"], observed=True)
+                           .agg(traffic_change_pct_median=("volume_change_pct_median", "median"),
+                                traffic_valid_hours=("volume_change_pct_median", "count"))
+                           .reset_index())
+        auxiliary = assignment_frame.merge(
+            traffic_summary, on=["model_set", "road_id"], how="left", validate="many_to_one"
+        )
+        auxiliary_rows = auxiliary.to_dict("records")
+    auxiliary = pd.DataFrame(auxiliary_rows)
+
+    stamp = datetime.now().astimezone().strftime("%Y%m%dT%H%M%S%f") + "_(성공)_v01"
+    table_dir = root / "outputs/tables"
+    figure_dir = root / "outputs/figures/ysy"
+    log_dir = root / "logs/ysy/traffic_analysis"
+    for folder in [table_dir, figure_dir, log_dir]:
+        folder.mkdir(parents=True, exist_ok=True)
+    frames = {
+        "travel_curve_profiles": profiles,
+        "travel_curve_clusters": assignment_frame,
+        "travel_curve_scores": scores,
+        "travel_curve_traffic_auxiliary": auxiliary,
+    }
+    paths = {name: table_dir / f"yang_seoyeon_{name}_{stamp}.csv" for name in frames}
+    paths.update(plot=figure_dir / f"travel_curve_clusters_{stamp}.png",
+                 log=log_dir / f"traffic_travel_curve_clustering_{stamp}.json")
+    if any(path.exists() for path in paths.values()):
+        raise FileExistsError("통행시간 곡선 군집 출력 경로 중복")
+
+    plt.rcParams["font.family"] = "Malgun Gothic"
+    plt.rcParams["axes.unicode_minus"] = False
+    successful_scopes = [scope for scope, value in scope_reports.items() if value["status"] == "성공"]
+    fig, axes = plt.subplots(max(1, len(successful_scopes)), 2, figsize=(12, 4 * max(1, len(successful_scopes))), squeeze=False)
+    for row_index, scope in enumerate(successful_scopes):
+        scope_assign = assignment_frame.loc[
+            assignment_frame["weather_scope"].eq(scope) & assignment_frame["model_set"].eq("train")
+        ]
+        scope_profile = profiles.loc[
+            profiles["weather_scope"].eq(scope) & profiles["model_set"].eq("train")
+        ].merge(scope_assign[["road_id", "direction", "kmeans_cluster", "dtw_cluster"]],
+                on=["road_id", "direction"], validate="many_to_one")
+        for column, ax in [("kmeans_cluster", axes[row_index, 0]), ("dtw_cluster", axes[row_index, 1])]:
+            means = scope_profile.groupby([column, "hour"])["travel_time_ratio_median"].median().reset_index()
+            for cluster, group in means.groupby(column):
+                ax.plot(group["hour"], group["travel_time_ratio_median"], marker="o", label=f"군집 {int(cluster)}")
+            ax.axhline(1, color="gray", linewidth=.8)
+            ax.set(title=f"{scope} · {column}", xlabel="시간", ylabel="통행시간 / 평소값", xticks=hours)
+            if means.empty:
+                ax.text(.5, .5, "최소 군집 크기 미달로 제외", ha="center", va="center", transform=ax.transAxes)
+            else:
+                ax.legend()
+    fig.tight_layout()
+    fig.savefig(paths["plot"], dpi=180)
+    plt.close(fig)
+    for name, frame in frames.items():
+        frame.to_csv(paths[name], index=False, encoding="utf-8-sig")
+    report = {
+        "status": "성공", "test_excluded": True,
+        "inputs": {"commute": str(commute_path), "baseline": str(baseline_path),
+                   "traffic_auxiliary": str(combined_files[-1]) if combined_files else None},
+        "unit": "road_id × direction", "hours": hours,
+        "ratio_rule": "악천후 통행시간 / 같은 시즌·도로·방향·요일·시간 맑은 평소 통행시간",
+        "scope_reports": scope_reports,
+        "limitations": "시즌 평소값은 군집용 정답 기준이며 예측 입력으로 사용하지 않음. 눈·비는 표본 부족 시 군집을 확정하지 않음. 교통량은 52개 도로 보조 해석만 수행.",
         "outputs": {name: str(path) for name, path in paths.items()},
     }
     paths["log"].write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
@@ -1454,13 +2060,21 @@ def main() -> None:
     parser.add_argument("--hotspots-anomalies", action="store_true")
     parser.add_argument("--representative-cases", action="store_true")
     parser.add_argument("--cluster-sensitivity", action="store_true")
+    parser.add_argument("--notion-method-updates", action="store_true",
+                        help="노션 기준 CI·연도·수위 관계, 링크 Gi*, 맑은 시간 이상 탐지를 한 번에 실행")
+    parser.add_argument("--travel-time-clustering", action="store_true",
+                        help="도로·방향 통행시간 비율 곡선의 k=3 K-means·DTW와 눈·비 비교")
     args = parser.parse_args()
-    selected_modes = sum([args.cluster_sensitivity, args.representative_cases, args.hotspots_anomalies, args.extract_road_control, args.visualize_only,
+    selected_modes = sum([args.travel_time_clustering, args.notion_method_updates, args.cluster_sensitivity, args.representative_cases, args.hotspots_anomalies, args.extract_road_control, args.visualize_only,
                           args.combine_travel_time, args.validate_relationships, args.combine_news,
                           args.analyze_dtw, args.visualize_dtw_map])
     if selected_modes > 1:
         parser.error("실행 모드 옵션은 한 번에 하나만 사용할 수 있습니다.")
-    if args.cluster_sensitivity:
+    if args.travel_time_clustering:
+        result = analyze_travel_time_curves(args.root)
+    elif args.notion_method_updates:
+        result = run_notion_method_updates(args.root, args.data_root)
+    elif args.cluster_sensitivity:
         result = analyze_cluster_sensitivity(args.root)
     elif args.representative_cases:
         result = select_representative_cases(args.root)
