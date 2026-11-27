@@ -2,7 +2,9 @@
 
 - 입력 열에 정답 · 평가 구분 열이 없고, 3단계까지는 날씨 열도 없다
 - 4단계는 3단계 입력 + 관측 날씨 · 수위 · 특보뿐이고 예보 · AWS는 없다
-- 악천후 가중치는 악천후 행만 w배, 나머지는 1. 3 · 4단계가 같은 w 목록을 쓴다
+- 악천후 가중치는 '내리는 중인 악천후'(목표 시각 강수 > 0) 행만 w배, 나머지는 1. 3 · 4단계가 같은 w 목록을 쓴다
+- 가중치 고르기: 악천후 MAE 최소, 전체 MAE가 1배보다 5% 넘게 나빠지면 제외
+- 큰 지연 MAE · 20% 이상 느려짐 적중률 · 정밀도 계산
 - 1단계 빈값은 1, 선형회귀 빈 비율은 1.0 + 빈값 표시 그대로
 - 분 단위 오차 = 비율 오차 x 입력용 평소 통행시간 / 60
 - 실제 데이터: Test 시즌이 섞이지 않고, Train · Dev 시즌이 periods.yaml 약속과 같다
@@ -32,6 +34,7 @@ def fake(n=60, seed=0) -> pd.DataFrame:
         "city_ratio_t0": 1.0, "type_ratio_t0": 1.0,
         "y_ratio": rng.normal(1.1, 0.2, n), "prior_target_s": 600.0, "prior_replaced_target": False,
         "weather_class": rng.choice(["맑음", "악천후"], n), "weather_kind": "",
+        "precip_target": rng.choice([0.0, 0.5, 3.0], n),
     })
     df.loc[:4, "ratio_t0"] = np.nan
     for c in p.RATIO_COLS:
@@ -63,11 +66,32 @@ class TestPrediction(unittest.TestCase):
     def test_bad_weather_weight(self):
         x = fake()
         w = p.bad_weights(x, 3)
-        np.testing.assert_array_equal(w, np.where(x["weather_class"] == "악천후", 3.0, 1.0))
+        bad = x["weather_class"] == "악천후"
+        np.testing.assert_array_equal(w, np.where(bad & (x["precip_target"] > 0), 3.0, 1.0))
+        self.assertTrue((w[bad & (x["precip_target"] == 0)] == 1.0).all())   # 그친 뒤 시간은 강조하지 않음
         names = p.all_stages([1, 2])
         self.assertEqual(names[:5], p.STAGES)
         self.assertEqual(names[5:], ["3_CatBoost_가중2", "4_CatBoost_날씨_가중2"])
-        self.assertNotIn("weather_class", p.FEATURES_4)
+        self.assertFalse({"weather_class", "precip_target"} & set(p.FEATURES_4))
+
+    def test_pick_weight_rule(self):
+        def row(stage, gtype, group, mae):
+            return {"stage": stage, "horizon": "전체", "group_type": gtype, "group": group, "mae_min": mae}
+        m = pd.DataFrame([
+            row("3_CatBoost", "전체", "전체", 1.00), row("3_CatBoost", "날씨", "악천후", 2.0),
+            row("3_CatBoost_가중2", "전체", "전체", 1.04), row("3_CatBoost_가중2", "날씨", "악천후", 1.8),
+            row("3_CatBoost_가중3", "전체", "전체", 1.06), row("3_CatBoost_가중3", "날씨", "악천후", 1.5),
+        ])
+        self.assertEqual(p.pick_weight(m, "3_CatBoost", [1, 2, 3]), 2)   # 3배는 전체가 6% 나빠져 제외
+
+    def test_slow_metrics(self):
+        g = pd.DataFrame({"date": ["d"] * 4, "target_hour": [8] * 4, "y_ratio": [1.0, 1.25, 1.4, 1.5],
+                          "pred_x": [1.3, 1.1, 1.3, 1.5], "prior_target_s": [600.0] * 4})
+        m = p.metric_row(g, "pred_x")
+        self.assertEqual(m["n_big"], 2)
+        self.assertAlmostEqual(m["mae_min_big"], 0.5)   # 0.1 x 600초 = 1분, 0분
+        self.assertAlmostEqual(m["slow_recall"], 2 / 3)
+        self.assertAlmostEqual(m["slow_precision"], 2 / 3)
 
     def test_stage1_missing_is_one(self):
         x = fake()
