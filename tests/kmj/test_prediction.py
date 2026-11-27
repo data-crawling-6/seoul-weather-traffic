@@ -1,6 +1,8 @@
-"""[민주] 예측 0~3단계 테스트 — src/analysis/prediction.py
+"""[민주] 예측 0~4단계 테스트 — src/analysis/prediction.py
 
-- 입력 열에 정답 · 평가 구분 · 날씨(4단계 이후) 열이 없다
+- 입력 열에 정답 · 평가 구분 열이 없고, 3단계까지는 날씨 열도 없다
+- 4단계는 3단계 입력 + 관측 날씨 · 수위 · 특보뿐이고 예보 · AWS는 없다
+- 악천후 가중치는 악천후 행만 w배, 나머지는 1. 3 · 4단계가 같은 w 목록을 쓴다
 - 1단계 빈값은 1, 선형회귀 빈 비율은 1.0 + 빈값 표시 그대로
 - 분 단위 오차 = 비율 오차 x 입력용 평소 통행시간 / 60
 - 실제 데이터: Test 시즌이 섞이지 않고, Train · Dev 시즌이 periods.yaml 약속과 같다
@@ -34,6 +36,13 @@ def fake(n=60, seed=0) -> pd.DataFrame:
     df.loc[:4, "ratio_t0"] = np.nan
     for c in p.RATIO_COLS:
         df[f"{c}_missing"] = df[c].isna()
+    for c in p.WEATHER + p.WATER + p.WARN:
+        df[c] = rng.normal(size=n)
+    df["precip_type"] = rng.choice(["none", "rain", "snow"], n)
+    for c in p.WATER:
+        df[c] = np.nan
+    for c in p.WATER_FLAGS:
+        df[c] = df[c].astype(object)
     return df
 
 
@@ -42,6 +51,23 @@ class TestPrediction(unittest.TestCase):
         self.assertFalse(set(p.FEATURES) & p.FORBIDDEN)
         weather_like = ("temp", "precip", "snow", "wl", "warn", "fcst", "aws")
         self.assertEqual([c for c in p.FEATURES if c.startswith(weather_like)], [])
+
+    def test_stage4_adds_only_observed_weather(self):
+        self.assertEqual(p.FEATURES_4[:len(p.FEATURES)], p.FEATURES)
+        added = p.FEATURES_4[len(p.FEATURES):]
+        self.assertTrue(all(c.startswith(("temp", "precip", "new_snow", "snow", "wl", "warn")) for c in added))
+        self.assertFalse([c for c in p.FEATURES_4 if c.startswith(("fcst", "aws"))])
+        self.assertFalse(set(p.FEATURES_4) & p.FORBIDDEN)
+        self.assertEqual(len(set(p.FEATURES_4)), len(p.FEATURES_4))
+
+    def test_bad_weather_weight(self):
+        x = fake()
+        w = p.bad_weights(x, 3)
+        np.testing.assert_array_equal(w, np.where(x["weather_class"] == "악천후", 3.0, 1.0))
+        names = p.all_stages([1, 2])
+        self.assertEqual(names[:5], p.STAGES)
+        self.assertEqual(names[5:], ["3_CatBoost_가중2", "4_CatBoost_날씨_가중2"])
+        self.assertNotIn("weather_class", p.FEATURES_4)
 
     def test_stage1_missing_is_one(self):
         x = fake()
@@ -70,6 +96,8 @@ class TestPrediction(unittest.TestCase):
         dev["pred_2_선형회귀"] = p.fit_linear(train).predict(p.linear_frame(dev))
         cb = p.fit_catboost(train, dict(p.CATBOOST_PARAMS, iterations=20))
         dev["pred_3_CatBoost"] = cb.predict(p.catboost_frame(dev))
+        cb4 = p.fit_catboost(train, dict(p.CATBOOST_PARAMS, iterations=20), p.FEATURES_4, p.bad_weights(train, 2))
+        dev["pred_4_CatBoost_날씨"] = cb4.predict(p.catboost_frame(dev, p.FEATURES_4))
         m = p.evaluate(dev, p.STAGES)
         self.assertEqual(set(m["stage"]), set(p.STAGES))
         self.assertFalse(m[["mae_min", "mae_ratio"]].isna().any().any())
