@@ -1,0 +1,111 @@
+{
+  "run_at": "2026-11-27T22:08:49+09:00",
+  "rows": {
+    "train_h1": 296486,
+    "train_h3": 296486,
+    "dev_h1": 145648,
+    "dev_h3": 145648
+  },
+  "positive_rate": {
+    "train": 0.0172,
+    "dev": 0.0186
+  },
+  "min_recall": 0.8,
+  "features": [
+    "n_links",
+    "total_distance_m",
+    "lanes",
+    "urban_share",
+    "is_riverside",
+    "is_vacation_peak",
+    "ratio_t0",
+    "ratio_t1",
+    "ratio_t2",
+    "ratio_t0_missing",
+    "ratio_t1_missing",
+    "ratio_t2_missing",
+    "city_ratio_t0",
+    "type_ratio_t0",
+    "temp_c",
+    "temp_drop_3h",
+    "precip_1h",
+    "precip_3h",
+    "new_snow_3h_cm",
+    "snow_depth_cm",
+    "wl_rise_3h",
+    "wl_over_attention",
+    "wl_over_warning",
+    "wl2_rise_3h",
+    "wl2_over_attention",
+    "wl2_over_warning",
+    "warn_snow",
+    "warn_rain",
+    "warn_cold",
+    "warn_snow_hours",
+    "warn_rain_hours",
+    "warn_cold_hours",
+    "road_id",
+    "direction",
+    "function_type",
+    "target_hour",
+    "weekday",
+    "month",
+    "season_kind",
+    "precip_type"
+  ],
+  "models": {
+    "1": {
+      "logit_top": {
+        "cat__road_id_R020": -7.729,
+        "cat__road_id_R013": -6.847,
+        "cat__road_id_R070": 4.958,
+        "cat__road_id_R042": 4.603,
+        "cat__road_id_R044": 4.06,
+        "cat__road_id_R061": -3.851,
+        "cat__road_id_R087": -3.74,
+        "cat__road_id_R030": 3.734,
+        "cat__road_id_R045": 3.716,
+        "cat__road_id_R053": 3.634,
+        "cat__road_id_R071": 3.409,
+        "cat__road_id_R075": 3.365,
+        "cat__road_id_R089": -2.684,
+        "cat__road_id_R037": -2.656,
+        "cat__road_id_R054": 2.442
+      },
+      "tree_depth_pr_auc": {
+        "3": 0.1546,
+        "5": 0.2085,
+        "7": 0.2489,
+        "9": 0.258
+      },
+      "tree_depth": 9
+    },
+    "3": {
+      "logit_top": {
+        "cat__road_id_R020": -8.928,
+        "cat__road_id_R013": -7.934,
+        "cat__road_id_R070": 5.471,
+        "cat__road_id_R042": 4.893,
+        "cat__road_id_R045": 4.421,
+        "cat__road_id_R053": 4.127,
+        "cat__road_id_R030": 3.995,
+        "cat__road_id_R044": 3.817,
+        "cat__road_id_R075": 3.789,
+        "cat__road_id_R061": -3.7,
+        "cat__road_id_R071": 3.562,
+        "cat__road_id_R087": -3.552,
+        "cat__road_id_R022": -3.044,
+        "cat__road_id_R037": -2.859,
+        "cat__road_id_R054": 2.573
+      },
+      "tree_depth_pr_auc": {
+        "3": 0.0689,
+        "5": 0.0875,
+        "7": 0.108,
+        "9": 0.1052
+      },
+      "tree_depth": 7
+    }
+  },
+  "seconds": 100.2
+}

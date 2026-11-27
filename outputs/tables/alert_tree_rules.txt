@@ -1,0 +1,46 @@
+|--- type_ratio_t0 <= 1.02
+|   |--- function_type_주간선도로 <= 0.50
+|   |   |--- lanes <= 3.08
+|   |   |   |--- month_9 <= 0.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- month_9 >  0.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- lanes >  3.08
+|   |   |   |--- target_hour_20 <= 0.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- target_hour_20 >  0.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- function_type_주간선도로 >  0.50
+|   |   |--- ratio_t0 <= 1.11
+|   |   |   |--- n_links <= 8.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- n_links >  8.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- ratio_t0 >  1.11
+|   |   |   |--- ratio_t0 <= 1.20
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- ratio_t0 >  1.20
+|   |   |   |   |--- truncated branch of depth 4
+|--- type_ratio_t0 >  1.02
+|   |--- ratio_t0 <= 1.13
+|   |   |--- weekday_4 <= 0.50
+|   |   |   |--- type_ratio_t0 <= 1.06
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- type_ratio_t0 >  1.06
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |--- weekday_4 >  0.50
+|   |   |   |--- n_links <= 8.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- n_links >  8.50
+|   |   |   |   |--- truncated branch of depth 4
+|   |--- ratio_t0 >  1.13
+|   |   |--- weekday_4 <= 0.50
+|   |   |   |--- snow_depth_cm <= 3.40
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- snow_depth_cm >  3.40
+|   |   |   |   |--- class: 0
+|   |   |--- weekday_4 >  0.50
+|   |   |   |--- ratio_t0 <= 1.24
+|   |   |   |   |--- truncated branch of depth 4
+|   |   |   |--- ratio_t0 >  1.24
+|   |   |   |   |--- truncated branch of depth 4
