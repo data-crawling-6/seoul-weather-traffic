@@ -109,6 +109,21 @@ class TestPrediction(unittest.TestCase):
         self.assertAlmostEqual(m["slow_recall"], 2 / 3)
         self.assertAlmostEqual(m["slow_precision"], 2 / 3)
 
+    def test_save_keeps_old_runs(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            paths = dict(metrics_path=d / "m.csv", pred_path=d / "p.parquet", log_path=d / "l.json")
+            for run_at, value in [("2026-11-27T21:00:00+09:00", 1.0), ("2026-11-27T22:30:00+09:00", 2.0)]:
+                p.save_outputs(pd.DataFrame({"mae_min": [value]}),
+                               {"log": {"run_at": run_at}, "pred": pd.DataFrame({"x": [value]})}, **paths)
+            self.assertEqual(pd.read_csv(d / "m.csv")["mae_min"].iloc[0], 2.0)     # 최신은 덮어씀
+            old = d / "prediction_runs" / "m_20261127_2100.csv"
+            self.assertEqual(pd.read_csv(old)["mae_min"].iloc[0], 1.0)            # 예전 실행은 남음
+            self.assertTrue((d / "runs" / "p_20261127_2230.parquet").exists())
+            self.assertTrue((d / "runs" / "l_20261127_2100.json").exists())
+
     def test_stage1_missing_is_one(self):
         x = fake()
         pred = p.predict_stage1(x)

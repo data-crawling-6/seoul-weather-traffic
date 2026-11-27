@@ -33,6 +33,10 @@ Test 시즌은 읽지 않는다 (load_processed 기본값, model_set == test 행
   outputs/tables/prediction_dev_metrics.csv     단계 x 구분 x h 지표
   data/derived/prediction/dev_predictions.parquet Dev 행별 예측 (Git 밖)
   logs/kmj/prediction/prediction.json            입력 열 · 행 수 · 설정 · 걸린 시간
+  위 세 파일은 늘 최신 결과다. 실행마다 같은 내용을 실행 시각 이름으로 한 벌 더 남긴다
+  outputs/tables/prediction_runs/prediction_dev_metrics_YYYYMMDD_HHMM.csv
+  logs/kmj/prediction/runs/prediction_YYYYMMDD_HHMM.json
+  data/derived/prediction/runs/dev_predictions_YYYYMMDD_HHMM.parquet
 """
 from __future__ import annotations
 
@@ -315,6 +319,8 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
         "weighted_train_share": round(float(falling_bad(train).mean()), 4),
         "weight_rule": f"악천후 MAE 최소, 전체 MAE가 1배보다 {MAX_TOTAL_WORSE:.0%} 넘게 나빠지면 제외",
         "picked_weight": picked,
+        "weight_decision": "1배(가중치 없음) 확정, 11/27 B 합의. h=3 기준이면 4단계 2배가 악천후 0.6% 낫지만 "
+                           "차이가 작고 결과를 보고 기준을 바꾸지 않으려고 1배 유지",
         "vulnerable_roads": str(VULNERABLE_PATH.relative_to(ROOT)),
         "catboost_importance": imp,
         "seconds": {**seconds, "total": round(time.perf_counter() - t0, 1)},
@@ -324,6 +330,33 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
     return metrics, {"log": log, "pred": dev[keep]}
 
 
+def run_paths(stamp: str, metrics_path: Path = METRICS_PATH, pred_path: Path = PRED_PATH,
+              log_path: Path = LOG_PATH) -> dict[str, Path]:
+    return {
+        "metrics": metrics_path.parent / "prediction_runs" / f"{metrics_path.stem}_{stamp}.csv",
+        "pred": pred_path.parent / "runs" / f"{pred_path.stem}_{stamp}.parquet",
+        "log": log_path.parent / "runs" / f"{log_path.stem}_{stamp}.json",
+    }
+
+
+def save_outputs(metrics: pd.DataFrame, extra: dict, metrics_path: Path = METRICS_PATH,
+                 pred_path: Path = PRED_PATH, log_path: Path = LOG_PATH) -> dict[str, Path]:
+    """최신 결과를 덮어쓰고, 같은 내용을 실행 시각 이름으로 한 벌 더 남긴다 (다시 돌려도 예전 결과가 남게)"""
+    stamp = datetime.fromisoformat(extra["log"]["run_at"]).strftime("%Y%m%d_%H%M")
+    archived = run_paths(stamp, metrics_path, pred_path, log_path)
+    text = json.dumps(extra["log"], ensure_ascii=False, indent=1)
+    for latest, copy in [(metrics_path, archived["metrics"]), (pred_path, archived["pred"]), (log_path, archived["log"])]:
+        for path in (latest, copy):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.suffix == ".csv":
+                metrics.round(4).to_csv(path, index=False, encoding="utf-8-sig")
+            elif path.suffix == ".parquet":
+                extra["pred"].to_parquet(path, index=False)
+            else:
+                path.write_text(text, encoding="utf-8")
+    return archived
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--iterations", type=int, help="CatBoost 반복 수 (시험용으로 줄일 때)")
@@ -331,12 +364,7 @@ def main():
     params = dict(CATBOOST_PARAMS, iterations=args.iterations) if args.iterations else None
 
     metrics, extra = run(params)
-    METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    metrics.round(4).to_csv(METRICS_PATH, index=False, encoding="utf-8-sig")
-    PRED_PATH.parent.mkdir(parents=True, exist_ok=True)
-    extra["pred"].to_parquet(PRED_PATH, index=False)
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.write_text(json.dumps(extra["log"], ensure_ascii=False, indent=1), encoding="utf-8")
+    save_outputs(metrics, extra)
 
     main_view = metrics.query("group_type == '전체' and horizon != '전체'")
     print(main_view[["stage", "horizon", "mae_min", "mae_ratio", "rmse_min"]].round(3).to_string(index=False))
