@@ -1,0 +1,37 @@
+{
+  "status": "성공",
+  "source_combined": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261127T004129_(성공)_v01.csv",
+  "complete_rows": 6760,
+  "outlier_rows": 254,
+  "outlier_rule": "두 변화율 중 하나라도 전체 유효 자료의 1백분위 미만 또는 99백분위 초과",
+  "thresholds": {
+    "volume_change_pct_median": {
+      "p01": -28.398359888077973,
+      "p99": 16.018293925071866
+    },
+    "travel_time_change_pct_median": {
+      "p01": -40.14972824255567,
+      "p99": 63.24138052417895
+    }
+  },
+  "overall_full": {
+    "valid_rows": 6760,
+    "pearson_r": 0.007206596440593962,
+    "spearman_rho": 0.041175153908873954
+  },
+  "overall_trimmed": {
+    "valid_rows": 6506,
+    "pearson_r": 0.03292843470710291,
+    "spearman_rho": 0.04373595563310674
+  },
+  "interpretation_rule": "전체와 민감도 결과가 크게 다르면 극단값 영향을 명시하고 인과관계로 해석하지 않음",
+  "waterlevel_rule": "여름 하천변 4개 도로·공용 주 관측소의 3시간 수위 상승폭과 통행시간 변화의 탐색적 연관성; 인과 해석 금지",
+  "waterlevel_rows": 8,
+  "outputs": {
+    "outliers": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_outliers_20261127T213606_(성공)_v01.csv",
+    "sensitivity": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_sensitivity_20261127T213606_(성공)_v01.csv",
+    "waterlevel": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_riverside_waterlevel_relationships_20261127T213606_(성공)_v01.csv",
+    "plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\ysy\\traffic_travel_sensitivity_20261127T213606_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_travel_sensitivity_20261127T213606_(성공)_v01.json"
+  }
+}

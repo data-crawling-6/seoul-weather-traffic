@@ -1,0 +1,137 @@
+{
+  "status": "성공",
+  "test_excluded": true,
+  "inputs": {
+    "commute": "C:\\Users\\USER\\seoul-weather-traffic\\data\\derived\\topis_weather\\commute_20261122_v05.parquet",
+    "baseline": "C:\\Users\\USER\\seoul-weather-traffic\\data\\shared\\train_dev\\baseline_train_dev.csv",
+    "traffic_auxiliary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261127T004129_(성공)_v01.csv"
+  },
+  "unit": "road_id × direction",
+  "hours": [
+    8,
+    9,
+    18,
+    19,
+    20
+  ],
+  "ratio_rule": "악천후 통행시간 / 같은 시즌·도로·방향·요일·시간 맑은 평소 통행시간",
+  "scope_reports": {
+    "all": {
+      "status": "성공",
+      "interpretation_status": "주 분석 사용",
+      "selected_k": 3,
+      "dtw_status": "소군집으로 제외",
+      "dtw_selected_k": null,
+      "train_eligible": 180,
+      "dev_eligible": 180,
+      "comparable": 180,
+      "same_cluster": 140,
+      "agreement_rate": 0.7777777777777778,
+      "train_cluster_sizes": {
+        "0": 45,
+        "1": 115,
+        "2": 20
+      },
+      "dtw_comparable": 0,
+      "dtw_same_cluster": 0,
+      "dtw_agreement_rate": null,
+      "dtw_train_cluster_sizes": {},
+      "kmeans_dtw_ari_train": null,
+      "selection_rule": "k=3 기본; k=2~6 실루엣·inertia·최소 군집 크기를 함께 보고",
+      "dtw_selection_rule": "k=2~6 중 최소 군집 5개 이상인 후보에서 실루엣 최대",
+      "observations": {
+        "dev": {
+          "events": 21,
+          "dates": 28,
+          "hours": 19966
+        },
+        "train": {
+          "events": 40,
+          "dates": 56,
+          "hours": 38415
+        }
+      }
+    },
+    "snow": {
+      "status": "성공",
+      "interpretation_status": "불안정_해석보류",
+      "selected_k": 3,
+      "dtw_status": "소군집으로 제외",
+      "dtw_selected_k": null,
+      "train_eligible": 180,
+      "dev_eligible": 180,
+      "comparable": 180,
+      "same_cluster": 55,
+      "agreement_rate": 0.3055555555555556,
+      "train_cluster_sizes": {
+        "0": 40,
+        "1": 31,
+        "2": 109
+      },
+      "dtw_comparable": 0,
+      "dtw_same_cluster": 0,
+      "dtw_agreement_rate": null,
+      "dtw_train_cluster_sizes": {},
+      "kmeans_dtw_ari_train": null,
+      "selection_rule": "k=3 기본; k=2~6 실루엣·inertia·최소 군집 크기를 함께 보고",
+      "dtw_selection_rule": "k=2~6 중 최소 군집 5개 이상인 후보에서 실루엣 최대",
+      "observations": {
+        "dev": {
+          "events": 6,
+          "dates": 7,
+          "hours": 5213
+        },
+        "train": {
+          "events": 15,
+          "dates": 19,
+          "hours": 12572
+        }
+      }
+    },
+    "rain": {
+      "status": "성공",
+      "interpretation_status": "주 분석 사용",
+      "selected_k": 3,
+      "dtw_status": "소군집으로 제외",
+      "dtw_selected_k": null,
+      "train_eligible": 180,
+      "dev_eligible": 180,
+      "comparable": 180,
+      "same_cluster": 114,
+      "agreement_rate": 0.6333333333333333,
+      "train_cluster_sizes": {
+        "0": 50,
+        "1": 37,
+        "2": 93
+      },
+      "dtw_comparable": 0,
+      "dtw_same_cluster": 0,
+      "dtw_agreement_rate": null,
+      "dtw_train_cluster_sizes": {},
+      "kmeans_dtw_ari_train": null,
+      "selection_rule": "k=3 기본; k=2~6 실루엣·inertia·최소 군집 크기를 함께 보고",
+      "dtw_selection_rule": "k=2~6 중 최소 군집 5개 이상인 후보에서 실루엣 최대",
+      "observations": {
+        "dev": {
+          "events": 15,
+          "dates": 21,
+          "hours": 14753
+        },
+        "train": {
+          "events": 25,
+          "dates": 37,
+          "hours": 25843
+        }
+      }
+    }
+  },
+  "limitations": "시즌 평소값은 군집용 정답 기준이며 예측 입력으로 사용하지 않음. 눈·비는 표본 부족 시 군집을 확정하지 않음. 교통량은 52개 도로 보조 해석만 수행.",
+  "outputs": {
+    "travel_curve_profiles": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_travel_curve_profiles_20261127T215237041158_(성공)_v01.csv",
+    "travel_curve_clusters": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_travel_curve_clusters_20261127T215237041158_(성공)_v01.csv",
+    "travel_curve_scores": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_travel_curve_scores_20261127T215237041158_(성공)_v01.csv",
+    "travel_curve_traffic_auxiliary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_travel_curve_traffic_auxiliary_20261127T215237041158_(성공)_v01.csv",
+    "plot": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\ysy\\travel_curve_clusters_20261127T215237041158_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_travel_curve_clustering_20261127T215237041158_(성공)_v01.json"
+  }
+}

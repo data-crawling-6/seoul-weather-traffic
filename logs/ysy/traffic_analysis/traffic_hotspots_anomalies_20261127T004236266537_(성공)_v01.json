@@ -1,0 +1,76 @@
+{
+  "status": "성공",
+  "inputs": {
+    "combined": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_travel_road_hour_20261127T004129_(성공)_v01.csv",
+    "geometry": "C:\\Users\\USER\\seoul-weather-traffic\\data\\derived\\road_lines\\road_lines_20261123T223648_v01_(성공).geojson",
+    "mapping": "C:\\Users\\USER\\seoul-weather-traffic\\data\\derived\\topis_weather\\link_hourly_20261122_v02.parquet"
+  },
+  "rows": 7800,
+  "thresholds": {
+    "1": 0.619259109784523,
+    "5": 0.5749815535236891,
+    "10": 0.5553014914072272
+  },
+  "summary": [
+    {
+      "split": "dev",
+      "rows": 2340,
+      "valid": 2083,
+      "anomalies": 220
+    },
+    {
+      "split": "train",
+      "rows": 5460,
+      "valid": 4677,
+      "anomalies": 234
+    }
+  ],
+  "hotspot_counts": [
+    {
+      "split": "dev",
+      "k": 4,
+      "hotspot_status": "not_significant",
+      "count": 52
+    },
+    {
+      "split": "dev",
+      "k": 6,
+      "hotspot_status": "not_significant",
+      "count": 52
+    },
+    {
+      "split": "dev",
+      "k": 8,
+      "hotspot_status": "not_significant",
+      "count": 52
+    },
+    {
+      "split": "train",
+      "k": 4,
+      "hotspot_status": "not_significant",
+      "count": 52
+    },
+    {
+      "split": "train",
+      "k": 6,
+      "hotspot_status": "not_significant",
+      "count": 52
+    },
+    {
+      "split": "train",
+      "k": 8,
+      "hotspot_status": "not_significant",
+      "count": 52
+    }
+  ],
+  "test_excluded": true,
+  "limitations": "Gi*는 도로 중심점 대칭 kNN·9999회 순열·BH 보정의 탐색 분석이다. Isolation Forest는 Train에만 적합하고 Dev에 적용하며, 이상치가 사고나 인과를 뜻하지 않는다.",
+  "outputs": {
+    "gi_hotspots": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_gi_hotspots_20261127T004236266537_(성공)_v01.csv",
+    "isolation_forest": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_isolation_forest_20261127T004236266537_(성공)_v01.csv",
+    "anomaly_candidates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_anomaly_candidates_20261127T004236266537_(성공)_v01.csv",
+    "anomaly_summary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_anomaly_summary_20261127T004236266537_(성공)_v01.csv",
+    "map": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\figures\\ysy\\gi_hotspots_20261127T004236266537_(성공)_v01.png",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_hotspots_anomalies_20261127T004236266537_(성공)_v01.json"
+  }
+}
