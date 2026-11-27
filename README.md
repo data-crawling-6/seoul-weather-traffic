@@ -82,7 +82,7 @@ seoul-weather-traffic/
 │   │   ├── hanriver_level/ # B: 한강 수위 10분 자료 (홍수통제소 HRFCO)
 │   │   └── seoul_road_heating/ # B: 자치구별 도로 열선 설치 현황
 │   ├── derived/            # 원본으로 만든 결과 (깃에 올리지 않음, 커서 팀 공유 드라이브로 나눔)
-│   │   ├── topis_weather/  # C: TOPIS + 날씨 결합표. 통행시간 v04 = 연구 기간용 (평소값 · 분석) · v05 = v04 + 10월 (교통량 비교용) · 링크 기본표 v02
+│   │   ├── topis_weather/  # C: TOPIS + 날씨 결합표. 통행시간 v04 = 연구 기간용 (평소값 · 분석) · v05 = v04 + 10월 (교통량 비교용) · 링크 기본표 v02 · B 24시간 도로 표 `road_hourly_24h_*_v01`
 │   │   ├── topis_traffic_volume/ # C: 교통량 정리 parquet (train · eval) · 교통량 + 악천후일 결합 CSV
 │   │   ├── road_lines/     # C: 도로 선 geojson (링크 좌표로 만듦)
 │   │   ├── seoul_road_heating/ # B: 도로 열선 원본을 UTF-8로 바꾼 복사본 (원본은 CP949)
@@ -100,7 +100,7 @@ seoul-weather-traffic/
 │
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
     ├── kmj/                # A 실행 기록. 코드 이름 폴더마다 (topis_speed/ · topis_forecast/ · prior_baseline/ · features/), 화면 캡처도 그 폴더에
-    ├── ljh/                # B 실행 기록. 코드 이름 폴더마다 (kma_apihub/ · kma_asos/ · kma_warning/ · hrfco_waterlevel/ · road_baseline/ · link_baseline/ · volume_direction/)
+    ├── ljh/                # B 실행 기록. 코드 이름 폴더마다 (kma_apihub/ · kma_asos/ · kma_warning/ · hrfco_waterlevel/ · road_baseline/ · link_baseline/ · volume_direction/ · hourly_24h/ · vulnerable_roads/)
     └── ysy/                # C 실행 기록. 코드 이름 폴더마다 (실행마다 시각 · 성공 여부가 붙은 파일)
         ├── link_coords/
         ├── naver_news/
@@ -144,6 +144,8 @@ seoul-weather-traffic/
 | `labels/link_baseline.py` | B 정희 | 링크 평소값, 정체 길이 비율 → 정체 정답(`is_congested`) |
 | `features/prior_baseline.py` | A 민주 | 예측 입력용 평소값 (그날 이전 28일) |
 | `features/features.py` | A 민주 | 예측 모델 입력 변수 표 |
+| `analysis/hourly_24h.py` | B 정희 | 24시간 · 주말 도로 표 (평일 · 토 · 일 따로 평소값, 비율 · 정체). 24시간 비교 · 생존분석 입력 → `data/derived/topis_weather/road_hourly_24h_*_v01.parquet` |
+| `analysis/vulnerable_roads.py` | B 정희 | 반복 취약 도로 목록 (눈 · 비 따로, 최소 비율은 Dev로) → `data/shared/train_dev/vulnerable_roads_train_dev.csv` (C 지도 · 열선 · 제설 우선 구간) |
 | `analysis/traffic_analysis.py` | C 서연 | 교통량 변화 · 군집(K-means · DTW) · 지도 · 뉴스 연결 |
 
 ## 실행 순서

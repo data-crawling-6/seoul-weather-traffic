@@ -395,21 +395,14 @@ def _holiday_set(years):
 MUST_INCLUDE = [date(2025, 12, 4)]  # 검증 사례는 항상 넣는다
 
 
-def select_days(df: pd.DataFrame, ev: pd.DataFrame, period: dict, max_train: int = 30,
-                max_eval: int = 15, th=THRESHOLDS) -> pd.DataFrame:
-    """악천후일과 비교일 목록.
-    악천후일: 연구 기간 안 평일 중, 보통 이상 눈 · 강한 비 · 호우의 영향 시간(그친 뒤 눈 12시간 · 비 3시간 포함)이
-             출퇴근 시간과 겹친 날. 강한 순으로 학습 max_train 일 · 평가 max_eval 일까지
-             (C가 교통량 API로 받을 수 있는 양에 맞춘 제한). 2025-12-04는 항상 넣는다.
-    비교일: 같은 시즌 · 같은 요일 ±1주 · ±2주 중, 그날과 전날 밤에 비 · 눈이 없고 쌓인 눈도 없는 평일.
-    """
-    hol = _holiday_set(range(2022, 2028))
-    df = df.copy()
-    df["in_period"] = [in_period(t, s, period) if s in TRAIN_SEASONS + EVAL_SEASONS else False
-                       for t, s in zip(df["datetime"], df["season"])]
+def mark_impact(df: pd.DataFrame, ev: pd.DataFrame, th=THRESHOLDS) -> pd.DataFrame:
+    """impact(영향 시간의 사건 강도) · impact_rank · snow_phase(falling / after / 빈값) 열을 붙인다.
 
-    # 영향 시간 표시
+    겹치는 사건은 가장 센 사건이 impact 를 정하고, snow_phase 도 그 사건을 따른다.
+    """
+    df = df.copy()
     impact = pd.Series("", index=df.index)
+    snow_phase = pd.Series("", index=df.index)
     rank = pd.Series(0, index=df.index)
     bad_ev = ev[ev["intensity"].isin(BAD_INTENSITIES)]
     for _, e in bad_ev.iterrows():
@@ -418,7 +411,30 @@ def select_days(df: pd.DataFrame, ev: pd.DataFrame, period: dict, max_train: int
         r = INTENSITY_ORDER[e["intensity"]]
         upd = m & (rank < r)
         impact[upd], rank[upd] = e["intensity"], r
-    df["impact"], df["impact_rank"] = impact, rank
+        # impact 를 정한 사건(가장 센 사건)을 따라 눈 단계를 정한다. 비 사건이 덮으면 빈값으로 되돌린다
+        snow_phase[upd] = (np.where(df.loc[upd, "datetime"] <= e["end"], "falling", "after")
+                           if e["type"] == "snow" else "")
+    df["impact"], df["impact_rank"], df["snow_phase"] = impact, rank, snow_phase
+    return df
+
+
+def select_days(df: pd.DataFrame, ev: pd.DataFrame, period: dict, max_train: int = 30,
+                max_eval: int = 15, th=THRESHOLDS) -> pd.DataFrame:
+    """악천후일과 비교일 목록.
+    악천후일: 연구 기간 안 평일 중, 보통 이상 눈 · 강한 비 · 호우의 영향 시간(그친 뒤 눈 12시간 · 비 3시간 포함)이
+             출퇴근 시간과 겹친 날. 강한 순으로 학습 max_train 일 · 평가 max_eval 일까지
+             (C가 교통량 API로 받을 수 있는 양에 맞춘 제한). 2025-12-04는 항상 넣는다.
+    비교일: 같은 시즌 · 같은 요일 ±1주 · ±2주 중, 그날과 전날 밤에 비 · 눈이 없고 쌓인 눈도 없는 평일.
+    snow_phase: impact 가 눈 사건에서 왔을 때 falling(사건 시작 ~ 끝 시각) / after(그친 뒤 영향 시간), 눈이 아니면 빈값.
+                impact 는 그대로 두고 옆에 붙인다. 모델 입력이 아니라 채점 · 가중치 대상을 나누는 구분용.
+    """
+    hol = _holiday_set(range(2022, 2028))
+    df = df.copy()
+    df["in_period"] = [in_period(t, s, period) if s in TRAIN_SEASONS + EVAL_SEASONS else False
+                       for t, s in zip(df["datetime"], df["season"])]
+
+    # 영향 시간 표시
+    df = mark_impact(df, ev, th)
 
     df["weekday"] = df["datetime"].dt.weekday
     workday = (df["weekday"] < 5) & (~df["date"].isin(hol))
@@ -473,7 +489,7 @@ def select_days(df: pd.DataFrame, ev: pd.DataFrame, period: dict, max_train: int
 # ── 7. 저장 ───────────────────────────────────────────────────────
 HOURLY_COLS = ["datetime", "date", "hour", "season", "split", "in_period", "temp_c", "precip_mm",
                "new_snow_3h_cm", "snow_depth_cm", "wind_ms", "humidity", "visibility_10m", "phenomenon",
-               "precip_type", "event_id", "event_intensity", "impact", "missing_obs"]
+               "precip_type", "event_id", "event_intensity", "impact", "snow_phase", "missing_obs"]
 
 
 def add_warnings(hourly: pd.DataFrame):
