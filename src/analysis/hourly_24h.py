@@ -13,6 +13,7 @@ C 링크 기본표(v02, 24시간 격자)로 연구 기간 '모든 요일 · 24�
 - 링크 평소값 : 같은 시즌 · 링크 · 요일 유형 · 시간의 맑은 시간 중앙값
 - 정체       : 링크 비율 > 1.5 인 링크 길이가 도로 길이의 30% 이상 (periods.yaml thresholds, link_baseline.py 와 같은 규칙)
 - 평소값 표본이 MIN_N 미만인 칸은 비율 · 정체를 빈값으로 둔다
+- snow_phase: weather_hourly 의 눈 단계(falling 내리는 중 / after 그친 뒤 영향 시간 / 빈값)를 그대로 붙인다 (채점 · 구분용)
 
 출퇴근 시간 평일 행의 비율은 정답용 평소값(baseline_*.csv)과 거의 같지만 같지는 않다
 (그쪽은 요일별 평소값, 여기는 평일을 묶은 평소값). 모델 정답에는 쓰지 않는다.
@@ -38,7 +39,7 @@ KST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from src.io_utils import SPLIT_DIR, load_weather_labels  # noqa: E402
+from src.io_utils import ROOT as _ROOT, SPLIT_DIR, load_weather_labels  # noqa: E402
 from src.labels.link_baseline import load_thresholds  # noqa: E402
 
 DEFAULT_LINK = ROOT / "data" / "derived" / "topis_weather" / "link_hourly_20261122_v02.parquet"
@@ -61,6 +62,16 @@ def weather_group(w: pd.DataFrame) -> pd.Series:
                               np.where(w["event_id"].isna(), "맑음", "약한 비·눈")), index=w.index)
 
 
+def load_labels() -> pd.DataFrame:
+    """날씨 판정(event_id · impact) + snow_phase. snow_phase 는 io_utils 공통 함수에 넣지 않고 여기서만 붙인다."""
+    labels = load_weather_labels()
+    sp = pd.concat([pd.read_csv(_ROOT / "data" / "shared" / d / f"weather_hourly_{d}.csv", encoding="utf-8-sig",
+                                usecols=["date", "hour", "snow_phase"]) for d in SPLIT_DIR.values()], ignore_index=True)
+    sp["date"] = pd.to_datetime(sp["date"]).dt.normalize()
+    sp["hour"] = sp["hour"].astype("int64")
+    return labels.merge(sp, on=["date", "hour"], how="left", validate="one_to_one")
+
+
 def load_season(path: Path, season: str) -> pd.DataFrame:
     flt = (ds.field("season") == season) & (ds.field("in_period") == True) & (ds.field("is_holiday") == False)  # noqa: E712
     d = ds.dataset(path).to_table(columns=COLUMNS, filter=flt).to_pandas()
@@ -75,7 +86,9 @@ def load_season(path: Path, season: str) -> pd.DataFrame:
 def build_season(d: pd.DataFrame, labels: pd.DataFrame, link_ratio: float, length_ratio: float) -> pd.DataFrame:
     w = labels.copy()
     w["weather_group"] = weather_group(w)
-    d = d.merge(w[["date", "hour", "event_id", "impact", "weather_group"]], on=["date", "hour"], how="left",
+    if "snow_phase" not in w.columns:
+        w["snow_phase"] = None
+    d = d.merge(w[["date", "hour", "event_id", "impact", "snow_phase", "weather_group"]], on=["date", "hour"], how="left",
                 validate="many_to_one")
     if d["weather_group"].isna().any():
         raise ValueError("weather_hourly 에 없는 date · hour 가 있습니다.")
@@ -97,7 +110,8 @@ def build_season(d: pd.DataFrame, labels: pd.DataFrame, link_ratio: float, lengt
          .agg(n_links=("link_id", "size"), n_obs=("has_tt", "sum"), n_valid_ratio=("link_ratio", "count"),
               tt_s=("link_travel_time_seconds", "sum"), total_m=("distance_m", "sum"),
               congested_m=("cong_m", "sum"), missing_m=("miss_m", "sum"),
-              event_id=("event_id", "first"), impact=("impact", "first"), weather_group=("weather_group", "first"))
+              event_id=("event_id", "first"), impact=("impact", "first"), snow_phase=("snow_phase", "first"),
+              weather_group=("weather_group", "first"))
          .reset_index())
     g["tt_s"] = g["tt_s"].where(g["n_obs"] == g["n_links"])  # 링크가 하나라도 빠지면 빈값
 
@@ -113,7 +127,7 @@ def build_season(d: pd.DataFrame, labels: pd.DataFrame, link_ratio: float, lengt
     g["is_complete"] = g["n_valid_ratio"] == g["n_links"]
     g["is_congested"] = (g["congestion_length_ratio"] >= length_ratio).astype("Int8").mask(~g["is_complete"])
     g["datetime"] = g["date"] + pd.to_timedelta(g["hour"].astype(int), unit="h")
-    for c in ["daytype", "weather_group", "impact"]:
+    for c in ["daytype", "weather_group", "impact", "snow_phase"]:
         g[c] = g[c].astype("string")
     return g.drop(columns=["n_valid_ratio", "congested_m", "missing_m"])
 
@@ -127,7 +141,7 @@ def main() -> None:
 
     import yaml
     cfg = yaml.safe_load((ROOT / "config" / "periods.yaml").read_text(encoding="utf-8"))
-    labels = load_weather_labels()
+    labels = load_labels()
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "input": a.link.name,
            "link_ratio": th["congestion_link_ratio"], "road_length_ratio": th["congestion_road_length_ratio"],
            "min_n": MIN_N, "outputs": {}}

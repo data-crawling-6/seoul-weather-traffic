@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-27T09:52:41+09:00",
+  "run_at": "2026-11-27T21:34:26+09:00",
   "input": "link_hourly_20261122_v02.parquet",
   "link_ratio": 1.5,
   "road_length_ratio": 0.3,
