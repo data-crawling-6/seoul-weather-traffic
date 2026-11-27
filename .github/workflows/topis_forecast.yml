@@ -1,15 +1,28 @@
 name: TOPIS 교통예보 매일 저장
 
-# 매일 06:00 KST(= 전날 21:00 UTC)에 교통예보 스냅샷을 저장한다. 12/11까지 쓰고 끈다.
+# 매일 05:17 KST에 교통예보 스냅샷을 저장하고, 07:41 KST에 한 번 더 확인한다. 12/11까지 쓰고 끈다.
+# 정각 예약은 GitHub에서 밀리거나 빠질 수 있어(11/27 06:00 실행 안 됨) 정각을 피했다.
+# 두 번째 실행은 그날 폴더가 data-collect에 이미 있으면 아무것도 하지 않는다 (하루 한 번만 저장).
 # 결과는 실행 기록의 첨부파일(artifact)로 남기고, data-collect 브랜치의 data/raw/topis_forecast/에도 커밋한다.
 # main에는 커밋하지 않는다 (팀원 PR과 섞이지 않게).
 on:
   schedule:
-    - cron: "0 21 * * *"
+    - cron: "17 20 * * *"   # 05:17 KST
+    - cron: "41 22 * * *"   # 07:41 KST, 앞 실행이 빠졌을 때만 저장
   workflow_dispatch:
+    inputs:
+      force:
+        description: "그날 폴더가 있어도 다시 받아 덮어쓰기"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # data-collect 브랜치에 결과를 커밋하려고
+
+# 두 실행이 겹치면 차례로 돌게 해서, 뒤 실행이 앞 실행의 커밋을 보고 건너뛰게 한다
+concurrency:
+  group: topis-forecast
+  cancel-in-progress: false
 
 jobs:
   forecast:
@@ -19,13 +32,28 @@ jobs:
       TZ: Asia/Seoul
     steps:
       - uses: actions/checkout@v4
+      - name: 오늘 저장본이 이미 있는지 확인
+        id: check
+        run: |
+          today=$(date +%F)
+          if git fetch --depth 1 origin data-collect 2>/dev/null \
+             && [ -n "$(git ls-tree -d --name-only FETCH_HEAD "data/raw/topis_forecast/$today")" ] \
+             && [ "${{ inputs.force }}" != "true" ]; then
+            echo "오늘($today) 저장본이 이미 있어 건너뜀"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-python@v5
+        if: steps.check.outputs.skip != 'true'
         with:
           python-version: "3.12"
       - run: pip install selenium requests pandas
+        if: steps.check.outputs.skip != 'true'
       - run: python crawling/topis_forecast.py --out forecast
+        if: steps.check.outputs.skip != 'true'
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.check.outputs.skip != 'true'
         with:
           name: topis-forecast-${{ github.run_id }}
           path: |
@@ -34,7 +62,7 @@ jobs:
             logs/kmj/topis_forecast/forecast_*.png
           retention-days: 90
       - name: 결과를 data-collect 브랜치에 커밋
-        if: success()
+        if: success() && steps.check.outputs.skip != 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
