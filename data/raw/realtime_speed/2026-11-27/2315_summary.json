@@ -1,0 +1,12 @@
+{
+ "started_at": "2026-11-27T23:15:03+09:00",
+ "hour_end": 24,
+ "links": 1753,
+ "links_ok": 1753,
+ "roads_complete": 180,
+ "roads": 180,
+ "codes": {
+  "INFO-000": 1753
+ },
+ "seconds": 48.6
+}
