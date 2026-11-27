@@ -1,5 +1,5 @@
 """
-예측 모델 0~4단계 (A 담당) - Train으로 학습, Dev로만 평가
+예측 모델 0~5단계 (A 담당) - Train으로 학습, Dev로만 평가
 
 노션 '분석 설계 8.3' 단계별 모델.
   0 평소값        y_hat = 1 (입력용 평소값 그대로)
@@ -7,7 +7,10 @@
   2 선형회귀      (1)(2)(3) 입력. 빈 비율은 1.0 + 빈값 표시 열 (분석 설계 3.4 ⑦)
   3 CatBoost      같은 입력, 빈값 그대로. 날씨 없음
   4 CatBoost+날씨  3단계 입력 + (4) 관측 날씨 · 한강 수위 (5) 특보. 설정은 3단계와 같게 두고 입력만 바꾼다
-                  예보 · AWS(fcst_seoul, aws_seoul)는 B가 연구 기간 전체로 다시 만들기 전까지 넣지 않는다
+  5 CatBoost+예보  4단계 입력 + 예보(fcst_seoul) + 구별 AWS(aws_seoul). B가 11/26 연구 기간 평일 전체로 다시 만든 표
+                  예보: 목표 시각의 예보 중 발표 시각(base)이 t보다 앞선 것 가운데 가장 최근 것 (발표가 t와 같으면 못 씀)
+                  AWS: t 시점(끝 시각 기준) 서울 지점 평균 · 최대
+  가중치는 1배로 확정(11/27). 1 · 2 · 3배 비교는 --weights 1 2 3으로 다시 돌릴 수 있다
 
 악천후 가중치 (노션 8.3 (2), 11/27 B 의견 반영)
   학습할 때 '내리는 중인 악천후' 행의 오차를 w배로 친다. 목표 시각 기준으로
@@ -77,6 +80,14 @@ WATER = ["wl_rise_3h", "wl_over_attention", "wl_over_warning", "wl2_rise_3h", "w
 WARN = [f"warn_{k}{s}" for k in ["snow", "rain", "cold"] for s in ["", "_upcoming", "_hours"]]
 FEATURES_4 = FEATURES + WEATHER + WATER + WARN
 
+# 5단계에 더하는 입력: 예보(목표 시각, t 이전 발표) · AWS(t 시점)
+FCST_SRC = ["lead_h", "pcp_mean", "pcp_max", "sno_mean", "sno_max", "tmp_mean", "tmp_min",
+            "pty_rain_regions", "pty_snow_regions"]
+AWS_SRC = ["ta_mean", "ta_min", "rn_hr1_mean", "rn_hr1_max", "rn_day_max", "ws_mean", "ws_max", "hm_mean"]
+FCST = [f"fcst_{c}" for c in FCST_SRC]
+AWS = [f"aws_{c}" for c in AWS_SRC]
+FEATURES_5 = FEATURES_4 + FCST + AWS
+
 # 선형회귀에서 숫자 대신 범주로 넣을 열 (요일 · 월 · 시각은 크기 순서가 의미 없음)
 LINEAR_CATEGORICAL = ["road_id", "direction", "function_type", "target_hour", "horizon", "weekday", "month", "season_kind"]
 CATBOOST_CATEGORICAL = ["road_id", "direction", "function_type", "season_kind", "precip_type"]
@@ -91,8 +102,9 @@ FORBIDDEN = {"y_ratio", "tt_target_s", "prior_target_s", "prior_replaced_target"
 CATBOOST_PARAMS = dict(iterations=800, learning_rate=0.08, depth=6, loss_function="RMSE",
                        random_seed=0, verbose=0, allow_writing_files=False)
 
-STAGES = ["0_평소값", "1_직전상태", "2_선형회귀", "3_CatBoost", "4_CatBoost_날씨"]
-BAD_WEIGHTS = [1, 2, 3]
+STAGES = ["0_평소값", "1_직전상태", "2_선형회귀", "3_CatBoost", "4_CatBoost_날씨", "5_CatBoost_예보"]
+BAD_WEIGHTS = [1]
+STAGE_COLS = {"3_CatBoost": FEATURES, "4_CatBoost_날씨": FEATURES_4, "5_CatBoost_예보": FEATURES_5}
 BAD_CLASS = "악천후"
 MAX_TOTAL_WORSE = 0.05
 BIG_DELAY = 1.3
@@ -159,7 +171,28 @@ def load() -> tuple[pd.DataFrame, int]:
     f = f.loc[f[TARGET].notna()].reset_index(drop=True)
     for c in ["weather_class", "weather_kind", "road_id", "direction", "function_type", "season_kind"]:
         f[c] = f[c].astype(str)
-    return add_target_weather(f), dropped
+    f = add_target_weather(f)
+    t_dt = pd.to_datetime(f["date"]) + pd.to_timedelta(f["t_hour"], unit="h")
+    target_dt = pd.to_datetime(f["date"]) + pd.to_timedelta(f["target_hour"], unit="h")
+    return add_forecast_aws(f, t_dt, target_dt, load_processed("fcst_seoul"), load_processed("aws_seoul")), dropped
+
+
+def add_forecast_aws(f: pd.DataFrame, t_dt: pd.Series, target_dt: pd.Series,
+                     fcst: pd.DataFrame, aws: pd.DataFrame) -> pd.DataFrame:
+    """예보는 목표 시각 예보 가운데 base < t인 가장 최근 발표, AWS는 t 시점 값. 없으면 빈값"""
+    fc = fcst.assign(base=pd.to_datetime(fcst["base"]), fcst=pd.to_datetime(fcst["fcst"]))
+    keys = pd.DataFrame({"t_dt": t_dt.to_numpy(), "target_dt": target_dt.to_numpy()}).drop_duplicates()
+    cand = keys.merge(fc[["base", "fcst"] + FCST_SRC], left_on="target_dt", right_on="fcst", how="inner")
+    cand = cand.loc[cand["base"] < cand["t_dt"]].sort_values("base")
+    best = cand.groupby(["t_dt", "target_dt"], as_index=False).last()
+    best = best.rename(columns={c: f"fcst_{c}" for c in FCST_SRC})[["t_dt", "target_dt"] + FCST]
+
+    aw = aws.assign(datetime=pd.to_datetime(aws["datetime"])).drop_duplicates("datetime")
+    aw = aw.rename(columns={c: f"aws_{c}" for c in AWS_SRC})[["datetime"] + AWS]
+
+    out = pd.DataFrame({"t_dt": t_dt.to_numpy(), "target_dt": target_dt.to_numpy()})
+    out = out.merge(best, on=["t_dt", "target_dt"], how="left").merge(aw, left_on="t_dt", right_on="datetime", how="left")
+    return f.assign(**{c: out[c].to_numpy() for c in FCST + AWS})
 
 
 def predict_stage0(x: pd.DataFrame) -> np.ndarray:
@@ -276,7 +309,7 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
     f, dropped = load()
     train = f.loc[f["model_set"] == "train"].reset_index(drop=True)
     dev = f.loc[f["model_set"] == "dev"].reset_index(drop=True)
-    assert not (set(FEATURES_4) & FORBIDDEN)
+    assert not (set(FEATURES_5) & FORBIDDEN)
 
     seconds = {}
     dev["pred_0_평소값"] = predict_stage0(dev)
@@ -293,7 +326,7 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
     imp = {}
     for w in weights:
         wt = None if w == 1 else bad_weights(train, w)
-        for stage, cols in [(STAGES[3], FEATURES), (STAGES[4], FEATURES_4)]:
+        for stage, cols in STAGE_COLS.items():
             name = weighted_name(stage, w)
             s = time.perf_counter()
             model = fit_catboost(train, params, cols, wt)
@@ -308,6 +341,8 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
         "run_at": datetime.now(KST).isoformat(timespec="seconds"),
         "features": FEATURES,
         "features_added_stage4": WEATHER + WATER + WARN,
+        "features_added_stage5": FCST + AWS,
+        "stage5_missing_share": {c: round(float(f[c].isna().mean()), 4) for c in FCST + AWS},
         "rows": {"train": len(train), "dev": len(dev),
                  "train_seasons": sorted(train["season"].astype(str).unique()),
                  "dev_seasons": sorted(dev["season"].astype(str).unique())},
@@ -360,10 +395,11 @@ def save_outputs(metrics: pd.DataFrame, extra: dict, metrics_path: Path = METRIC
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--iterations", type=int, help="CatBoost 반복 수 (시험용으로 줄일 때)")
+    ap.add_argument("--weights", type=int, nargs="+", default=BAD_WEIGHTS, help="악천후 가중치 목록 (기본 1배만)")
     args = ap.parse_args()
     params = dict(CATBOOST_PARAMS, iterations=args.iterations) if args.iterations else None
 
-    metrics, extra = run(params)
+    metrics, extra = run(params, args.weights)
     save_outputs(metrics, extra)
 
     main_view = metrics.query("group_type == '전체' and horizon != '전체'")
