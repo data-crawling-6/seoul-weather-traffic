@@ -1,0 +1,20 @@
+{
+  "run_at": "2026-11-27T09:57:54+09:00",
+  "input": "commute_20261122_v04.parquet",
+  "top_share": 0.2,
+  "hit_share": 0.5,
+  "chosen_min_ratio": {
+    "snow": 1.05,
+    "rain": 1.1
+  },
+  "events": {
+    "dev_rain": 14,
+    "dev_snow": 6,
+    "train_rain": 22,
+    "train_snow": 15
+  },
+  "n_vulnerable": {
+    "rain": 9,
+    "snow": 4
+  }
+}

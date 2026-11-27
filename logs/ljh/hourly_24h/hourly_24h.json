@@ -1,0 +1,19 @@
+{
+  "run_at": "2026-11-27T09:52:41+09:00",
+  "input": "link_hourly_20261122_v02.parquet",
+  "link_ratio": 1.5,
+  "road_length_ratio": 0.3,
+  "min_n": 5,
+  "outputs": {
+    "road_hourly_24h_train_dev_v01.parquet": {
+      "rows": 2989440,
+      "ratio_missing": 0.0063,
+      "congested_rows": 28506
+    },
+    "road_hourly_24h_holdout_v01.parquet": {
+      "rows": 984960,
+      "ratio_missing": 0.0075,
+      "congested_rows": 9446
+    }
+  }
+}
