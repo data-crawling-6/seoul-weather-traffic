@@ -1,7 +1,8 @@
-"""[민주] 예측 0~4단계 테스트 — src/analysis/prediction.py
+"""[민주] 예측 0~5단계 테스트 — src/analysis/prediction.py
 
 - 입력 열에 정답 · 평가 구분 열이 없고, 3단계까지는 날씨 열도 없다
 - 4단계는 3단계 입력 + 관측 날씨 · 수위 · 특보뿐이고 예보 · AWS는 없다
+- 5단계 예보는 발표 시각이 t보다 앞선 것만 쓰고, t 이후 발표 · 관측을 바꿔도 입력이 그대로다
 - 악천후 가중치는 '내리는 중인 악천후'(목표 시각 강수 > 0) 행만 w배, 나머지는 1. 3 · 4단계가 같은 w 목록을 쓴다
 - 가중치 고르기: 악천후 MAE 최소, 전체 MAE가 1배보다 5% 넘게 나빠지면 제외
 - 큰 지연 MAE · 20% 이상 느려짐 적중률 · 정밀도 계산
@@ -41,7 +42,7 @@ def fake(n=60, seed=0) -> pd.DataFrame:
     df.loc[:4, "ratio_t0"] = np.nan
     for c in p.RATIO_COLS:
         df[f"{c}_missing"] = df[c].isna()
-    for c in p.WEATHER + p.WATER + p.WARN:
+    for c in p.WEATHER + p.WATER + p.WARN + p.FCST + p.AWS:
         df[c] = rng.normal(size=n)
     df["precip_type"] = rng.choice(["none", "rain", "snow"], n)
     for c in p.WATER:
@@ -75,9 +76,47 @@ class TestPrediction(unittest.TestCase):
         self.assertTrue((w[snow & (x["snow_phase_target"] == "after")] == 1.0).all())   # 그친 뒤는 강조하지 않음
         self.assertTrue((w[rain & (x["precip_target"] == 0)] == 1.0).all())
         names = p.all_stages([1, 2])
-        self.assertEqual(names[:5], p.STAGES)
-        self.assertEqual(names[5:], ["3_CatBoost_가중2", "4_CatBoost_날씨_가중2"])
-        self.assertFalse({"weather_class", "precip_target", "snow_phase_target"} & set(p.FEATURES_4))
+        self.assertEqual(names[:6], p.STAGES)
+        self.assertEqual(names[6:], ["3_CatBoost_가중2", "4_CatBoost_날씨_가중2", "5_CatBoost_예보_가중2"])
+        self.assertFalse({"weather_class", "precip_target", "snow_phase_target"} & set(p.FEATURES_5))
+
+    def test_stage5_adds_only_forecast_and_aws(self):
+        self.assertEqual(p.FEATURES_5[:len(p.FEATURES_4)], p.FEATURES_4)
+        added = p.FEATURES_5[len(p.FEATURES_4):]
+        self.assertTrue(added and all(c.startswith(("fcst_", "aws_")) for c in added))
+        self.assertFalse(set(p.FEATURES_5) & p.FORBIDDEN)
+        self.assertEqual(len(set(p.FEATURES_5)), len(p.FEATURES_5))
+
+    def forecast_case(self):
+        t_dt = pd.Series(pd.to_datetime(["2024-12-02 17:00", "2024-12-02 19:00", "2024-12-02 05:00"]))
+        target = pd.Series(pd.to_datetime(["2024-12-02 20:00", "2024-12-02 20:00", "2024-12-02 08:00"]))
+        def row(base, fcst, v):
+            return {"base": base, "fcst": fcst, **{c: v for c in p.FCST_SRC}}
+        fcst = pd.DataFrame([row("2024-12-02 14:00", "2024-12-02 20:00", 14.0),
+                             row("2024-12-02 17:00", "2024-12-02 20:00", 17.0),
+                             row("2024-12-02 02:00", "2024-12-02 08:00", 2.0),
+                             row("2024-12-02 05:00", "2024-12-02 08:00", 5.0)])
+        aws = pd.DataFrame({"datetime": pd.to_datetime(["2024-12-02 05:00", "2024-12-02 17:00", "2024-12-02 19:00",
+                                                        "2024-12-02 20:00"]), **{c: [5.0, 17.0, 19.0, 20.0] for c in p.AWS_SRC}})
+        f = pd.DataFrame({"k": [0, 1, 2]})
+        return f, t_dt, target, fcst, aws
+
+    def test_forecast_uses_only_issued_before_t(self):
+        out = p.add_forecast_aws(*self.forecast_case())
+        # t=17시 -> 17시 발표는 아직 못 씀(14시 것), t=19시 -> 17시 것, t=05시 -> 02시 것
+        self.assertEqual(out["fcst_pcp_mean"].tolist(), [14.0, 17.0, 2.0])
+        self.assertEqual(out["aws_ta_mean"].tolist(), [17.0, 19.0, 5.0])
+
+    def test_forecast_ignores_values_after_t(self):
+        f, t_dt, target, fcst, aws = self.forecast_case()
+        base = p.add_forecast_aws(f, t_dt, target, fcst, aws)
+        fcst2 = fcst.copy()
+        late = pd.to_datetime(fcst2["base"]) >= pd.Timestamp("2024-12-02 17:00")
+        fcst2.loc[late, p.FCST_SRC] = 999.0
+        aws2 = aws.copy()
+        aws2.loc[aws2["datetime"] == pd.Timestamp("2024-12-02 20:00"), p.AWS_SRC] = 999.0
+        new = p.add_forecast_aws(f, t_dt, target, fcst2, aws2)
+        pd.testing.assert_frame_equal(base.iloc[[0, 2]], new.iloc[[0, 2]])
 
     def test_vulnerable_groups_by_road_and_direction(self):
         import tempfile
@@ -109,6 +148,21 @@ class TestPrediction(unittest.TestCase):
         self.assertAlmostEqual(m["slow_recall"], 2 / 3)
         self.assertAlmostEqual(m["slow_precision"], 2 / 3)
 
+    def test_save_keeps_old_runs(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            paths = dict(metrics_path=d / "m.csv", pred_path=d / "p.parquet", log_path=d / "l.json")
+            for run_at, value in [("2026-11-27T21:00:00+09:00", 1.0), ("2026-11-27T22:30:00+09:00", 2.0)]:
+                p.save_outputs(pd.DataFrame({"mae_min": [value]}),
+                               {"log": {"run_at": run_at}, "pred": pd.DataFrame({"x": [value]})}, **paths)
+            self.assertEqual(pd.read_csv(d / "m.csv")["mae_min"].iloc[0], 2.0)     # 최신은 덮어씀
+            old = d / "prediction_runs" / "m_20261127_2100.csv"
+            self.assertEqual(pd.read_csv(old)["mae_min"].iloc[0], 1.0)            # 예전 실행은 남음
+            self.assertTrue((d / "runs" / "p_20261127_2230.parquet").exists())
+            self.assertTrue((d / "runs" / "l_20261127_2100.json").exists())
+
     def test_stage1_missing_is_one(self):
         x = fake()
         pred = p.predict_stage1(x)
@@ -138,6 +192,8 @@ class TestPrediction(unittest.TestCase):
         dev["pred_3_CatBoost"] = cb.predict(p.catboost_frame(dev))
         cb4 = p.fit_catboost(train, dict(p.CATBOOST_PARAMS, iterations=20), p.FEATURES_4, p.bad_weights(train, 2))
         dev["pred_4_CatBoost_날씨"] = cb4.predict(p.catboost_frame(dev, p.FEATURES_4))
+        cb5 = p.fit_catboost(train, dict(p.CATBOOST_PARAMS, iterations=20), p.FEATURES_5)
+        dev["pred_5_CatBoost_예보"] = cb5.predict(p.catboost_frame(dev, p.FEATURES_5))
         m = p.evaluate(dev, p.STAGES)
         self.assertEqual(set(m["stage"]), set(p.STAGES))
         self.assertFalse(m[["mae_min", "mae_ratio"]].isna().any().any())
