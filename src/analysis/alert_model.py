@@ -28,6 +28,9 @@
   같은 경보 수 비교: 여름에서 특보 기준선과 경보 개수를 맞춘 임계값의 재현율 · 정밀도 (경보를 늘리지 않고 몇 개를 더 잡나)
   함께 적는 것: 정밀도 · 재현율 · PR-AUC · 오차행렬, 하루 경보 수 · 헛경보 수 (Dev 평일 하루, 180개 도로 · 방향 합),
   악천후 시간만 본 재현율 · 정밀도, 선행 시간(정체 시작 시각을 3시간 전 / 1시간 전에 잡았나)
+  헛경보 단위: fp · false_alarms_per_day 는 도로 · 방향 × 목표 시각 칸, fp_road_days_per_day 는 같은 날 같은 도로를 한 번으로 묶은 수.
+       둘 다 실제 이용자에게 보낸 알림 수는 아니다.
+  선행 시간의 '시작' = 출퇴근 구간에서 처음 관측한 정체. 08 · 18시는 직전 상태를 몰라 따로 뺀 줄도 적는다.
 
 실행
   python src/analysis/alert_model.py
@@ -174,7 +177,12 @@ def evaluate(name: str, h: int, dv: pd.DataFrame, s: np.ndarray, thr: float, n_d
     bad = dv["weather_class"].astype(str).eq("악천후").to_numpy()
     tp_b, fp_b, fn_b = int((a & bad & (y == 1)).sum()), int((a & bad & (y == 0)).sum()), int((~a & bad & (y == 1)).sum())
     binary = len(np.unique(s)) <= 2
-    return {"model": name, "horizon": h, "threshold": thr,
+    # 헛경보 단위 (코드 검토 4번): 위 fp 는 도로 · 방향 × 목표 시각 칸 수. 같은 날 같은 도로는 한 번으로 묶은 수도 함께 적는다
+    fp_mask = a & (y == 0)
+    fp_road_days = int(dv.loc[fp_mask, ["road_id", "direction", "date"]].drop_duplicates().shape[0])
+    alert_road_days = int(dv.loc[a, ["road_id", "direction", "date"]].drop_duplicates().shape[0])
+    return {"fp_road_days_per_day": fp_road_days / n_days, "alert_road_days_per_day": alert_road_days / n_days,
+            "model": name, "horizon": h, "threshold": thr,
             "pr_auc": np.nan if binary else float(average_precision_score(y, s)),
             "precision": tp / max(tp + fp, 1), "recall": tp / max(tp + fn, 1),
             "tp": tp, "fp": fp, "fn": fn, "tn": tn,
@@ -233,6 +241,9 @@ def lead_time(dv: pd.DataFrame, alerts: dict) -> pd.DataFrame:
     base = base.assign(_h=base["target_hour"].astype(int)).sort_values(["road_id", "direction", "date", "_h"])
     prev = base.groupby(["road_id", "direction", "date", "block"])["y"].shift(1).fillna(0)
     starts = base[(base["y"] == 1) & (prev == 0)][["date", "target_hour", "road_id", "direction", "weather_class"]]
+    # 코드 검토 5번: 08 · 18시는 직전 시각(07 · 17시)의 정체 정답이 없어서, 이전부터 막혀 있었는지 모른다.
+    # 그래서 이 표의 '시작'은 '출퇴근 구간에서 처음 관측한 정체'이고, 경계 시각을 뺀 줄도 따로 적는다
+    starts["boundary"] = starts["target_hour"].astype(int).isin([8, 18])
     rows = []
     for model, by_h in alerts.items():
         hit = {}
@@ -240,8 +251,10 @@ def lead_time(dv: pd.DataFrame, alerts: dict) -> pd.DataFrame:
             k = dv.loc[dv["horizon"] == h, ["date", "target_hour", "road_id", "direction"]].assign(alert=a)
             hit[h] = starts.merge(k, on=["date", "target_hour", "road_id", "direction"], how="left")["alert"].fillna(False).to_numpy()
         lead = np.where(hit[3], "3시간 전", np.where(hit[1], "1시간 전", "놓침"))
-        for scope, m in [("전체", np.ones(len(starts), bool)),
-                         ("악천후", starts["weather_class"].astype(str).eq("악천후").to_numpy())]:
+        bad = starts["weather_class"].astype(str).eq("악천후").to_numpy()
+        inner = ~starts["boundary"].to_numpy()
+        for scope, m in [("전체", np.ones(len(starts), bool)), ("악천후", bad),
+                         ("08 · 18시 시작 뺌", inner), ("악천후 · 08 · 18시 시작 뺌", bad & inner)]:
             vc = pd.Series(lead[m]).value_counts(normalize=True)
             rows.append({"model": model, "scope": scope, "starts": int(m.sum()),
                          "3시간 전": vc.get("3시간 전", 0.0), "1시간 전": vc.get("1시간 전", 0.0), "놓침": vc.get("놓침", 0.0)})
