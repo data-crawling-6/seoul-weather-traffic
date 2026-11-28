@@ -1,0 +1,35 @@
+{
+ "run_at": "2026-11-28T20:13:34+09:00",
+ "model": "5_CatBoost_예보",
+ "fit_seasons": [
+  "2022-23_winter",
+  "2023-24_winter",
+  "2023_summer",
+  "2024_summer"
+ ],
+ "fit_rows": 592972,
+ "shap_seasons": [
+  "2024-25_winter",
+  "2025_summer"
+ ],
+ "catboost_params": {
+  "iterations": 800,
+  "learning_rate": 0.08,
+  "depth": 6,
+  "loss_function": "RMSE",
+  "random_seed": 0,
+  "verbose": 0,
+  "allow_writing_files": false
+ },
+ "weight": 1,
+ "groups": {
+  "winter x 악천후": 5213,
+  "winter x 전체": 20000,
+  "summer x 악천후": 13853,
+  "summer x 전체": 20000
+ },
+ "seconds": {
+  "fit": 167.9,
+  "total": 176.2
+ }
+}
