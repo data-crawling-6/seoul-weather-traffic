@@ -177,6 +177,20 @@ def _assign_period_scope(frame: pd.DataFrame, periods: list[dict[str, object]]) 
     return result.loc[result["period_scope"].notna()].copy()
 
 
+def expected_source_dates(month: str, periods: list[dict[str, object]]) -> pd.DatetimeIndex:
+    """그 달 달력 날짜 가운데 연구 기간 · 평소값 기간(baseline_start 하루 전 ~ end)에 드는 날 (코드 검토 11번).
+
+    원본에 나온 날짜만으로 시간 격자를 만들면, 날짜가 통째로 빠진 날은 격자에도 없어 아무도 모른다.
+    그래서 달력으로 '있어야 할 날짜'를 먼저 만들고 원본 날짜와 비교한다.
+    """
+    start = pd.Timestamp(f"{month}-01")
+    days = pd.date_range(start, start + pd.offsets.MonthEnd(0), freq="D")
+    keep = pd.Series(False, index=days)
+    for period in periods:
+        keep |= (days >= pd.Timestamp(period["baseline_start"]) - pd.Timedelta(days=1)) & (days <= pd.Timestamp(period["end"]))
+    return days[keep.to_numpy()]
+
+
 def process_link_month(
     path: Path,
     data_root: Path,
@@ -199,7 +213,11 @@ def process_link_month(
             period["baseline_start"] - pd.Timedelta(days=1), period["end"]
         )
     raw_all = raw_all.loc[candidate].copy()
-    source_dates = raw_all[["source_date"]].drop_duplicates()
+    present = pd.DatetimeIndex(raw_all["source_date"].drop_duplicates())
+    expected = expected_source_dates(month, periods)
+    missing_dates = expected.difference(present)
+    # 빠진 날짜도 격자에 넣어 link_row_absent 로 남긴다 (그 날 전체가 결측으로 보이게)
+    source_dates = pd.DataFrame({"source_date": present.union(expected).sort_values()})
     hour_grid = pd.DataFrame({"hour_end": list(range(1, 25))})
     time_grid = source_dates.merge(hour_grid, how="cross")
     time_grid["topis_hour_label"] = time_grid["hour_end"].map(lambda value: f"~{value:02d}시")
@@ -270,7 +288,11 @@ def process_link_month(
         "stable_links_present": int(result["link_id"].nunique()),
         "weather_missing_rows": int(result["temp_c"].isna().sum()),
         "system_gap_rows": int(result["is_topis_system_gap"].sum()),
+        "expected_source_dates": int(len(expected)),
+        "missing_source_dates": [d.strftime("%Y-%m-%d") for d in missing_dates],
     }
+    if len(missing_dates):
+        print(f"⚠️ {month}: 원본에 없는 날짜 {len(missing_dates)}일 → 격자에 결측으로 남김 ({', '.join(stats['missing_source_dates'][:5])} …)")
     return result, stats
 
 
