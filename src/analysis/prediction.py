@@ -10,8 +10,9 @@
                   예보 · AWS(fcst_seoul, aws_seoul)는 B가 연구 기간 전체로 다시 만들기 전까지 넣지 않는다
 
 악천후 가중치 (노션 8.3 (2), 11/27 B 의견 반영)
-  학습할 때 '내리는 중인 악천후' 행의 오차를 w배로 친다. 악천후 중 목표 시각에 관측 강수가 있는 시간이다.
-  눈 그친 뒤 시간은 오히려 빨라서(B 분석 0.94배) 넣지 않는다. B의 snow_phase 열이 나오면 그걸로 바꾼다.
+  학습할 때 '내리는 중인 악천후' 행의 오차를 w배로 친다. 목표 시각 기준으로
+  눈 악천후는 snow_phase == falling(B, #30), 비 악천후는 관측 강수 > 0인 시간이다.
+  눈 그친 뒤 시간은 오히려 빨라서(B 분석 0.94배) 넣지 않는다.
   w = 1 · 2 · 3을 3 · 4단계 모두 Dev로 비교하고, 고른 w를 3 · 4 · 5단계에 같이 쓴다. w = 1은 기준선으로 남긴다.
   고르는 기준(돌리기 전에 정함): 악천후 MAE가 가장 낮은 w. 단 전체 MAE가 w = 1보다 5% 넘게 나빠지면 제외.
   weather_class · 목표 시각 강수는 가중치에만 쓰고 입력에는 넣지 않는다. 표본 뽑기는 하지 않는다.
@@ -20,7 +21,7 @@
   MAE 분 = |y_hat - y| x 입력용 평소 통행시간 / 60 (주 지표), MAE 비율, RMSE 분 · 비율
   큰 지연(실제 1.3배 이상) MAE, '20% 이상 느려짐'(실제 1.2배 이상) 적중률 · 정밀도
   나눠서: 전체 / 맑음 · 약한 비·눈 · 악천후 / 눈 · 비 / 겨울 · 여름 / 출근 · 퇴근 / 날씨 x 출퇴근 / 대체한 평소값 행
-          / 비에 반복 취약한 도로(B 분석, VULNERABLE_ROADS를 채우면)
+          / 반복 취약 도로 · 방향(B, vulnerable_roads_train_dev.csv의 눈 · 비 목록)
   각각 h = 1 · 3과 합친 값. 시간 수 = 겹치지 않는 (날짜, 목표 시각) 수
   정답이 빈 행(링크가 빠진 시각)은 학습 · 평가에서 뺀다
 
@@ -81,7 +82,7 @@ RATIO_COLS = ["ratio_t0", "ratio_t1", "ratio_t2"]
 
 # 입력에 들어가면 안 되는 열 (정답 · 사후에 정해지는 값 · 평가 구분 · 4단계 이후 입력)
 FORBIDDEN = {"y_ratio", "tt_target_s", "prior_target_s", "prior_replaced_target", "weather_class", "weather_kind",
-             "model_set", "split", "season", "date", "precip_target"}
+             "model_set", "split", "season", "date", "precip_target", "snow_phase_target"}
 
 CATBOOST_PARAMS = dict(iterations=800, learning_rate=0.08, depth=6, loss_function="RMSE",
                        random_seed=0, verbose=0, allow_writing_files=False)
@@ -92,7 +93,7 @@ BAD_CLASS = "악천후"
 MAX_TOTAL_WORSE = 0.05
 BIG_DELAY = 1.3
 SLOW = 1.2
-VULNERABLE_ROADS: list[str] = []   # B가 찾은 비에 반복 취약한 도로 9개 (road_id). 받으면 채운다
+VULNERABLE_PATH = ROOT / "data" / "shared" / "train_dev" / "vulnerable_roads_train_dev.csv"
 
 
 def weighted_name(stage: str, w: int) -> str:
@@ -104,18 +105,34 @@ def all_stages(weights: list[int] = BAD_WEIGHTS) -> list[str]:
 
 
 def falling_bad(x: pd.DataFrame) -> np.ndarray:
-    return ((x["weather_class"].astype(str) == BAD_CLASS) & (x["precip_target"].fillna(0) > 0)).to_numpy()
+    bad = x["weather_class"].astype(str) == BAD_CLASS
+    snow = x["weather_kind"].astype(str) == "눈"
+    falling = np.where(snow, x["snow_phase_target"].astype(str) == "falling", x["precip_target"].fillna(0) > 0)
+    return (bad & falling).to_numpy()
+
+
+def vulnerable_of(x: pd.DataFrame, path: Path = VULNERABLE_PATH) -> np.ndarray:
+    """도로 · 방향이 B 목록에서 비 · 눈 어디에 취약한지. 둘 다면 '눈·비'"""
+    if not path.exists():
+        return np.full(len(x), "목록 없음")
+    v = pd.read_csv(path, encoding="utf-8-sig")
+    v = v.loc[v["is_vulnerable"].astype(bool)]
+    key = x["road_id"].astype(str) + "|" + x["direction"].astype(str)
+    lists = {t: set(g["road_id"].astype(str) + "|" + g["direction"].astype(str)) for t, g in v.groupby("type_name")}
+    rain, snow = key.isin(lists.get("비", set())), key.isin(lists.get("눈", set()))
+    return np.select([rain & snow, rain, snow], ["눈·비 취약", "비 취약", "눈 취약"], "나머지")
 
 
 def bad_weights(train: pd.DataFrame, w: int) -> np.ndarray:
     return np.where(falling_bad(train), float(w), 1.0)
 
 
-def add_target_precip(f: pd.DataFrame) -> pd.DataFrame:
-    w = load_processed("weather_hourly", usecols=["datetime", "precip_mm", "season"])
-    w = w.assign(datetime=pd.to_datetime(w["datetime"])).drop_duplicates("datetime").set_index("datetime")["precip_mm"]
+def add_target_weather(f: pd.DataFrame) -> pd.DataFrame:
+    w = load_processed("weather_hourly", usecols=["datetime", "precip_mm", "snow_phase", "season"])
+    w = w.assign(datetime=pd.to_datetime(w["datetime"])).drop_duplicates("datetime").set_index("datetime")
     target_dt = pd.to_datetime(f["date"]) + pd.to_timedelta(f["target_hour"], unit="h")
-    return f.assign(precip_target=target_dt.map(w).to_numpy())
+    return f.assign(precip_target=target_dt.map(w["precip_mm"]).to_numpy(),
+                    snow_phase_target=target_dt.map(w["snow_phase"]).to_numpy())
 
 
 def pick_weight(metrics: pd.DataFrame, stage: str, weights: list[int]) -> int:
@@ -138,7 +155,7 @@ def load() -> tuple[pd.DataFrame, int]:
     f = f.loc[f[TARGET].notna()].reset_index(drop=True)
     for c in ["weather_class", "weather_kind", "road_id", "direction", "function_type", "season_kind"]:
         f[c] = f[c].astype(str)
-    return add_target_precip(f), dropped
+    return add_target_weather(f), dropped
 
 
 def predict_stage0(x: pd.DataFrame) -> np.ndarray:
@@ -232,11 +249,11 @@ def evaluate(dev: pd.DataFrame, stages: list[str]) -> pd.DataFrame:
                    weather_commute=dev["weather_class"].astype(str) + " x " + commute,
                    replaced=np.where(dev["prior_replaced_target"], "대체", "28일"),
                    kind=dev["weather_kind"].replace({"": "없음"}),
-                   vulnerable=np.where(dev["road_id"].isin(VULNERABLE_ROADS), "취약 도로", "나머지"))
+                   vulnerable=vulnerable_of(dev))
+    d["vulnerable_weather"] = d["vulnerable"] + " x " + d["weather_class"].astype(str)
     groupings = {"전체": None, "날씨": "weather_class", "눈비": "kind", "계절": "season_kind",
-                 "출퇴근": "commute", "날씨x출퇴근": "weather_commute", "평소값": "replaced"}
-    if VULNERABLE_ROADS:
-        groupings["취약도로"] = "vulnerable"
+                 "출퇴근": "commute", "날씨x출퇴근": "weather_commute", "평소값": "replaced",
+                 "취약도로": "vulnerable", "취약도로x날씨": "vulnerable_weather"}
     rows = []
     for stage in stages:
         for h_name, part in [("전체", d)] + [(str(h), d.loc[d["horizon"] == h]) for h in sorted(d["horizon"].unique())]:
@@ -298,7 +315,7 @@ def run(params: dict | None = None, weights: list[int] = BAD_WEIGHTS) -> tuple[p
         "weighted_train_share": round(float(falling_bad(train).mean()), 4),
         "weight_rule": f"악천후 MAE 최소, 전체 MAE가 1배보다 {MAX_TOTAL_WORSE:.0%} 넘게 나빠지면 제외",
         "picked_weight": picked,
-        "vulnerable_roads": VULNERABLE_ROADS,
+        "vulnerable_roads": str(VULNERABLE_PATH.relative_to(ROOT)),
         "catboost_importance": imp,
         "seconds": {**seconds, "total": round(time.perf_counter() - t0, 1)},
     }
