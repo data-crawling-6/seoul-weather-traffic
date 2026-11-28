@@ -1,0 +1,20 @@
+{
+  "run_at": "2026-11-28T22:38:46+09:00",
+  "chosen": {
+    "1": {
+      "pcp_mm": 1.0,
+      "with_observation": true
+    },
+    "3": {
+      "pcp_mm": 1.0,
+      "with_observation": true
+    }
+  },
+  "rule": "예보 강수(권역 최대 1시간) >= p mm 또는 예보 눈(신적설 > 0 또는 눈 권역 >= 1), 발표 + 1시간 <= t",
+  "rows": 4920,
+  "forecast_missing_rate": 0.0102,
+  "truth_rate": {
+    "train": 0.0945,
+    "dev": 0.0926
+  }
+}

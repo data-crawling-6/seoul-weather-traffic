@@ -100,11 +100,11 @@ class ShapeTest(unittest.TestCase):
 class OutputTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.f = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"features_{SPLIT_DIR[s]}.parquet") for s in ["train", "eval"]],
-                          ignore_index=True)
+        # Test(holdout) 결과는 마지막 평가 전까지 열지 않는다 (코드 검토 1번) → Train + Dev 파일만 확인
+        cls.f = pd.read_parquet(PROC_DIR / SPLIT_DIR["train"] / f"features_{SPLIT_DIR['train']}.parquet")
 
     def test_행_수_와_키_중복(self):
-        self.assertEqual(len(self.f), 1_177_200)   # C v04 588,600행 × 예측 거리 2
+        self.assertEqual(len(self.f), 885_600)     # Train + Dev 442,800행 × 예측 거리 2 (전체 1,177,200 중 Test 291,600 제외)
         self.assertEqual(self.f.duplicated(KEY).sum(), 0)
 
     def test_무작위_2000행_입력은_t_시점_값(self):

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import unittest
 
+from src.clean import warnings_seoul as WR
 from src.clean.warnings_seoul import seoul_areas
 
 
@@ -26,3 +27,15 @@ class KmaWarningsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AppliedAtTest(unittest.TestCase):
+    """코드 검토 8번: 발효가 발표보다 앞서면 발표 시각부터 반영한다."""
+
+    def test_발효_07시_발표_09시는_09시부터(self):
+        import pandas as pd
+        items = pd.DataFrame([{"kind": "rain", "level": 1, "action": "발표", "seoul_areas": ["동남권"],
+                               "effective_at": pd.Timestamp("2024-07-01 07:00"), "issued_at": pd.Timestamp("2024-07-01 09:00")}])
+        hours = pd.Series(pd.date_range("2024-07-01 07:00", periods=3, freq="h"))
+        st = WR.hourly_state(items, hours)
+        self.assertEqual(st["warn_rain"].tolist(), [0, 0, 1])

@@ -34,6 +34,8 @@ class SnowPhaseTest(unittest.TestCase):
         self.assertEqual(out.at[pd.Timestamp("2024-11-27 17:00"), "snow_phase"], "after")   # 그친 뒤 12시간
         self.assertEqual(out.at[pd.Timestamp("2024-11-27 18:00"), "snow_phase"], "")
         self.assertEqual(out.at[pd.Timestamp("2024-11-27 06:00"), "impact"], "많은 눈")      # impact 는 그대로
+        self.assertEqual(out.at[pd.Timestamp("2024-11-27 10:00"), "impact_event_id"], 1)   # 그친 뒤도 원래 사건 번호
+        self.assertTrue(pd.isna(out.at[pd.Timestamp("2024-11-27 18:00"), "impact_event_id"]))
 
     def test_stronger_rain_overrides(self):
         df = grid("2024-07-01 00:00", 12)
@@ -43,6 +45,8 @@ class SnowPhaseTest(unittest.TestCase):
         self.assertEqual(out.at[pd.Timestamp("2024-07-01 03:00"), "snow_phase"], "after")
         self.assertEqual(out.at[pd.Timestamp("2024-07-01 04:00"), "impact"], "호우")
         self.assertEqual(out.at[pd.Timestamp("2024-07-01 04:00"), "snow_phase"], "")
+        self.assertEqual(out.at[pd.Timestamp("2024-07-01 04:00"), "impact_event_id"], 2)   # 더 센 비 사건 번호
+        self.assertEqual(out.at[pd.Timestamp("2024-07-01 11:00"), "impact_event_id"], 1)
         self.assertEqual(out.at[pd.Timestamp("2024-07-01 11:00"), "snow_phase"], "after")  # 비 영향이 끝나면 눈 영향(12시간)이 남음
 
 
