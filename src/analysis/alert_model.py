@@ -11,12 +11,21 @@
   기준선 1  특보가 뜨면 경보      t 에 대설 · 호우특보가 발효 중이면 경보 (설계 9.2 ② 기준선)
   기준선 2  지금 느리면 경보      t 시점 비율(ratio_t0)이 클수록 위험. 임계값은 아래 규칙으로
   로지스틱 회귀                   숫자 열 표준화 + 범주 원핫, class_weight=balanced
-  결정트리                        깊이 3 · 5 · 7 · 9 중 Dev PR-AUC 가 가장 큰 것, class_weight=balanced
+  로지스틱 회귀 + 예보 · 겹침     위 입력 + 예보 + 겹침 열 (아래)
+  결정트리 + 예보 · 겹침          깊이 3 · 5 · 7 · 9 중 Dev 겨울 PR-AUC 가 가장 큰 것, class_weight=balanced
+
+  예보 (11/27 보완 1): fcst_seoul 에서 목표 시각을 예보한 발표 가운데 **발표 시각 + 1시간 <= t** 인 가장 최근 것.
+       발표 뒤 자료가 올라오기까지 시간이 걸리므로 1시간 여유를 둔다 (t 시점에 실제로 볼 수 있던 예보만).
+  겹침 열 (보완 3): 로지스틱 회귀는 '비 + 도시고속도로'처럼 겹칠 때 커지는 효과를 스스로 못 배운다.
+       24시간 비교 · 생존분석에서 확인한 조합을 열로 만든다: (관측 · 예보 강수, 신적설) × 도시고속도로 · 퇴근 시각,
+       특보 · 수위 상승 × 하천변 도로. 강수는 log(1 + mm).
   h = 1 · 3 마다 따로 학습한다.
 
 경보 기준 (돌리기 전에 정함, 설계 9.2 ②: 재현율 우선 · 정확도는 쓰지 않음)
   Dev 재현율 80% 이상인 임계값 가운데 정밀도가 가장 높은 것. 80%에 못 미치면 재현율이 가장 높은 임계값.
-  같은 경보 수 비교: 특보 기준선과 경보 개수를 맞춘 임계값에서 재현율 · 정밀도 (경보를 늘리지 않고 몇 개를 더 잡나)
+  나눠 고르기 (보완 2): Dev 겨울로 깊이와 임계값을 고르고 그 뒤 Dev 여름을 평가한다.
+       겨울은 선택용, 여름은 검증용이며 Test가 아니다.
+  같은 경보 수 비교: 여름에서 특보 기준선과 경보 개수를 맞춘 임계값의 재현율 · 정밀도 (경보를 늘리지 않고 몇 개를 더 잡나)
   함께 적는 것: 정밀도 · 재현율 · PR-AUC · 오차행렬, 하루 경보 수 · 헛경보 수 (Dev 평일 하루, 180개 도로 · 방향 합),
   악천후 시간만 본 재현율 · 정밀도, 선행 시간(정체 시작 시각을 3시간 전 / 1시간 전에 잡았나)
 
@@ -65,6 +74,10 @@ NUMERIC = ["n_links", "total_distance_m", "lanes", "urban_share", "is_riverside"
            "temp_c", "temp_drop_3h", "precip_1h", "precip_3h", "new_snow_3h_cm", "snow_depth_cm",
            "wl_rise_3h", "wl_over_attention", "wl_over_warning", "wl2_rise_3h", "wl2_over_attention", "wl2_over_warning",
            "warn_snow", "warn_rain", "warn_cold", "warn_snow_hours", "warn_rain_hours", "warn_cold_hours"]
+FCST = ["fc_pcp_mean", "fc_pcp_max", "fc_sno_max", "fc_tmp_min", "fc_rain_regions", "fc_snow_regions", "fc_lead_h",
+        "fc_missing"]
+INTER = ["x_rain_expr", "x_snow_expr", "x_fcrain_expr", "x_fcsnow_expr", "x_rain_evening", "x_fcrain_evening",
+         "x_fcsnow_evening", "x_warnrain_river", "x_wlrise_river"]
 TREE_DEPTHS = [3, 5, 7, 9]
 MIN_RECALL = 0.80
 SEED = 20261127
@@ -83,7 +96,29 @@ def load_data() -> pd.DataFrame:
     d = f.merge(c, on=["date", "target_hour", "road_id", "direction"], how="left", validate="many_to_one")
     d = d[d["is_congested"].notna()].copy()       # 링크가 빠진 시각은 정답이 없어 뺀다
     d["y"] = d["is_congested"].astype(int)
-    return d
+    return add_forecast(d)
+
+
+def add_forecast(d: pd.DataFrame) -> pd.DataFrame:
+    """목표 시각 예보 가운데 t 시점에 볼 수 있던(발표 + 1시간 <= t) 가장 최근 발표를 붙인다."""
+    fc = load_processed("fcst_seoul")
+    fc["base"], fc["fcst"] = pd.to_datetime(fc["base"]), pd.to_datetime(fc["fcst"])
+    keys = d[["date", "target_hour", "horizon"]].drop_duplicates().copy()
+    keys["fcst"] = keys["date"] + pd.to_timedelta(keys["target_hour"].astype(int), unit="h")
+    keys["cutoff"] = keys["fcst"] - pd.to_timedelta(keys["horizon"].astype(int) + 1, unit="h")
+    m = pd.merge_asof(keys.sort_values("cutoff"), fc.sort_values("base")[
+        ["fcst", "base", "lead_h", "pcp_mean", "pcp_max", "sno_max", "tmp_min", "pty_rain_regions", "pty_snow_regions"]],
+        left_on="cutoff", right_on="base", by="fcst", direction="backward")
+    if (m["base"] > m["cutoff"]).any():
+        raise RuntimeError("t 시점 뒤에 나온 예보가 들어갔습니다.")
+    m = m.rename(columns={"pcp_mean": "fc_pcp_mean", "pcp_max": "fc_pcp_max", "sno_max": "fc_sno_max",
+                          "tmp_min": "fc_tmp_min", "pty_rain_regions": "fc_rain_regions",
+                          "pty_snow_regions": "fc_snow_regions", "lead_h": "fc_lead_h"})
+    vals = ["fc_pcp_mean", "fc_pcp_max", "fc_sno_max", "fc_tmp_min"]
+    m[vals] = m[vals].mask(m[vals] <= -90)        # 기상청 결측 코드 -99
+    m["fc_missing"] = (m["base"].isna() | m["fc_pcp_max"].isna()).astype(int)
+    return d.merge(m.drop(columns=["fcst", "cutoff", "base"]), on=["date", "target_hour", "horizon"], how="left",
+                   validate="many_to_one")
 
 
 def prepare(d: pd.DataFrame) -> pd.DataFrame:
@@ -95,6 +130,17 @@ def prepare(d: pd.DataFrame) -> pd.DataFrame:
         x[c] = pd.to_numeric(x[c].astype(float) if x[c].dtype == bool else x[c], errors="coerce")
     x["temp_c"] = x["temp_c"].fillna(x.loc[x["model_set"] == "train", "temp_c"].median())
     x[NUMERIC] = x[NUMERIC].fillna(0.0)
+    x["fc_tmp_min"] = x["fc_tmp_min"].fillna(x["temp_c"])
+    x[FCST] = x[FCST].astype(float).fillna(0.0)
+    expr = x["function_type"].astype(str).eq("도시고속도로").astype(float)
+    evening = (x["target_hour"].astype(int) >= 12).astype(float)
+    river = x["is_riverside"].astype(float)
+    rain, fcrain = np.log1p(x["precip_3h"]), np.log1p(x["fc_pcp_max"])
+    x["x_rain_expr"], x["x_snow_expr"] = rain * expr, x["new_snow_3h_cm"] * expr
+    x["x_fcrain_expr"], x["x_fcsnow_expr"] = fcrain * expr, x["fc_sno_max"] * expr
+    x["x_rain_evening"], x["x_fcrain_evening"], x["x_fcsnow_evening"] = rain * evening, fcrain * evening, x["fc_sno_max"] * evening
+    x["x_warnrain_river"] = (x["warn_rain"] > 0).astype(float) * river
+    x["x_wlrise_river"] = x["wl_rise_3h"].clip(lower=0) * river
     for c in CATEGORICAL:
         x[c] = x[c].astype(str).replace({"nan": "없음", "<NA>": "없음"})
     return x
@@ -109,9 +155,20 @@ def threshold_rule(y: np.ndarray, s: np.ndarray) -> tuple[float, float, float]:
     return float(t[i]), float(p[i]), float(r[i])
 
 
-def evaluate(name: str, h: int, dv: pd.DataFrame, s: np.ndarray, thr: float, n_days: int) -> dict:
+def dev_season_masks(d: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """시간 순서대로 Dev 겨울을 선택, 다음 여름을 검증에 쓴다."""
+    season = d["season"].astype(str)
+    winter = season.eq("2024-25_winter").to_numpy()
+    summer = season.eq("2025_summer").to_numpy()
+    if not winter.any() or not summer.any() or not (winter | summer).all():
+        raise ValueError("Dev에는 2024-25 겨울과 2025 여름이 모두 있어야 합니다.")
+    return winter, summer
+
+
+def evaluate(name: str, h: int, dv: pd.DataFrame, s: np.ndarray, thr: float, n_days: int,
+             alert: np.ndarray | None = None) -> dict:
     y = dv["y"].to_numpy()
-    a = s >= thr
+    a = s >= thr if alert is None else alert
     tp, fp = int((a & (y == 1)).sum()), int((a & (y == 0)).sum())
     fn, tn = int((~a & (y == 1)).sum()), int((~a & (y == 0)).sum())
     bad = dv["weather_class"].astype(str).eq("악천후").to_numpy()
@@ -132,27 +189,34 @@ def fit_models(tr: pd.DataFrame, dv: pd.DataFrame, h: int) -> tuple[dict, dict]:
     scores["기준선: 특보면 경보"] = ((dv["warn_snow"] > 0) | (dv["warn_rain"] > 0)).astype(float).to_numpy()
     scores["기준선: 지금 느리면 경보"] = dv["ratio_t0"].to_numpy()
 
-    pre = ColumnTransformer([("num", StandardScaler(), NUMERIC),
-                             ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=20), CATEGORICAL)])
-    logit = make_pipeline(pre, LogisticRegression(class_weight="balanced", max_iter=2000, C=1.0))
-    logit.fit(tr[NUMERIC + CATEGORICAL], tr["y"])
-    scores["로지스틱 회귀"] = logit.predict_proba(dv[NUMERIC + CATEGORICAL])[:, 1]
-    coef = pd.Series(logit[-1].coef_[0], index=logit[0].get_feature_names_out())
-    info["logit_top"] = coef.reindex(coef.abs().sort_values(ascending=False).index).head(15).round(3).to_dict()
+    def logit_scores(num):
+        pre = ColumnTransformer([("num", StandardScaler(), num),
+                                 ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=20), CATEGORICAL)])
+        m = make_pipeline(pre, LogisticRegression(class_weight="balanced", max_iter=3000, C=1.0))
+        m.fit(tr[num + CATEGORICAL], tr["y"])
+        coef = pd.Series(m[-1].coef_[0], index=m[0].get_feature_names_out())
+        return m.predict_proba(dv[num + CATEGORICAL])[:, 1], coef
 
-    pre_t = ColumnTransformer([("num", "passthrough", NUMERIC),
+    scores["로지스틱 회귀"], coef = logit_scores(NUMERIC)
+    full = NUMERIC + FCST + INTER
+    scores["로지스틱 + 예보 · 겹침"], coef_f = logit_scores(full)
+    info["logit_top"] = coef_f.reindex(coef_f.abs().sort_values(ascending=False).index).head(15).round(3).to_dict()
+    info["logit_weather_coef"] = coef_f[[f"num__{c}" for c in FCST + INTER + ["precip_3h", "new_snow_3h_cm", "warn_rain", "warn_snow"]]].round(3).to_dict()
+
+    pre_t = ColumnTransformer([("num", "passthrough", full),
                                ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=20), CATEGORICAL)])
+    winter, _ = dev_season_masks(dv)
     best = None
     for depth in TREE_DEPTHS:
         tree = make_pipeline(pre_t, DecisionTreeClassifier(max_depth=depth, min_samples_leaf=200,
                                                            class_weight="balanced", random_state=SEED))
-        tree.fit(tr[NUMERIC + CATEGORICAL], tr["y"])
-        s = tree.predict_proba(dv[NUMERIC + CATEGORICAL])[:, 1]
-        ap = average_precision_score(dv["y"], s)
+        tree.fit(tr[full + CATEGORICAL], tr["y"])
+        s = tree.predict_proba(dv[full + CATEGORICAL])[:, 1]
+        ap = average_precision_score(dv.loc[winter, "y"], s[winter])
         info.setdefault("tree_depth_pr_auc", {})[depth] = round(float(ap), 4)
         if best is None or ap > best[0]:
             best = (ap, depth, s, tree)
-    scores["결정트리"] = best[2]
+    scores["결정트리 + 예보 · 겹침"] = best[2]
     info["tree_depth"] = best[1]
     names = [n.replace("num__", "").replace("cat__", "") for n in best[3][0].get_feature_names_out()]
     info["tree_rules"] = export_text(best[3][-1], feature_names=names, max_depth=3, decimals=2)
@@ -192,7 +256,9 @@ def main() -> None:
     for h in [1, 3]:
         tr = d[(d["model_set"] == "train") & (d["horizon"] == h)]
         dv = d[(d["model_set"] == "dev") & (d["horizon"] == h)]
-        n_days = dv["date"].nunique()
+        winter, summer = dev_season_masks(dv)
+        summer_dv = dv.loc[summer]
+        n_days = summer_dv["date"].nunique()
         scores, info = fit_models(tr, dv, h)
         info_all[h] = {k: v for k, v in info.items() if k != "tree_rules"}
         if h == 3:
@@ -203,25 +269,26 @@ def main() -> None:
             if name == "기준선: 특보면 경보":
                 thr = 1.0
             else:
-                thr, _, _ = threshold_rule(y, s)
-                p, r, _ = precision_recall_curve(y, s)
+                thr, _, _ = threshold_rule(y[winter], s[winter])
+                p, r, _ = precision_recall_curve(y[summer], s[summer])
                 idx = np.unique(np.linspace(0, len(p) - 1, 200).astype(int))
                 curves.append(pd.DataFrame({"model": name, "horizon": h, "precision": p[idx], "recall": r[idx]}))
-            metrics.append(evaluate(name, h, dv, s, thr, n_days) | {"rule": "재현율 80%"})
-            alerts.setdefault(name, {})[h] = s >= thr
+            metrics.append(evaluate(name, h, summer_dv, s[summer], thr, n_days) | {"rule": "겨울 선택 → 여름 검증", "selection_season": "2024-25_winter", "evaluation_season": "2025_summer"})
+            alerts.setdefault(name, {})[h] = s[summer] >= thr
             sc[name] = s
+            # 같은 경보 수 비교 (여름): 특보 기준선과 경보 개수를 맞춘 임계값. 경보를 늘리지 않고 몇 개를 더 잡나
             if name == "기준선: 특보면 경보":
-                n_base = int((s >= 1.0).sum())
+                n_base = int((s[summer] >= 1.0).sum())
             else:
-                # 같은 경보 수로 비교: 특보 기준선과 경보 개수를 맞춘 임계값 (경보를 늘리지 않고 몇 개를 더 잡나)
-                thr_b = float(np.sort(s)[::-1][n_base - 1])
-                metrics.append(evaluate(name, h, dv, s, thr_b, n_days) | {"rule": "특보와 같은 경보 수"})
+                thr_b = float(np.sort(s[summer])[::-1][n_base - 1])
+                metrics.append(evaluate(name, h, summer_dv, s[summer], thr_b, n_days)
+                               | {"rule": "특보와 같은 경보 수 (여름)", "evaluation_season": "2025_summer"})
         keep.append(sc)
     met = pd.DataFrame(metrics)
-    order = ["기준선: 특보면 경보", "기준선: 지금 느리면 경보", "로지스틱 회귀", "결정트리"]
+    order = ["기준선: 특보면 경보", "기준선: 지금 느리면 경보", "로지스틱 회귀", "로지스틱 + 예보 · 겹침", "결정트리 + 예보 · 겹침"]
     met["model"] = pd.Categorical(met["model"], order, ordered=True)
     met = met.sort_values(["horizon", "rule", "model"])
-    dv_all = pd.concat([d[(d["model_set"] == "dev") & (d["horizon"] == h)] for h in [1, 3]])
+    dv_all = pd.concat([d[(d["model_set"] == "dev") & (d["season"] == "2025_summer") & (d["horizon"] == h)] for h in [1, 3]])
     lt = lead_time(dv_all, alerts)
 
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
@@ -233,7 +300,10 @@ def main() -> None:
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "rows": {
                f"{ms}_h{h}": int(((d["model_set"] == ms) & (d["horizon"] == h)).sum()) for ms in ["train", "dev"] for h in [1, 3]},
            "positive_rate": {ms: round(float(d.loc[d["model_set"] == ms, "y"].mean()), 4) for ms in ["train", "dev"]},
-           "min_recall": MIN_RECALL, "features": NUMERIC + CATEGORICAL, "models": info_all,
+           "min_recall": MIN_RECALL, "features": NUMERIC + FCST + INTER + CATEGORICAL,
+           "forecast_rule": "발표 시각 + 1시간 <= t 인 가장 최근 발표",
+           "selection_season": "2024-25_winter", "evaluation_season": "2025_summer",
+           "forecast_missing_rate": round(float(d["fc_missing"].mean()), 4), "models": info_all,
            "seconds": round(time.time() - t0, 1)}
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     LOG_PATH.write_text(json.dumps(log, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
