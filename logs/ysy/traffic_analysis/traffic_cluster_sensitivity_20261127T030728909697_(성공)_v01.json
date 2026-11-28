@@ -1,0 +1,59 @@
+{
+  "status": "성공",
+  "input": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_traffic_change_20261127T004037_(성공)_v01.csv",
+  "min_cluster_size": 5,
+  "selected": [
+    {
+      "coverage_rule": "전체",
+      "coverage_threshold": 0.0,
+      "k": 4,
+      "silhouette": 0.29631368807210584,
+      "train_roads": 52,
+      "dev_roads": 51,
+      "train_min_cluster_size": 5,
+      "dev_min_cluster_size": 3,
+      "min_size_eligible": true,
+      "comparable_roads": 51,
+      "same_cluster_roads": 14,
+      "agreement_rate": 0.27450980392156865,
+      "excluded_road_hours": 0
+    },
+    {
+      "coverage_rule": "관측률_50%이상",
+      "coverage_threshold": 0.5,
+      "k": 2,
+      "silhouette": 0.30474835683460655,
+      "train_roads": 52,
+      "dev_roads": 51,
+      "train_min_cluster_size": 14,
+      "dev_min_cluster_size": 6,
+      "min_size_eligible": true,
+      "comparable_roads": 51,
+      "same_cluster_roads": 17,
+      "agreement_rate": 0.3333333333333333,
+      "excluded_road_hours": 195
+    },
+    {
+      "coverage_rule": "관측률_100%",
+      "coverage_threshold": 1.0,
+      "k": 2,
+      "silhouette": 0.3815542289901816,
+      "train_roads": 51,
+      "dev_roads": 42,
+      "train_min_cluster_size": 11,
+      "dev_min_cluster_size": 9,
+      "min_size_eligible": true,
+      "comparable_roads": 42,
+      "same_cluster_roads": 14,
+      "agreement_rate": 0.3333333333333333,
+      "excluded_road_hours": 2263
+    }
+  ],
+  "test_excluded": true,
+  "interpretation": "관측률과 최소 군집 크기를 바꿔도 낮은 일치율이 지속되는지 확인하는 실패 원인 민감도 분석",
+  "outputs": {
+    "candidates": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_cluster_sensitivity_candidates_20261127T030728909697_(성공)_v01.csv",
+    "selected": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_cluster_sensitivity_selected_20261127T030728909697_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_cluster_sensitivity_20261127T030728909697_(성공)_v01.json"
+  }
+}

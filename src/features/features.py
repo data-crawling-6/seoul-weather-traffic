@@ -110,9 +110,9 @@ def road_static(links: pd.DataFrame) -> pd.DataFrame:
     return g.drop(columns=["lane_m", "urban_m"])
 
 
-def weather_table() -> pd.DataFrame:
+def weather_table(splits=("train", "eval")) -> pd.DataFrame:
     w = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[s] / f"weather_hourly_{SPLIT_DIR[s]}.csv", parse_dates=["datetime", "date"])
-                   for s in ["train", "eval"]]).drop_duplicates("datetime").sort_values("datetime")
+                   for s in splits]).drop_duplicates("datetime").sort_values("datetime")
     w = w.set_index("datetime").asfreq("h")  # 빠진 시각이 있어도 shift가 정확히 1시간이 되게
     out = pd.DataFrame(index=w.index)
     out["temp_c"] = w["temp_c"]
@@ -132,9 +132,9 @@ def weather_table() -> pd.DataFrame:
     return out.reset_index()
 
 
-def water_table() -> pd.DataFrame:
+def water_table(splits=("train", "eval")) -> pd.DataFrame:
     wl = pd.concat([pd.read_csv(PROC_DIR / SPLIT_DIR[s] / f"waterlevel_hourly_{SPLIT_DIR[s]}.csv", parse_dates=["datetime"])
-                    for s in ["train", "eval"]])
+                    for s in splits])
     wl = wl[wl["obsnm"].isin({s for v in RIVERSIDE_STATIONS.values() for s in v})]
     return wl[["datetime", "obsnm", "wl_rise_3h", "over_attwl", "over_wrnwl"]].rename(
         columns={"over_attwl": "wl_over_attention", "over_wrnwl": "wl_over_warning"}).drop_duplicates(["datetime", "obsnm"])
@@ -184,12 +184,14 @@ def make_rows(rh: pd.DataFrame, weather: pd.DataFrame) -> pd.DataFrame:
 
 def build(seasons: list[str]) -> tuple[pd.DataFrame, dict]:
     periods = load_periods().set_index("season")
-    prior = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"prior_road_{SPLIT_DIR[s]}.parquet") for s in ["train", "eval"]])
+    # 고른 시즌이 속한 폴더만 연다. Train · Dev 시즌만 만들 때는 holdout(Test) 파일을 읽지 않는다 (코드 검토 1번)
+    splits = tuple(s for s in ["train", "eval"] if s in set(periods.loc[seasons, "split"]))
+    prior = pd.concat([pd.read_parquet(PROC_DIR / SPLIT_DIR[s] / f"prior_road_{SPLIT_DIR[s]}.parquet") for s in splits])
     for c in ["season", "road_id", "direction"]:
         prior[c] = prior[c].astype(str)
     prior["date"] = pd.to_datetime(prior["date"])
-    weather = weather_table()
-    water = water_table()
+    weather = weather_table(splits)
+    water = water_table(splits)
 
     out, static, summary = [], None, {}
     for season in seasons:
@@ -254,7 +256,7 @@ COLUMNS = [
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--seasons", nargs="*", help="일부 시즌만 (시험용, 파일은 쓰지 않음)")
+    ap.add_argument("--seasons", nargs="*", help="일부 시즌만 (시험용, 파일은 쓰지 않음). Train · Dev 시즌만 주면 Test 파일을 열지 않는다")
     a = ap.parse_args()
     seasons = a.seasons or list(MODEL_SETS)
     f, summary = build(seasons)

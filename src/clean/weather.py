@@ -396,13 +396,16 @@ MUST_INCLUDE = [date(2025, 12, 4)]  # 검증 사례는 항상 넣는다
 
 
 def mark_impact(df: pd.DataFrame, ev: pd.DataFrame, th=THRESHOLDS) -> pd.DataFrame:
-    """impact(영향 시간의 사건 강도) · impact_rank · snow_phase(falling / after / 빈값) 열을 붙인다.
+    """impact(영향 시간의 사건 강도) · impact_rank · snow_phase(falling / after / 빈값) · impact_event_id 열을 붙인다.
 
-    겹치는 사건은 가장 센 사건이 impact 를 정하고, snow_phase 도 그 사건을 따른다.
+    겹치는 사건은 가장 센 사건이 impact 를 정하고, snow_phase · impact_event_id 도 그 사건을 따른다.
+    impact_event_id: 영향 시간을 정한 사건 번호. event_id 는 비 · 눈이 관측된 시간에만 있어서,
+                     그친 뒤 영향 시간(눈 12시간 · 비 3시간)은 이 열로 원래 사건에 이어 붙인다 (코드 검토 2번).
     """
     df = df.copy()
     impact = pd.Series("", index=df.index)
     snow_phase = pd.Series("", index=df.index)
+    impact_event = pd.Series(np.nan, index=df.index)
     rank = pd.Series(0, index=df.index)
     bad_ev = ev[ev["intensity"].isin(BAD_INTENSITIES)]
     for _, e in bad_ev.iterrows():
@@ -411,10 +414,12 @@ def mark_impact(df: pd.DataFrame, ev: pd.DataFrame, th=THRESHOLDS) -> pd.DataFra
         r = INTENSITY_ORDER[e["intensity"]]
         upd = m & (rank < r)
         impact[upd], rank[upd] = e["intensity"], r
+        impact_event[upd] = e["event_id"]
         # impact 를 정한 사건(가장 센 사건)을 따라 눈 단계를 정한다. 비 사건이 덮으면 빈값으로 되돌린다
         snow_phase[upd] = (np.where(df.loc[upd, "datetime"] <= e["end"], "falling", "after")
                            if e["type"] == "snow" else "")
     df["impact"], df["impact_rank"], df["snow_phase"] = impact, rank, snow_phase
+    df["impact_event_id"] = impact_event
     return df
 
 
@@ -489,7 +494,7 @@ def select_days(df: pd.DataFrame, ev: pd.DataFrame, period: dict, max_train: int
 # ── 7. 저장 ───────────────────────────────────────────────────────
 HOURLY_COLS = ["datetime", "date", "hour", "season", "split", "in_period", "temp_c", "precip_mm",
                "new_snow_3h_cm", "snow_depth_cm", "wind_ms", "humidity", "visibility_10m", "phenomenon",
-               "precip_type", "event_id", "event_intensity", "impact", "snow_phase", "missing_obs"]
+               "precip_type", "event_id", "event_intensity", "impact", "snow_phase", "impact_event_id", "missing_obs"]
 
 
 def add_warnings(hourly: pd.DataFrame):

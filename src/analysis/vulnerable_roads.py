@@ -7,6 +7,10 @@
 - 상위 20%   : 그 사건에서 사건 비율이 있는 도로 · 방향(최대 180개) 중 백분위 순위 80% 이상
 - 반복 취약  : 사건 가운데 절반 이상에서 상위 20%에 들고, 사건 비율 중앙값이 최소 비율 이상인 도로 · 방향
 - 눈 · 비는 따로 판정한다 (weather_events 의 type)
+- 순위에 쓰는 시간 (11/28, RANK_HOURS = "falling"): 영향 시간 가운데 **내리는 중**만 쓴다.
+  비는 비가 관측된 시간(event_id 있음), 눈은 snow_phase == falling. 그친 뒤 영향 시간은 차가 줄어 오히려 빨라져서
+  (24시간 비교 5-2) 순위가 '덜 빨라지는 도로'로 흐려진다. 영향 시간 전체("impact")로 한 결과는 참고 표로 남긴다.
+  그친 뒤 시간은 impact_event_id 로 원래 사건에 붙인다 (코드 검토 2번, 예전에는 사건 번호가 없어 빠졌다).
 
 진행 (분석 설계 7.3)
 1. Train 사건으로 목록 후보를 만든다 (최소 비율 후보마다)
@@ -33,6 +37,7 @@
   outputs/tables/vulnerable_min_ratio_dev.csv                    최소 비율 후보별 Dev 적중률 · lift · 순열 p
   outputs/tables/vulnerable_clear_control.csv                    맑은 날 대조
   outputs/tables/vulnerable_leave_one_season_out.csv             시즌 하나씩 빼기
+  outputs/tables/vulnerable_impact_window_compare.csv            순위 시간 비교 (내리는 중 vs 영향 시간 전체)
   logs/ljh/vulnerable_roads/vulnerable_roads.json
 """
 from __future__ import annotations
@@ -59,7 +64,8 @@ LOG_DIR = ROOT / "logs" / "ljh" / "vulnerable_roads"
 TOP_SHARE = 0.20          # 상위 20%
 HIT_SHARE = 0.50          # 사건 절반 이상
 MIN_RATIO_CANDIDATES = [1.00, 1.02, 1.05, 1.08, 1.10, 1.15, 1.20]
-MIN_LIST = 5              # 목록이 이보다 작으면 최소 비율 후보에서 뺀다
+MIN_LIST = 5              # 목록이 이보다 작으면 최소 비율 후보에서 뺀다 (모든 후보가 작으면 목록이 가장 큰 후보)
+RANK_HOURS = "falling"    # 순위에 쓰는 시간: "falling" 내리는 중 / "impact" 영향 시간 전체
 N_PERM = 10000
 SEED = 20261127
 KIND_NAME = {"snow": "눈", "rain": "비"}
@@ -90,7 +96,7 @@ def _control_hours(v: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def load_ratios(split: str = "train", control: bool = False) -> pd.DataFrame:
+def load_ratios(split: str = "train", control: bool = False, hours: str = RANK_HOURS) -> pd.DataFrame:
     """v04 평일 출퇴근 + 정답용 평소값 → 악천후 시간의 도로 · 방향 비율 (사건 · 종류 · model_set 붙임).
 
     control=True: 같은 사건 번호로 '맑은 날 가짜 사건'(_control_hours)의 비율을 돌려준다. 사건 종류 · 시즌은 원래 사건 그대로.
@@ -99,6 +105,24 @@ def load_ratios(split: str = "train", control: bool = False) -> pd.DataFrame:
                                        "direction", "travel_time_seconds"])
     v = v[v["split"] == split].copy()
     attach_weather_labels(v)
+    # 그친 뒤 영향 시간은 event_id 가 비어 있다 → 영향을 정한 사건 번호(impact_event_id)로 원래 사건에 붙인다 (코드 검토 2번)
+    ie = pd.read_csv(SHARED / _split_dir(split) / f"weather_hourly_{_split_dir(split)}.csv", encoding="utf-8-sig",
+                     usecols=["date", "hour", "impact_event_id", "snow_phase"])
+    ie["date"] = pd.to_datetime(ie["date"])
+    v["date"] = pd.to_datetime(v["date"])
+    v = v.merge(ie, on=["date", "hour"], how="left", validate="many_to_one")
+    v["observed"] = v["event_id"].notna()          # 비 · 눈이 관측된 시간
+    v["event_id"] = np.where(v["impact"].notna(), v["impact_event_id"], v["event_id"])
+    v = v.drop(columns=["impact_event_id"])
+    ev = pd.read_csv(SHARED / _split_dir(split) / f"weather_events_{_split_dir(split)}.csv", encoding="utf-8-sig",
+                     usecols=["event_id", "type", "intensity", "start"])
+    if hours == "falling":
+        # 순위에 쓰지 않는 그친 뒤 시간은 악천후 표시만 지운다 (맑은 시간으로 바뀌지는 않음: event_id 가 남아 있다)
+        etype = v["event_id"].map(ev.set_index("event_id")["type"])
+        falling = np.where(etype.eq("snow"), v["snow_phase"].eq("falling"), v["observed"])
+        v["impact"] = v["impact"].where(falling | v["impact"].isna())
+    elif hours != "impact":
+        raise ValueError(f"hours 는 falling 또는 impact: {hours}")
     if control:
         ctrl = _control_hours(v)
         v["date"] = pd.to_datetime(v["date"])
@@ -112,10 +136,8 @@ def load_ratios(split: str = "train", control: bool = False) -> pd.DataFrame:
                     usecols=["season", "road_id", "direction", "weekday", "hour", "baseline_travel_time_s"])
     v = v.merge(b, on=["season", "road_id", "direction", "weekday", "hour"], how="left", validate="many_to_one")
     v["ratio"] = v["travel_time_seconds"] / v["baseline_travel_time_s"]
-    ev = pd.read_csv(SHARED / _split_dir(split) / f"weather_events_{_split_dir(split)}.csv", encoding="utf-8-sig",
-                     usecols=["event_id", "type", "intensity", "start"])
     v = v.merge(ev, on="event_id", how="left", validate="many_to_one")
-    return add_model_set(v, include_test=(split == "eval"))
+    return add_model_set(v.drop(columns=["observed", "snow_phase"]), include_test=(split == "eval"))
 
 
 def event_ratios(v: pd.DataFrame) -> pd.DataFrame:
@@ -187,7 +209,12 @@ def choose_min_ratio(e: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
                          "lift": hr / TOP_SHARE if keys else np.nan, "perm_p": p})
     t = pd.DataFrame(rows)
     ok = t[t["n_list"] >= MIN_LIST]
-    best = (ok.sort_values(["type", "lift", "n_list"], ascending=[True, False, False]).groupby("type").head(1))
+    best = ok.sort_values(["type", "lift", "n_list"], ascending=[True, False, False]).groupby("type").head(1)
+    # 어떤 후보도 MIN_LIST 를 못 채운 종류는 목록이 가장 큰 후보 (같으면 lift 큰 쪽)
+    for kind in set(t["type"]) - set(best["type"]):
+        tk = t[(t["type"] == kind) & (t["n_list"] > 0)]
+        if len(tk):
+            best = pd.concat([best, tk.sort_values(["n_list", "lift"], ascending=False).head(1)])
     t["chosen"] = t.index.isin(best.index)
     return t
 
@@ -265,8 +292,24 @@ def main() -> None:
     loso.to_csv(TABLE_DIR / "vulnerable_leave_one_season_out.csv", index=False, encoding="utf-8-sig")
     ctrl = clear_control(final, chosen, rng)
     ctrl.to_csv(TABLE_DIR / "vulnerable_clear_control.csv", index=False, encoding="utf-8-sig")
+    # 참고: 영향 시간 전체로 순위를 매기면 (그친 뒤 포함)
+    comp = []
+    for hours in ["falling", "impact"]:
+        e_h = e if hours == RANK_HOURS else event_ratios(load_ratios("train", hours=hours))
+        c_h = choose_min_ratio(e_h, np.random.default_rng(SEED))
+        ch = c_h[c_h["chosen"]].set_index("type")
+        for kind in ["snow", "rain"]:
+            if kind not in ch.index:
+                continue
+            s_h = road_summary(e_h[e_h["type"] == kind], ch.at[kind, "min_ratio"])
+            vv = s_h[s_h["is_vulnerable"]]
+            comp.append({"hours": hours, "type": kind, "min_ratio": ch.at[kind, "min_ratio"], "dev_lift": ch.at[kind, "lift"],
+                         "dev_perm_p": ch.at[kind, "perm_p"], "n_final": len(vv),
+                         "median_ratio_of_list": float(vv["median_event_ratio"].median()) if len(vv) else np.nan,
+                         "roads": ", ".join(vv["road_name"] + "(" + vv["direction"] + ")")})
+    pd.DataFrame(comp).to_csv(TABLE_DIR / "vulnerable_impact_window_compare.csv", index=False, encoding="utf-8-sig")
     log = {"run_at": datetime.now(KST).isoformat(timespec="seconds"), "input": ROAD.name,
-           "top_share": TOP_SHARE, "hit_share": HIT_SHARE, "chosen_min_ratio": chosen,
+           "top_share": TOP_SHARE, "hit_share": HIT_SHARE, "rank_hours": RANK_HOURS, "chosen_min_ratio": chosen,
            "events": {f"{m}_{t}": int(n) for (m, t), n in e.groupby(["model_set", "type"])["event_id"].nunique().items()},
            "n_vulnerable": final.groupby("type")["is_vulnerable"].sum().astype(int).to_dict()}
     LOG_DIR.mkdir(parents=True, exist_ok=True)

@@ -44,3 +44,28 @@ class WeatherSeoulTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FcstMissingTest(unittest.TestCase):
+    """코드 검토 7번: -99 결측은 권역 평균 전에 뺀다."""
+
+    def test_결측_권역은_평균에서_뺀다(self):
+        import pandas as pd
+        from src.clean.weather_seoul import fcst_seoul
+        f = pd.DataFrame({"base": ["2024-07-01 05:00"] * 2, "fcst": ["2024-07-01 08:00"] * 2, "lead_h": [3, 3],
+                          "region": ["동남권", "동북권"], "PCP": [-99.0, 5.0], "SNO": [0.0, 0.0],
+                          "TMP": [25.0, 26.0], "PTY": [-99, 1]})
+        out = fcst_seoul(f).iloc[0]
+        self.assertEqual(out["pcp_mean"], 5.0)
+        self.assertEqual(out["pcp_max"], 5.0)
+        self.assertEqual(out["pcp_regions"], 1)
+        self.assertEqual(out["pty_missing_regions"], 1)
+        self.assertEqual(out["pty_rain_regions"], 1)
+
+    def test_모두_결측이면_빈값(self):
+        import pandas as pd
+        from src.clean.weather_seoul import fcst_seoul
+        f = pd.DataFrame({"base": ["2024-07-01 05:00"] * 2, "fcst": ["2024-07-01 08:00"] * 2, "lead_h": [3, 3],
+                          "region": ["동남권", "동북권"], "PCP": [-99.0, -99.0], "SNO": [0.0, 0.0],
+                          "TMP": [25.0, 26.0], "PTY": [0, 0]})
+        self.assertTrue(pd.isna(fcst_seoul(f).iloc[0]["pcp_mean"]))

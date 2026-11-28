@@ -12,7 +12,9 @@ crawling/kma_warning.py 가 받은 목록 · 상세를 읽어서
      warn_<kind>_hours    이번 특보가 발효된 뒤 지난 시간
 4. episodes()        : 서울에 특보가 걸렸다 풀린 한 번 한 번 (생존분석 출발점)
 
-시각 기준: 그 시각까지 '발효' 된 것만 반영한다 (미래 정보 누수 방지).
+시각 기준: 그 시각까지 '발효'되고 '발표'도 된 것만 반영한다 (미래 정보 누수 방지).
+  applied_at = max(발효 시각, 발표 시각). 07시 발효를 09시에 발표한 통보문은 09시부터 반영한다
+  (07 · 08시에는 이용자가 알 수 없었다, 코드 검토 8번). warn_<kind> 값은 권역 수가 아니라 최고 단계(0 · 1 · 2)다.
 """
 from __future__ import annotations
 
@@ -98,22 +100,25 @@ def seoul_items(items: pd.DataFrame) -> pd.DataFrame:
     it["kind"] = it["kind_ko"].map(KINDS)
     it["level"] = it["level_ko"].map(LEVEL)
     it["effective_at"] = it["effective_at"].fillna(it["issued_at"])
-    return it.sort_values(["effective_at", "issued_at", "item"]).reset_index(drop=True)
+    it["applied_at"] = it[["effective_at", "issued_at"]].max(axis=1)
+    return it.sort_values(["applied_at", "issued_at", "item"]).reset_index(drop=True)
 
 
 def hourly_state(items: pd.DataFrame, hours: pd.Series) -> pd.DataFrame:
-    """hours(정시 목록)마다 서울 특보 상태. 그 시각까지 발효된 항목만 반영한다."""
+    """hours(정시 목록)마다 서울 특보 상태. 그 시각까지 발효 · 발표된 항목만 반영한다 (applied_at)."""
     hours = pd.to_datetime(pd.Series(hours)).sort_values().reset_index(drop=True)
     out = pd.DataFrame({"datetime": hours})
     for kind in KINDS.values():
-        ev = items[items["kind"] == kind]
+        if "applied_at" not in items.columns:
+            items = items.assign(applied_at=items[["effective_at", "issued_at"]].max(axis=1))
+        ev = items[items["kind"] == kind].sort_values(["applied_at", "issued_at"], kind="stable")
         state = {a: 0 for a in SEOUL_AREAS}
         lvl, cnt, since = [], [], []
         i, n = 0, len(ev)
         started = None
         recs = ev.to_dict("records")
         for h in hours:
-            while i < n and recs[i]["effective_at"] <= h:
+            while i < n and recs[i]["applied_at"] <= h:
                 r = recs[i]
                 for a in r["seoul_areas"]:
                     if r["action"] == "해제":
@@ -151,7 +156,7 @@ def episodes(state: pd.DataFrame, items: pd.DataFrame) -> pd.DataFrame:
         for _, g in state[on].groupby(grp[on]):
             start, end = g["datetime"].iloc[0], g["datetime"].iloc[-1]
             first = items[(items["kind"] == kind) & (items["action"] != "해제")
-                          & (items["effective_at"] <= start)].tail(1)
+                          & (items[["effective_at", "issued_at"]].max(axis=1) <= start)].tail(1)
             rows.append({"kind": kind, "effective_start": start, "end": end + pd.Timedelta(hours=1),
                          "hours": len(g), "max_level": int(g[f"warn_{kind}"].max()),
                          "issued_at": first["issued_at"].iloc[0] if len(first) else pd.NaT})

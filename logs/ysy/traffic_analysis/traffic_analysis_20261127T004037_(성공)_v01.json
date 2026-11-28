@@ -1,0 +1,57 @@
+{
+  "status": "성공",
+  "input": "C:\\Users\\USER\\seoul-weather-traffic\\data\\derived\\topis_traffic_volume\\traffic_weather_days_joined_20261124T021832_._v01.csv",
+  "rows": {
+    "source": 50400,
+    "pairs": 25200,
+    "road_hours": 7800,
+    "train_roads": 52,
+    "dev_roads": 52
+  },
+  "excluded_model_set": "test",
+  "pairing": {
+    "severe_rows": 25200,
+    "pair_rows": 25200,
+    "valid_pairs": 19037,
+    "missing_or_zero_pairs": 6163,
+    "structurally_unmatched_comparison_rows": 0,
+    "comparison_volume_missing_rows": 5297
+  },
+  "clustering": {
+    "feature_columns": [
+      "median_change_pct",
+      "change_iqr",
+      "decrease_share",
+      "morning_median",
+      "evening_median"
+    ],
+    "best_k": 6,
+    "silhouette_scores": {
+      "2": 0.2731521771461093,
+      "3": 0.2829733721763618,
+      "4": 0.29631368807210584,
+      "5": 0.30328056754441807,
+      "6": 0.32258125387463576
+    },
+    "clustered_roads": 52,
+    "unclustered_roads": 0,
+    "dev_clustered_roads": 51,
+    "dev_unclustered_roads": 1,
+    "train_dev_comparable_roads": 51,
+    "train_dev_same_cluster_roads": 13,
+    "train_dev_cluster_agreement_rate": 0.2549019607843137,
+    "fit_scope": "train only",
+    "dev_scope": "prediction with train-fitted scaler and centroids",
+    "random_state": 42
+  },
+  "outputs": {
+    "pairs": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_traffic_pairs_20261127T004037_(성공)_v01.csv",
+    "road_hours": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_traffic_change_20261127T004037_(성공)_v01.csv",
+    "features": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_cluster_features_20261127T004037_(성공)_v01.csv",
+    "clusters": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_kmeans_clusters_20261127T004037_(성공)_v01.csv",
+    "dev_clusters": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_kmeans_dev_20261127T004037_(성공)_v01.csv",
+    "cluster_summary": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_cluster_summary_20261127T004037_(성공)_v01.csv",
+    "representatives": "C:\\Users\\USER\\seoul-weather-traffic\\outputs\\tables\\yang_seoyeon_road_cluster_representatives_20261127T004037_(성공)_v01.csv",
+    "log": "C:\\Users\\USER\\seoul-weather-traffic\\logs\\ysy\\traffic_analysis\\traffic_analysis_20261127T004037_(성공)_v01.json"
+  }
+}

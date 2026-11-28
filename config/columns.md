@@ -95,6 +95,7 @@ v05의 10월 행은 연구 기간 밖이고 10월 날씨 결측을 보간하지 
 | `event_intensity` | category | 날씨자료 값 | 사건 강도 |
 | `impact` | category | 날씨자료 값 | 맑음·약한 비눈·악천후 구분 |
 | `snow_phase` | category | `falling`, `after`, 빈값 | `impact`가 눈 사건에서 왔을 때 눈이 내리는 중(사건 시작~끝 시각) / 그친 뒤 영향 시간(최대 12시간). 눈이 아니면 빈값. 모델 입력이 아니라 채점 · 가중치 대상 구분용 (B, 11/27) |
+| `impact_event_id` | number | 사건 번호, 빈값 | 영향 시간을 정한 사건 번호. `event_id`는 비 · 눈이 관측된 시간에만 있어서, 그친 뒤 영향 시간은 이 열로 원래 사건에 이어 붙인다. 겹치면 가장 센 사건 (B, 11/28) |
 | `missing_obs` | boolean | `True`, `False` | 기상 관측 결측 여부 |
 | `warn_snow` | boolean | `True`, `False` | 대설특보 여부 |
 | `warn_rain` | boolean | `True`, `False` | 호우특보 여부 |

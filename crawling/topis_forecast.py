@@ -19,6 +19,12 @@
 
 결과 (실행한 날짜별 폴더)
     {out}/YYYY-MM-DD/weekly.csv, roadtype_hourly.csv, link_hourly.csv, axis_map.csv
+    {out}/YYYY-MM-DD/status.json   예상 요청 수 · 성공 수 · 행 수 · 실패 키 · complete
+    {out}/YYYY-MM-DD/_COMPLETE     성공 기준을 채웠을 때만 만든다 (워크플로가 이 파일로 '오늘 완료'를 판단)
+
+완료 기준 (코드 검토 10번): 구간 요청 성공률 MIN_SUCCESS 이상 · 구간 행이 0보다 많음 · 주간 행이 0보다 많음.
+    못 채우면 _COMPLETE 를 만들지 않고 종료 코드 1로 끝낸다 → 워크플로는 data-collect 에 커밋하지 않고,
+    두 번째 예약 실행(07:41)이 다시 받는다. 실패 키는 status.json 과 로그에 남는다.
     logs/kmj/topis_forecast/topis_forecast.log, logs/kmj/topis_forecast/forecast_YYYY-MM-DD.png
 """
 import argparse
@@ -45,6 +51,7 @@ SHOT_DIR = LOG_DIR
 WAIT_SEC = 30
 PAUSE_SEC = 0.2
 FIRST_HOUR, LAST_HOUR = 7, 20  # 출근 ~ 퇴근 (TOPIS 예보는 07시부터)
+MIN_SUCCESS = 0.95             # 구간 요청 성공률이 이보다 낮으면 '완료' 아님
 
 
 def now_kst():
@@ -167,9 +174,34 @@ def main():
         link_df.to_csv(out_dir / "link_hourly.csv", index=False, encoding="utf-8-sig")
         n_links = link_df["linkId"].nunique() if len(link_df) else 0
         log(f"[구간] {len(link_df)}행, 링크 {n_links}개, 실패 {len(failed)}건")
+        expected = len(found) * 2 * len(days)
+        status = completion_status(expected, len(failed), len(link_df), len(weekly), failed)
     finally:
         driver.quit()
-    log(f"=== 끝: {out_dir.relative_to(ROOT)} ===")
+    write_status(out_dir, status)
+    log(f"=== 끝: {out_dir.relative_to(ROOT)} · 완료 {status['complete']} "
+        f"(구간 요청 {status['succeeded']}/{status['expected_requests']}) ===")
+    if not status["complete"]:
+        sys.exit(1)   # 워크플로가 커밋하지 않고, 두 번째 실행이 다시 받게
+
+
+def completion_status(expected: int, n_failed: int, link_rows: int, weekly_rows: int, failed: list) -> dict:
+    """구간 요청 성공률 · 행 수로 '완료'를 판정한다."""
+    succeeded = max(expected - n_failed, 0)
+    rate = succeeded / expected if expected else 0.0
+    return {"expected_requests": expected, "succeeded": succeeded, "success_rate": round(rate, 4),
+            "link_rows": link_rows, "weekly_rows": weekly_rows, "failed_keys": failed,
+            "complete": bool(rate >= MIN_SUCCESS and link_rows > 0 and weekly_rows > 0)}
+
+
+def write_status(out_dir: Path, status: dict) -> None:
+    import json
+    (out_dir / "status.json").write_text(json.dumps(status, ensure_ascii=False, indent=1), encoding="utf-8")
+    marker = out_dir / "_COMPLETE"
+    if status["complete"]:
+        marker.write_text(now_kst().isoformat(timespec="seconds"), encoding="utf-8")
+    elif marker.exists():
+        marker.unlink()
 
 
 if __name__ == "__main__":

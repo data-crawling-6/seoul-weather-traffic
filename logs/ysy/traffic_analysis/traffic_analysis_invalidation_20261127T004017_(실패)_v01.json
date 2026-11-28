@@ -1,0 +1,22 @@
+{
+  "status": "실패",
+  "invalidated_run": "20261126T221858",
+  "detected_at": "2026-11-27T00:40:17+09:00",
+  "reason": "decrease_share 계산에서 결측값이 False로 포함되어 감소 비율의 분모가 잘못됨",
+  "old_expression": "values.lt(0).mean()",
+  "corrected_expression": "values.dropna().lt(0).mean()",
+  "impact": {
+    "affected_road_split_features": 40,
+    "total_road_split_features": 104,
+    "maximum_absolute_share_difference": 0.711111,
+    "affected_outputs": [
+      "K-means 군집 및 Train-Dev 일치율",
+      "군집 시각화와 군집별 요약",
+      "통행시간·뉴스 결과의 군집별 하위집단 해석",
+      "DTW와 K-means 비교 수치"
+    ]
+  },
+  "preservation": "기존 파일은 삭제하거나 덮어쓰지 않고 재현 및 실패 분석 기록으로 보존",
+  "collection_rerun_required": false,
+  "test_data_opened": false
+}
