@@ -219,10 +219,13 @@ def load_processed(
 WEATHER_LABEL_COLS = ("event_id", "event_intensity", "impact")
 
 
-def load_weather_labels(project_root: Path | None = None) -> pd.DataFrame:
-    """data/shared/{train_dev,holdout}/weather_hourly_*.csv 의 date · hour · 날씨 판정 열."""
+def load_weather_labels(project_root: Path | None = None, splits=("train", "eval")) -> pd.DataFrame:
+    """data/shared/{train_dev,holdout}/weather_hourly_*.csv 의 date · hour · 날씨 판정 열.
+
+    splits 로 읽을 폴더를 고른다. ("train",) 이면 holdout(Test)은 열지 않는다.
+    """
     root = Path(project_root) if project_root is not None else ROOT
-    paths = [root / "data" / "shared" / SPLIT_DIR[s] / f"weather_hourly_{SPLIT_DIR[s]}.csv" for s in ("train", "eval")]
+    paths = [root / "data" / "shared" / SPLIT_DIR[s] / f"weather_hourly_{SPLIT_DIR[s]}.csv" for s in splits]
     w = pd.concat([pd.read_csv(p, encoding="utf-8-sig", usecols=["date", "hour", *WEATHER_LABEL_COLS])
                    for p in paths], ignore_index=True)
     w["date"] = pd.to_datetime(w["date"]).dt.normalize()
@@ -256,7 +259,15 @@ def attach_weather_labels(
     - 날씨 표에 없는 date · hour 가 있으면 맑음으로 잘못 바뀌지 않도록 오류를 낸다.
     - 큰 표를 복사하지 않도록 frame 을 직접 고치고 그대로 돌려준다.
     """
-    w = labels if labels is not None else load_weather_labels(project_root)
+    if labels is None:
+        # frame 에 split 열이 있으면 그 split 의 날씨 표만 연다 (Train · Dev 만 다루는 계산이 holdout 을 열지 않게, 코드 검토 1번)
+        splits = ("train", "eval")
+        if "split" in frame.columns:
+            present = {str(x) for x in pd.unique(frame["split"].dropna())}
+            if present and present <= {"train", "eval"}:
+                splits = tuple(x for x in ("train", "eval") if x in present)
+        labels = load_weather_labels(project_root, splits=splits)
+    w = labels
     w_idx = pd.MultiIndex.from_arrays([w["date"], w["hour"]])
     key = pd.MultiIndex.from_arrays([pd.to_datetime(frame[date_col]).dt.normalize(),
                                      pd.to_numeric(frame[hour_col]).astype("int64")])

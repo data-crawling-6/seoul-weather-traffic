@@ -25,6 +25,8 @@
       hm_mean             습도 (%)
 
 규칙
+- 예보의 -99 (결측)는 권역 행에서 먼저 빈값으로 바꾼 뒤 평균 · 최댓값을 낸다 (코드 검토 7번: 평균 뒤에 바꾸면 [-99, 5] → -47로 통과).
+  값이 있는 권역 수는 pcp_regions 열로 남기고, 강수형태(PTY) 결측은 '비 · 눈 없음'과 따로 pty_missing_regions 로 센다.
 - AWS의 -99 (결측)와 강수 · 풍속 · 습도의 음수는 빈값으로 바꾼 뒤 평균 · 최댓값을 낸다. 모든 지점이 빈값이면 결과도 빈값.
 - 시각은 모두 끝 시각 기준 (hour=8 은 07:00~08:00).
 - 예보는 발표 시각(base)이 t 이전인 행만 써야 한다 (미래 정보 누수 방지). 이 표는 거르지 않고 모두 남긴다.
@@ -50,14 +52,18 @@ def fcst_seoul(f: pd.DataFrame) -> pd.DataFrame:
     keys = ["base", "fcst", "lead_h"]
     f = f.copy()
     f["region"] = f["region"].map(REGION_CODE)
+    for c in ["PCP", "SNO", "TMP", "PTY"]:
+        f[c] = f[c].where(f[c] > AWS_MISSING)          # -99 결측 → 빈값 (평균 · 최댓값 전에)
     f["is_rain"] = f["PTY"].isin([1, 2, 4]).astype(int)
     f["is_snow"] = f["PTY"].isin([2, 3]).astype(int)
+    f["pty_missing"] = f["PTY"].isna().astype(int)
     g = (f.groupby(keys)
          .agg(n_regions=("region", "nunique"),
               pcp_mean=("PCP", "mean"), pcp_max=("PCP", "max"),
               sno_mean=("SNO", "mean"), sno_max=("SNO", "max"),
               tmp_mean=("TMP", "mean"), tmp_min=("TMP", "min"),
-              pty_rain_regions=("is_rain", "sum"), pty_snow_regions=("is_snow", "sum"))
+              pty_rain_regions=("is_rain", "sum"), pty_snow_regions=("is_snow", "sum"),
+              pcp_regions=("PCP", "count"), pty_missing_regions=("pty_missing", "sum"))
          .reset_index())
     wide = f.pivot_table(index=keys, columns="region", values=["PCP", "SNO", "TMP", "PTY"], aggfunc="first")
     wide.columns = [f"{v.lower()}_{r}" for v, r in wide.columns]
