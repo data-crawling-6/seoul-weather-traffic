@@ -100,7 +100,7 @@ seoul-weather-traffic/
 │
 └── logs/                   # 크롤링 실행 로그 (발표 증거용)
     ├── kmj/                # A 실행 기록. 코드 이름 폴더마다 (topis_speed/ · topis_forecast/ · prior_baseline/ · features/), 화면 캡처도 그 폴더에
-    ├── ljh/                # B 실행 기록. 코드 이름 폴더마다 (kma_apihub/ · kma_asos/ · kma_warning/ · hrfco_waterlevel/ · road_baseline/ · link_baseline/ · volume_direction/ · hourly_24h/ · vulnerable_roads/ · alert_model/)
+    ├── ljh/                # B 실행 기록. 코드 이름 폴더마다 (kma_apihub/ · kma_asos/ · kma_warning/ · hrfco_waterlevel/ · road_baseline/ · link_baseline/ · volume_direction/ · hourly_24h/ · vulnerable_roads/ · alert_model/ · trigger_rule/)
     └── ysy/                # C 실행 기록. 코드 이름 폴더마다 (실행마다 시각 · 성공 여부가 붙은 파일)
         ├── link_coords/
         ├── naver_news/
@@ -147,6 +147,7 @@ seoul-weather-traffic/
 | `analysis/hourly_24h.py` | B 정희 | 24시간 · 주말 도로 표 (평일 · 토 · 일 따로 평소값, 비율 · 정체). 24시간 비교 · 생존분석 입력 → `data/derived/topis_weather/road_hourly_24h_*_v01.parquet` |
 | `analysis/vulnerable_roads.py` | B 정희 | 반복 취약 도로 목록 (눈 · 비 따로, 최소 비율은 Dev로) → `data/shared/train_dev/vulnerable_roads_train_dev.csv` (C 지도 · 열선 · 제설 우선 구간) |
 | `analysis/alert_model.py` | B 정희 | 정체 경보 모델 (특보 기준선 · 로지스틱 · 결정트리, 1 · 3시간 전)과 경보 기준 (Dev 재현율 80%) → `outputs/tables/alert_*` |
+| `analysis/trigger_rule.py` | B 정희 | 악천후 모드 발동 기준 (예보 · 지금 관측으로 서울 전체 모드 켜기) → `data/shared/train_dev/trigger_hours_train_dev.csv` (C 지도 · 시제품) |
 | `analysis/traffic_analysis.py` | C 서연 | 교통량 변화 · 군집(K-means · DTW) · 지도 · 뉴스 연결 |
 
 ## 실행 순서
