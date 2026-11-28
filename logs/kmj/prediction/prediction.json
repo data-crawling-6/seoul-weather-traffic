@@ -1,5 +1,5 @@
 {
- "run_at": "2026-11-27T23:31:14+09:00",
+ "run_at": "2026-11-28T23:13:47+09:00",
  "features": [
   "road_id",
   "direction",
@@ -69,12 +69,12 @@
  ],
  "stage5_missing_share": {
   "fcst_lead_h": 0.0,
-  "fcst_pcp_mean": 0.0,
-  "fcst_pcp_max": 0.0,
-  "fcst_sno_mean": 0.0,
-  "fcst_sno_max": 0.0,
-  "fcst_tmp_mean": 0.0,
-  "fcst_tmp_min": 0.0,
+  "fcst_pcp_mean": 0.0102,
+  "fcst_pcp_max": 0.0102,
+  "fcst_sno_mean": 0.0102,
+  "fcst_sno_max": 0.0102,
+  "fcst_tmp_mean": 0.0102,
+  "fcst_tmp_min": 0.0102,
   "fcst_pty_rain_regions": 0.0,
   "fcst_pty_snow_regions": 0.0,
   "aws_ta_mean": 0.0,
@@ -261,9 +261,9 @@
  },
  "seconds": {
   "linear": 3.2,
-  "3_CatBoost": 52.5,
-  "4_CatBoost_날씨": 65.7,
-  "5_CatBoost_예보": 73.0,
-  "total": 212.1
+  "3_CatBoost": 46.3,
+  "4_CatBoost_날씨": 60.2,
+  "5_CatBoost_예보": 64.0,
+  "total": 188.6
  }
 }
