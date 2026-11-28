@@ -35,7 +35,9 @@ def fake(n=60, seed=0) -> pd.DataFrame:
         "y_ratio": rng.normal(1.1, 0.2, n), "prior_target_s": 600.0, "prior_replaced_target": False,
         "weather_class": rng.choice(["맑음", "악천후"], n), "weather_kind": "",
         "precip_target": rng.choice([0.0, 0.5, 3.0], n),
+        "snow_phase_target": rng.choice([None, "falling", "after"], n),
     })
+    df["weather_kind"] = np.where(df["weather_class"] == "악천후", rng.choice(["눈", "비"], n), "")
     df.loc[:4, "ratio_t0"] = np.nan
     for c in p.RATIO_COLS:
         df[f"{c}_missing"] = df[c].isna()
@@ -67,12 +69,26 @@ class TestPrediction(unittest.TestCase):
         x = fake()
         w = p.bad_weights(x, 3)
         bad = x["weather_class"] == "악천후"
-        np.testing.assert_array_equal(w, np.where(bad & (x["precip_target"] > 0), 3.0, 1.0))
-        self.assertTrue((w[bad & (x["precip_target"] == 0)] == 1.0).all())   # 그친 뒤 시간은 강조하지 않음
+        snow, rain = bad & (x["weather_kind"] == "눈"), bad & (x["weather_kind"] == "비")
+        expect = (snow & (x["snow_phase_target"] == "falling")) | (rain & (x["precip_target"] > 0))
+        np.testing.assert_array_equal(w, np.where(expect, 3.0, 1.0))
+        self.assertTrue((w[snow & (x["snow_phase_target"] == "after")] == 1.0).all())   # 그친 뒤는 강조하지 않음
+        self.assertTrue((w[rain & (x["precip_target"] == 0)] == 1.0).all())
         names = p.all_stages([1, 2])
         self.assertEqual(names[:5], p.STAGES)
         self.assertEqual(names[5:], ["3_CatBoost_가중2", "4_CatBoost_날씨_가중2"])
-        self.assertFalse({"weather_class", "precip_target"} & set(p.FEATURES_4))
+        self.assertFalse({"weather_class", "precip_target", "snow_phase_target"} & set(p.FEATURES_4))
+
+    def test_vulnerable_groups_by_road_and_direction(self):
+        import tempfile
+        from pathlib import Path
+        v = pd.DataFrame({"type_name": ["비", "비", "눈"], "road_id": ["R001", "R002", "R001"],
+                          "direction": ["상행", "상행", "상행"], "is_vulnerable": [True, False, True]})
+        x = pd.DataFrame({"road_id": ["R001", "R001", "R002", "R003"], "direction": ["상행", "하행", "상행", "상행"]})
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "v.csv"
+            v.to_csv(path, index=False)
+            self.assertEqual(list(p.vulnerable_of(x, path)), ["눈·비 취약", "나머지", "나머지", "나머지"])
 
     def test_pick_weight_rule(self):
         def row(stage, gtype, group, mae):
