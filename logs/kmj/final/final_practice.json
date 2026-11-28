@@ -1,0 +1,35 @@
+{
+ "run_at": "2026-11-28T19:58:35+09:00",
+ "mode": "practice",
+ "fit_seasons": [
+  "2022-23_winter",
+  "2023-24_winter",
+  "2023_summer",
+  "2024_summer"
+ ],
+ "eval_seasons": [
+  "2024-25_winter",
+  "2025_summer"
+ ],
+ "rows": {
+  "fit": 592972,
+  "eval": 291296
+ },
+ "catboost_params": {
+  "iterations": 800,
+  "learning_rate": 0.08,
+  "depth": 6,
+  "loss_function": "RMSE",
+  "random_seed": 0,
+  "verbose": 0,
+  "allow_writing_files": false
+ },
+ "weight": 1,
+ "rule": "h=3 분 MAE, 악천후 -10% 이하, 맑음 +5% 이하, 사건 부트스트랩 2000회",
+ "seconds": {
+  "3_CatBoost": 116.9,
+  "4_CatBoost_날씨": 162.5,
+  "5_CatBoost_예보": 162.6,
+  "total": 492.6
+ }
+}
