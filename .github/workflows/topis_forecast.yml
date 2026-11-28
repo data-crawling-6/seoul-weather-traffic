@@ -2,7 +2,9 @@ name: TOPIS 교통예보 매일 저장
 
 # 매일 05:17 KST에 교통예보 스냅샷을 저장하고, 07:41 KST에 한 번 더 확인한다. 12/11까지 쓰고 끈다.
 # 정각 예약은 GitHub에서 밀리거나 빠질 수 있어(11/27 06:00 실행 안 됨) 정각을 피했다.
-# 두 번째 실행은 그날 폴더가 data-collect에 이미 있으면 아무것도 하지 않는다 (하루 한 번만 저장).
+# 두 번째 실행은 그날 폴더에 _COMPLETE 표시가 있으면 아무것도 하지 않는다 (하루 한 번만 저장).
+# 수집기가 완료 기준(구간 요청 성공률 95% 이상 등)을 못 채우면 종료 코드 1 → 커밋하지 않고 두 번째 실행이 다시 받는다.
+# END_DATE(12/11)가 지나면 예약 실행은 아무것도 하지 않는다 (수동 실행 force 는 예외).
 # 결과는 실행 기록의 첨부파일(artifact)로 남기고, data-collect 브랜치의 data/raw/topis_forecast/에도 커밋한다.
 # main에는 커밋하지 않는다 (팀원 PR과 섞이지 않게).
 on:
@@ -30,16 +32,20 @@ jobs:
     timeout-minutes: 30
     env:
       TZ: Asia/Seoul
+      END_DATE: "2026-12-11"
     steps:
       - uses: actions/checkout@v4
       - name: 오늘 저장본이 이미 있는지 확인
         id: check
         run: |
           today=$(date +%F)
-          if git fetch --depth 1 origin data-collect 2>/dev/null \
-             && [ -n "$(git ls-tree -d --name-only FETCH_HEAD "data/raw/topis_forecast/$today")" ] \
+          if [ "${{ inputs.force }}" != "true" ] && [[ "$today" > "$END_DATE" ]]; then
+            echo "수집 종료일($END_DATE)이 지나 건너뜀"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif git fetch --depth 1 origin data-collect 2>/dev/null \
+             && [ -n "$(git ls-tree --name-only FETCH_HEAD "data/raw/topis_forecast/$today/_COMPLETE")" ] \
              && [ "${{ inputs.force }}" != "true" ]; then
-            echo "오늘($today) 저장본이 이미 있어 건너뜀"
+            echo "오늘($today) 완료된 저장본이 이미 있어 건너뜀"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
