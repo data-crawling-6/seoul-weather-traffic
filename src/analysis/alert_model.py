@@ -39,6 +39,7 @@
   outputs/tables/alert_dev_pr_curve.csv      모델 × h 정밀도-재현율 곡선 (그림용, 점 200개)
   outputs/tables/alert_lead_time_dev.csv     정체 시작을 몇 시간 전에 잡았나
   outputs/tables/alert_tree_rules.txt        고른 결정트리 규칙 (위쪽 3단계)
+  outputs/tables/alert_criteria_dev.csv      경보 기준 정리: 로지스틱 회귀 · 두 운영 기준(겨울에서 정함) · 여름 성능 · 선행 시간 · 헛경보
   data/derived/alert/dev_scores.parquet      Dev 행별 점수 (Git 밖)
   logs/ljh/alert_model/alert_model.json
 """
@@ -83,6 +84,7 @@ INTER = ["x_rain_expr", "x_snow_expr", "x_fcrain_expr", "x_fcsnow_expr", "x_rain
          "x_fcsnow_evening", "x_warnrain_river", "x_wlrise_river"]
 TREE_DEPTHS = [3, 5, 7, 9]
 MIN_RECALL = 0.80
+CRITERIA_MODEL = "로지스틱 회귀"   # 경보에 쓰는 모델 (예보 · 겹침을 넣어도 나아지지 않아 단순한 쪽, 11/28)
 SEED = 20261127
 
 
@@ -266,6 +268,7 @@ def main() -> None:
     d = prepare(load_data())
     metrics, curves, info_all, keep = [], [], {}, []
     alerts = {}
+    crit_alerts, crit_rows = {}, []          # 경보 기준 정리 (로지스틱 회귀, 겨울에서 고른 두 운영 기준)
     for h in [1, 3]:
         tr = d[(d["model_set"] == "train") & (d["horizon"] == h)]
         dv = d[(d["model_set"] == "dev") & (d["horizon"] == h)]
@@ -296,6 +299,17 @@ def main() -> None:
                 thr_b = float(np.sort(s[summer])[::-1][n_base - 1])
                 metrics.append(evaluate(name, h, summer_dv, s[summer], thr_b, n_days)
                                | {"rule": "특보와 같은 경보 수 (여름)", "evaluation_season": "2025_summer"})
+            if name == CRITERIA_MODEL:
+                win_days = dv.loc[winter, "date"].nunique()
+                base_w = scores["기준선: 특보면 경보"][winter]
+                budget = int(round((base_w >= 1.0).sum() / win_days * win_days))   # 겨울 특보 경보 수와 같게
+                thr_budget = float(np.sort(s[winter])[::-1][max(budget, 1) - 1])
+                for rule, t_rule in [("재현율 80% (겨울에서 정함)", thr), ("특보와 같은 경보량 (겨울에서 정함)", thr_budget)]:
+                    r = evaluate(name, h, summer_dv, s[summer], t_rule, n_days)
+                    crit_rows.append({"rule": rule, "horizon": h, "threshold": t_rule, **{k: r[k] for k in [
+                        "precision", "recall", "bad_precision", "bad_recall", "alerts_per_day", "false_alarms_per_day",
+                        "alert_road_days_per_day", "fp_road_days_per_day"]}})
+                    crit_alerts.setdefault(rule, {})[h] = s[summer] >= t_rule
         keep.append(sc)
     met = pd.DataFrame(metrics)
     order = ["기준선: 특보면 경보", "기준선: 지금 느리면 경보", "로지스틱 회귀", "로지스틱 + 예보 · 겹침", "결정트리 + 예보 · 겹침"]
@@ -303,6 +317,14 @@ def main() -> None:
     met = met.sort_values(["horizon", "rule", "model"])
     dv_all = pd.concat([d[(d["model_set"] == "dev") & (d["season"] == "2025_summer") & (d["horizon"] == h)] for h in [1, 3]])
     lt = lead_time(dv_all, alerts)
+    # 경보 기준 정리 표: 기준마다 여름 검증 성능 + 선행 시간 (정체 시작을 3시간 전 / 1시간 전에 잡은 비율)
+    crit = pd.DataFrame(crit_rows)
+    lt_c = lead_time(dv_all, crit_alerts).rename(columns={"model": "rule"})
+    lt_c = lt_c[lt_c["scope"].isin(["전체", "악천후"])].pivot(index="rule", columns="scope", values=["3시간 전", "1시간 전", "놓침"])
+    lt_c.columns = [f"lead_{a}_{b}" for a, b in lt_c.columns]
+    crit = crit.merge(lt_c.reset_index(), on="rule", how="left")
+    crit.insert(0, "model", CRITERIA_MODEL)
+    crit.to_csv(TABLE_DIR / "alert_criteria_dev.csv", index=False, encoding="utf-8-sig")
 
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     met.to_csv(TABLE_DIR / "alert_dev_metrics.csv", index=False, encoding="utf-8-sig")
